@@ -10,14 +10,18 @@ const FORMAT: Record<string, () => mb.OutputFormat> = {
 const VCODEC: Record<string, mb.VideoCodec> = { mp4: 'avc', webm: 'vp9', mkv: 'avc' };
 const ACODEC: Record<string, mb.AudioCodec> = { mp4: 'aac', m4a: 'aac', webm: 'opus', mkv: 'aac' };
 const running = new Map<number, mb.Conversion>();
+// Stop can land before the conversion starts or after it ended (the page already ignores the result): either way the OPFS file goes
+const stopped = new Set<number>(), kept = new Map<number, () => Promise<void>>();
 
-async function opfsWriter(name: string) {
-  const dir = await navigator.storage.getDirectory();
+// one folder per tab session (sid, see index.ts); the job id keeps two outputs with the same name apart
+async function opfsWriter(sid: string, name: string) {
+  const dir = await (await navigator.storage.getDirectory()).getDirectoryHandle(sid, { create: true });
   const fh = await dir.getFileHandle(name, { create: true });
   const ah = await (fh as any).createSyncAccessHandle();
   ah.truncate(0);
   return {
-    fh, ah,
+    fh, name,
+    drop: () => { ah.close(); return dir.removeEntry(name).catch(() => {}); }, // failed or stopped job: no half file left behind
     stream: new WritableStream<{ data: Uint8Array; position: number }>({
       write(c) { ah.write(c.data, { at: c.position }); },
       close() { ah.flush(); ah.close(); },
@@ -40,23 +44,30 @@ const ops: Record<string, (a: any, id: number) => Promise<any>> = {
       && (!a || ((await a.canDecode()) && (await mb.canEncodeAudio(ACODEC[to]))));
     return { ok: ok && (wantVideo || !!a), ...info };
   },
-  async convert({ file, to, name }, id) {
+  async convert({ file, to, name, sid }, id) {
     const input = new mb.Input({ formats: mb.ALL_FORMATS, source: new mb.BlobSource(file) });
-    const w = file.size > OPFS_OUT_MIN ? await opfsWriter(name) : null;
+    const w = file.size > OPFS_OUT_MIN ? await opfsWriter(sid, `${id}-${name}`) : null;
     const target = w ? new mb.StreamTarget(w.stream, { chunked: true }) : new mb.BufferTarget();
     const opts: any = { input, output: new mb.Output({ format: FORMAT[to](), target }) };
     if (to === 'm4a') opts.video = { discard: true };
     else opts.video = { codec: VCODEC[to], bitrate: mb.QUALITY_MEDIUM }; // Mediabunny default bitrate is ~4x ffmpeg's (MIMARI §8)
     opts.audio = { codec: ACODEC[to] };
     const conv = await mb.Conversion.init(opts);
-    if (!conv.isValid) { w?.ah.close(); throw new Error('invalid: ' + conv.discardedTracks.map((t) => t.reason).join(',')); }
+    if (!conv.isValid) { await w?.drop(); throw new Error('invalid: ' + conv.discardedTracks.map((t) => t.reason).join(',')); }
     conv.onProgress = (p) => self.postMessage({ id, type: 'progress', p });
     running.set(id, conv);
-    try { await conv.execute(); } finally { running.delete(id); }
-    if (w) return { file: await w.fh.getFile() };
+    try {
+      if (!stopped.has(id)) await conv.execute();
+      if (stopped.has(id)) throw new Error('cancelled');
+    } catch (e) { await w?.drop(); throw e; } finally { running.delete(id); stopped.delete(id); }
+    if (w) { kept.set(id, w.drop); return { file: await w.fh.getFile(), opfs: w.name }; }
     return { out: new Uint8Array((target as mb.BufferTarget).buffer!) };
   },
-  async cancel({ job }) { await running.get(job)?.cancel(); return {}; },
+  async cancel({ job }) {
+    const conv = running.get(job), done = kept.get(job);
+    if (done) { kept.delete(job); await done(); } else stopped.add(job);
+    await conv?.cancel(); return {};
+  },
 };
 
 self.onmessage = async ({ data: { id, op, ...args } }) => {

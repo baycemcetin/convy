@@ -2,7 +2,7 @@
 // "Convert": queued → running → done | failed | cancelled. Item fields follow the hi-fi data model (veri.js) so the
 // island templates map 1:1: n name, f FROM label, k kind, to TO label, i/o sizes in MB, dim, dur, st, p, eng.
 import { detect, targets, engineOf, outName, byId, type Format, type EngineKey } from '../engines/formats';
-import { run, probeAV, estimateOut, EngineError, preview, type Preview } from '../engines/index';
+import { run, probeAV, estimateOut, EngineError, preview, release, sweepOpfs, dropSession, type Preview } from '../engines/index';
 import { manifest, savedEngines, removeSavedEngines, type EngineId } from '../engines/load-wasm';
 import { OPFS_OUT_MIN } from '../engines/limits';
 
@@ -33,7 +33,13 @@ export const q = $state({
 if (typeof window !== 'undefined') {
   const net = () => { q.online = navigator.onLine; if (q.online) for (const it of q.items) if (it.st === 'offline') it.st = 'ready'; };
   addEventListener('online', net); addEventListener('offline', net);
+  // OPFS outputs (≥ 50 MB) never outlive the session: earlier sessions' leftovers go now, ours when the page goes (not into bfcache)
+  sweepOpfs();
+  addEventListener('pagehide', (e) => { if (!e.persisted) dropSession(); });
 }
+// a download reads the file after click() returns: give it time before the OPFS copy goes (in-memory results: no-op).
+// After that the result is gone (out = null): Save and the ZIP skip it instead of handing out an unreadable file.
+const spend = (it: Item) => { const b = it.out; setTimeout(() => { if (release(b) && it.out === b) it.out = null; }, 60_000); };
 
 export const byIdItem = (id: number | null) => q.items.find((x) => x.id === id) || null;
 
@@ -114,6 +120,7 @@ async function pump(key: EngineKey) {
 
 async function exec(it: Item) {
   const ac = new AbortController(); ctrls.set(it.id, ac);
+  release(it.out); it.out = null; // a retry after Stop during the preview: the earlier output is replaced
   it.st = 'running'; it.p = null;
   const ekey = it.eng as EngineId;
   try {
@@ -149,6 +156,7 @@ export function remove(id: number) {
   const i = q.items.findIndex((x) => x.id === id); if (i < 0) return;
   const [it] = q.items.splice(i, 1);
   ctrls.get(id)?.abort();
+  if (it.saved) spend(it); else release(it.out);
   if (it.pv && 'url' in it.pv) URL.revokeObjectURL(it.pv.url);
   if (q.staged === id) q.staged = q.items[Math.min(i, q.items.length - 1)]?.id ?? null;
 }
@@ -163,13 +171,13 @@ function download(blob: Blob, name: string) {
 /** Save one result (T7: marks it saved). */
 export function save(id: number) {
   const it = byIdItem(id); if (!it?.out) return;
-  download(it.out, it.outN!); it.saved = true;
+  download(it.out, it.outN!); it.saved = true; spend(it);
 }
 /** iOS share sheet for images/video when canShare({files}) (Ek B). share() must be the first await in the click. */
 export const canShareItem = (it: Item) => !!it.out && typeof navigator !== 'undefined' && !!navigator.canShare?.({ files: [new File([it.out], it.outN!, { type: it.out.type })] });
 export async function share(id: number) {
   const it = byIdItem(id); if (!it?.out) return;
-  await navigator.share({ files: [new File([it.out], it.outN!, { type: it.out.type })] }).then(() => { it.saved = true; }, () => {});
+  await navigator.share({ files: [new File([it.out], it.outN!, { type: it.out.type })] }).then(() => { it.saved = true; spend(it); }, () => {});
 }
 /** "Save n done (ZIP)": finished files only (DECISIONS 2026-11-07). Names are de-duplicated. */
 export async function saveZip() {
@@ -185,5 +193,5 @@ export async function saveZip() {
   // shortcut: in-memory ZIP; fine for photo batches, streams (fflate Zip + showSaveFilePicker) when large batches are measured
   const data = await new Promise<Uint8Array>((res, rej) => zip(files, (err, d) => (err ? rej(err) : res(d))));
   download(new Blob([data as BlobPart], { type: 'application/zip' }), 'convy.zip');
-  done.forEach((it) => { it.saved = true; });
+  done.forEach((it) => { it.saved = true; spend(it); });
 }

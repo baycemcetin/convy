@@ -1,6 +1,6 @@
 // Engine registry (MIMARI §3): picks the engine per job and runs it. Image → magick worker; audio/video → Mediabunny
 // worker when WebCodecs can decode+encode the tracks, otherwise ffmpeg ST (HEVC MOV, GIF, MP3, old containers, no WebCodecs).
-import { FFMPEG_MEMFS_MAX_OUT, PREVIEW_DOWNSCALE_MP, JOB_TIMEOUT_MS } from './limits';
+import { FFMPEG_MEMFS_MAX_OUT, PREVIEW_DOWNSCALE_MP, JOB_TIMEOUT_MS, OPFS_OUT_MIN } from './limits';
 import type { Format } from './formats';
 
 export interface RunResult { blob: Blob; w?: number | null; h?: number | null; duration?: number | null; engine: 'magick' | 'mediabunny' | 'ffmpeg' | 'pandoc' | 'pdfjs'; name?: string; }
@@ -47,6 +47,34 @@ function deadline<T>(p: Promise<T>, ms: number, kill: () => void) {
   return Promise.race([p, new Promise<never>((_, rej) => { t = setTimeout(() => { kill(); rej(new EngineError('timeout')); }, ms); })]).finally(() => clearTimeout(t));
 }
 
+// Outputs above OPFS_OUT_MIN are OPFS files (media worker), in one folder per tab session. Once it has one, the page holds a
+// Web Lock named after the folder, so a later session sweeps folders whose tab is gone (closed, crashed) and never touches
+// another open tab's results. Nothing here leaves the device.
+const SID = 'convy-' + Date.now().toString(36) + Math.random().toString(36).slice(2); // not randomUUID: that throws outside secure contexts
+const opfsName = new WeakMap<Blob, string>();
+let locked: Promise<void> | null = null;
+const lockSession = () => (locked ??= new Promise<void>((res) => { if (!navigator.locks) return res(); navigator.locks.request(SID, () => { res(); return new Promise(() => {}); }); }));
+const opfsRoot = () => navigator.storage.getDirectory();
+/** Delete a result's OPFS file; true if it had one (in-memory results: false). The Blob is unreadable afterwards. */
+export function release(b: Blob | null) {
+  const name = b && opfsName.get(b); if (!name) return false;
+  opfsName.delete(b!);
+  opfsRoot().then((r) => r.getDirectoryHandle(SID)).then((d) => d.removeEntry(name)).catch(() => {});
+  return true;
+}
+/** New session: remove every OPFS entry no open tab holds (earlier sessions, crashed tabs, files written before session folders). */
+export async function sweepOpfs() {
+  try {
+    const root = await opfsRoot();
+    const held = new Set(((await navigator.locks?.query())?.held ?? []).map((l) => l.name));
+    const names: string[] = [];
+    for await (const name of (root as any).keys() as AsyncIterable<string>) names.push(name); // list first: removing while iterating can skip entries
+    for (const name of names) if (name !== SID && !held.has(name)) await root.removeEntry(name, { recursive: true }).catch(() => {});
+  } catch {} // no OPFS (private mode, old browser): nothing was written either
+}
+/** pagehide that is not bfcache: best effort, the page may be gone before it ends; the next session's sweep catches the rest. */
+export function dropSession() { opfsRoot().then((r) => r.removeEntry(SID, { recursive: true })).catch(() => {}); }
+
 /** Cheap pre-check for audio/video: which engine will run and what we know about the input. */
 export async function probeAV(file: File, to: string) {
   const s = new AbortController().signal;
@@ -85,7 +113,9 @@ export async function run(file: File, from: Format, to: string, outName: string,
   if (pr.ok && !audio) {
     const jid = seq + 1; // the id call() takes synchronously below
     const stop = () => mediaW().postMessage({ id: ++seq, op: 'cancel', job: jid });
-    const r = await call(mediaW(), { op: 'convert', file, to, name: outName }, hooks, signal).catch((e) => { if (e.name === 'AbortError') stop(); throw e; });
+    if (file.size > OPFS_OUT_MIN) await lockSession(); // same test as the worker's: this output goes to OPFS
+    const r = await call(mediaW(), { op: 'convert', file, to, name: outName, sid: SID }, hooks, signal).catch((e) => { if (e.name === 'AbortError') stop(); throw e; });
+    if (r.file) opfsName.set(r.file, r.opfs);
     return { blob: r.file ?? new Blob([r.out], { type: mime(to) }), w: pr.w, h: pr.h, duration: pr.duration, engine: 'mediabunny' };
   }
   // ffmpeg MEMFS output grows RAM linearly and >~1 GB fails (spike-2): estimate before starting
