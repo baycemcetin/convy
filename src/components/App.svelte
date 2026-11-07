@@ -4,7 +4,7 @@
   // pins a file (T1). The stage keeps a subject ≥ 1200 ms; ≥ 2 completions inside that window switch it to count mode (HAREKET §3.1).
   import { onMount, tick, type Snippet } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
-  import { q, add, setTarget, applyToKind, convert, stop, stopAll, retry, remove, stage, save, share, saveZip, refreshDevice, removeEngines, byIdItem, type Item } from '../lib/queue.svelte';
+  import { q, add, setTarget, applyToKind, convert, stop, stopAll, retry, remove, stage, save, share, saveZip, reconvert, refreshDevice, removeEngines, byIdItem, type Item } from '../lib/queue.svelte';
   import { formatter, fmt } from '../lib/fmt';
   import { announcer } from '../lib/live';
   import { T, d } from '../lib/motion';
@@ -43,7 +43,7 @@
     const pick = (f: (i: Item) => boolean) => it.find(f)?.id;
     return pick((i) => completing.has(i.id)) ?? pick((i) => i.st === 'running') ?? pick((i) => i.st === 'queued')
       ?? pick((i) => i.st === 'failed') ?? pick((i) => i.st === 'needs') ?? pick((i) => !!i.block) ?? pick(isReady)
-      ?? pick((i) => i.st === 'unsupported' || i.st === 'offline') ?? [...it].reverse().find((i) => i.st === 'done')?.id ?? it[0]?.id ?? null;
+      ?? pick((i) => i.st === 'unsupported' || i.st === 'offline') ?? [...it].reverse().find((i) => i.st === 'done' || i.st === 'cleared')?.id ?? it[0]?.id ?? null;
   }
   $effect(() => {
     const want = pinned != null && byIdItem(pinned) ? pinned : rule();
@@ -109,16 +109,17 @@
   function choose() { input.click(); }
   function picked() { if (input.files?.length) ingest(input.files); input.value = ''; }
   function doConvert() { pinned = null; convert(); live?.say(t.live.start); }
-  async function doRemove(id: number) {
+  async function doRemove(id: number, e?: MouseEvent) {
     const it = byIdItem(id); if (!it) return;
-    const rowFocus = document.activeElement?.closest('.row');
+    const fromRow = !!(e?.currentTarget as Element | null)?.closest('.row'); // read before any await
     const i = q.items.indexOf(it);
+    if (e?.detail === 0) { instant = true; setTimeout(() => (instant = false), T.exit + 200 + 50); } // keyboard: no exit, no FLIP, no stage swap (HAREKET §3.4)
     remove(id); if (pinned === id) pinned = null;
     live?.say(fmt(t.live.removed, { name: it.n }));
     await tick();
-    // focus never falls to <body>: next row's name, else the slot, else Choose files
+    // focus never falls to <body> (KALDIR-VE-SILINDI §1.4): next row's name, else the previous one; one file left or Remove on the stage → the slot; nothing left → Choose files
     const next = q.items[Math.min(i, q.items.length - 1)];
-    const target = (rowFocus && next && document.getElementById('nm-' + next.id)) || document.getElementById('sg-act') || document.querySelector<HTMLElement>('[data-testid=choose]');
+    const target = (fromRow && q.items.length > 1 && next && document.getElementById('nm-' + next.id)) || document.getElementById('sg-act') || document.querySelector<HTMLElement>('[data-testid=choose]');
     target?.focus();
   }
   function pick(it: Item, label: string) {
@@ -135,8 +136,8 @@
     stopAll(); await tick();
     if (!document.activeElement || document.activeElement === document.body) document.getElementById('sg-act')?.focus(); // the header button is gone now
   }
-  const stageActs = { choose, convert: doConvert, stop, stopAll: doStopAll, save, share, retry: doRetry, remove: doRemove, pick, removeEngines };
-  const logActs = { add: choose, stopAll: doStopAll, saveZip, save, retry: doRetry, remove: doRemove, stage: doStage, pick };
+  const stageActs = { choose, convert: doConvert, stop, stopAll: doStopAll, save, share, reconvert, retry: doRetry, remove: doRemove, pick, removeEngines };
+  const logActs = { add: choose, stopAll: doStopAll, saveZip, save, reconvert, retry: doRetry, remove: doRemove, stage: doStage, pick };
   const delays = new Map<number, number>();
   const delay = (id: number) => (delays.get(id) ?? 0) * T.stagger;
   function ingest(files: FileList | File[]) {
@@ -182,6 +183,6 @@
     <input bind:this={input} type="file" multiple hidden data-testid="pick" onchange={picked} />
     <Stage {x} {sub} {count} completing={!!sub && completing.has(sub.id)} shown={!!sub && shown.has(sub.id)} {instant} {touch} acts={stageActs} />
   </section>
-  <Log {x} subId={sub?.id ?? null} {count} {completing} {engOnStage} {delay} acts={logActs} />
+  <Log {x} {instant} subId={sub?.id ?? null} {count} {completing} {engOnStage} {delay} acts={logActs} />
   {@render children?.()}
 </main>

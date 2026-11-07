@@ -66,10 +66,12 @@
       "input": "input",
       "estNote": "Estimated from length and bit rate.",
       "noEst": "The output size is known when it’s done.",
+      "cleared": "No preview.",
       "leftOut": "This file is left out: not enough room."
     },
     "st": {
       "done": "Converted",
+      "cleared": "Saved · Convy deleted its copy",
       "saved": "Saved",
       "running": "Converting · {pct}",
       "waiting": "Waiting for engine",
@@ -87,6 +89,7 @@
       "convert": "Convert",
       "add": "Add files",
       "save": "Save",
+      "reconvert": "Convert again",
       "saveAll": "Save all (ZIP)",
       "stop": "Stop",
       "stopAll": "Stop all",
@@ -143,6 +146,7 @@
       "target": "Images to",
       "running": "{n} converting",
       "fileOne": "{n} file",
+      "skipped": "{n} files left out of the ZIP: Convy already deleted its copies.", "skippedOne": "{n} file left out of the ZIP: Convy already deleted its copy.",
       "zipOnly": "Only finished files go in the ZIP."
     },
     "how": {
@@ -332,6 +336,7 @@
       "save": "Save {name}",
       "stop": "Stop {name}",
       "remove": "Remove {name}",
+      "reconvert": "Convert again, {name}",
       "stopThis": "Stop this file, {name}",
       "nav": "Main",
       "footer": "Footer",
@@ -418,10 +423,12 @@
       "input": "girdi",
       "estNote": "Süre ve bit hızına göre tahmin.",
       "noEst": "Çıktı boyutu iş bitince belli olur.",
+      "cleared": "Önizleme yok.",
       "leftOut": "Bu dosya dahil değil: yer yetmiyor."
     },
     "st": {
       "done": "Dönüştü",
+      "cleared": "Kaydedildi · Convy kopyasını sildi",
       "saved": "Kaydedildi",
       "running": "Dönüşüyor · {pct}",
       "waiting": "Motor bekleniyor",
@@ -439,6 +446,7 @@
       "convert": "Dönüştür",
       "add": "Dosya ekle",
       "save": "Kaydet",
+      "reconvert": "Yeniden dönüştür",
       "saveAll": "Hepsini kaydet (ZIP)",
       "stop": "Durdur",
       "stopAll": "Hepsini durdur",
@@ -495,6 +503,7 @@
       "target": "Görselleri çevir",
       "running": "{n} dönüşüyor",
       "fileOne": "{n} dosya",
+      "skipped": "{n} dosya ZIP’e girmedi: Convy kopyalarını daha önce sildi.", "skippedOne": "{n} dosya ZIP’e girmedi: Convy kopyasını daha önce sildi.",
       "zipOnly": "ZIP’e yalnızca biten dosyalar girer."
     },
     "how": {
@@ -684,6 +693,7 @@
       "save": "Kaydet, {name}",
       "stop": "Durdur, {name}",
       "remove": "Kaldır, {name}",
+      "reconvert": "Yeniden dönüştür, {name}",
       "stopThis": "Bu dosyayı durdur, {name}",
       "nav": "Ana",
       "footer": "Alt bilgi",

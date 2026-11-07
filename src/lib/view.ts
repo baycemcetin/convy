@@ -27,7 +27,7 @@ export function stateWord(x: F, it: Item) {
 }
 
 /** stage view of an item: which ekranlar.js stage() branch draws it */
-export type View = 'needs' | 'ready' | 'engine' | 'block' | 'running' | 'done' | 'failed' | 'unsupported' | 'offline';
+export type View = 'needs' | 'ready' | 'engine' | 'block' | 'running' | 'done' | 'cleared' | 'failed' | 'unsupported' | 'offline';
 export function viewOf(it: Item, completing: boolean, shown: boolean): View {
   if (completing) return 'running';
   if (it.st === 'needs') return 'needs';

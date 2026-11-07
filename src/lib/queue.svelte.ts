@@ -6,13 +6,13 @@ import { run, probeAV, estimateOut, EngineError, preview, release, sweepOpfs, dr
 import { manifest, savedEngines, removeSavedEngines, type EngineId } from '../engines/load-wasm';
 import { OPFS_OUT_MIN } from '../engines/limits';
 
-export type St = 'needs' | 'ready' | 'queued' | 'running' | 'done' | 'failed' | 'unsupported' | 'cancelled' | 'offline';
+export type St = 'needs' | 'ready' | 'queued' | 'running' | 'done' | 'cleared' | 'failed' | 'unsupported' | 'cancelled' | 'offline';
 export interface Item {
   id: number; file: File; fmt: Format | null;
   n: string; f: string; k: string; to: string | null; i: number; o: number | null; approx: boolean;
   dim: string | null; w: number | null; h: number | null; dur: number | null;
   st: St; p: number | null; eng: EngineKey | null; out: Blob | null; pv: Preview; outN: string | null; // pv: result preview (Ek B); outN: output file name (a PDF's pages arrive as name.zip)
-  block: { need: number; free: number } | null; error: 'tooBig' | 'failed' | 'timeout' | 'noText' | null; saved: boolean;
+  block: { need: number; free: number } | null; error: 'tooBig' | 'failed' | 'timeout' | 'noText' | null; saved: boolean; pvGone: boolean; // pvGone: a preview existed and went with the OPFS copy (empty frame, same size)
   targets: string[];
 }
 const MB = (b: number) => b / 1e6;
@@ -38,8 +38,20 @@ if (typeof window !== 'undefined') {
   addEventListener('pagehide', (e) => { if (!e.persisted) dropSession(); });
 }
 // a download reads the file after click() returns: give it time before the OPFS copy goes (in-memory results: no-op).
-// After that the result is gone (out = null): Save and the ZIP skip it instead of handing out an unreadable file.
-const spend = (it: Item) => { const b = it.out; setTimeout(() => { if (release(b) && it.out === b) it.out = null; }, 60_000); };
+// After that the result is gone (out = null, st = 'cleared'): Save and the ZIP skip it, the row offers "Convert again".
+// A second save/share/ZIP restarts the clock, so the first timer never deletes the file under the second download.
+const CLEAR_MS = () => (globalThis as any).__convyClearMs ?? 60_000; // the global exists for tests/remove-cleared.mjs only
+const clearT = new Map<number, ReturnType<typeof setTimeout>>();
+const spend = (it: Item) => {
+  const b = it.out; clearTimeout(clearT.get(it.id));
+  clearT.set(it.id, setTimeout(() => {
+    clearT.delete(it.id);
+    if (!release(b) || it.out !== b) return;
+    it.out = null; it.st = 'cleared';
+    if (it.pv && 'url' in it.pv) URL.revokeObjectURL(it.pv.url);
+    it.pvGone = !!it.pv; it.pv = null;
+  }, CLEAR_MS()));
+};
 
 export const byIdItem = (id: number | null) => q.items.find((x) => x.id === id) || null;
 
@@ -65,7 +77,7 @@ export async function add(files: FileList | File[], before?: (items: Item[]) => 
       id: nextId++, file, fmt, n: file.name, f: fmt?.label ?? (file.name.split('.').pop() || '?').toUpperCase(), k: fmt?.kind ?? 'unknown',
       to: null, i: MB(file.size), o: null, approx: false, dim: null, w: null, h: null, dur: null,
       st: fmt && targets(fmt).length ? 'needs' : 'unsupported', p: null, eng: fmt ? engineOf(fmt) : null, out: null, pv: null, outN: null,
-      block: null, error: null, saved: false, targets: fmt ? targets(fmt).map((t) => byId(t)!.label) : [],
+      block: null, error: null, saved: false, pvGone: false, targets: fmt ? targets(fmt).map((t) => byId(t)!.label) : [],
     };
   });
   before?.(fresh);
@@ -156,9 +168,17 @@ export function remove(id: number) {
   const i = q.items.findIndex((x) => x.id === id); if (i < 0) return;
   const [it] = q.items.splice(i, 1);
   ctrls.get(id)?.abort();
-  if (it.saved) spend(it); else release(it.out);
+  if (!it.saved) release(it.out); // saved: its pending timer (started by Save) deletes the file once the download has read it
   if (it.pv && 'url' in it.pv) URL.revokeObjectURL(it.pv.url);
   if (q.staged === id) q.staged = q.items[Math.min(i, q.items.length - 1)]?.id ?? null;
+}
+/** "Convert again" on a cleared result: same quota check as a first run, then the job queues again. */
+export async function reconvert(id: number) {
+  const it = byIdItem(id); if (!it || it.st !== 'cleared') return;
+  await checkQuota(it); // the output goes to OPFS again: it needs room
+  if (it.st !== 'cleared') return; // a second click while checking
+  it.saved = false; it.pvGone = false; it.error = null; it.p = null;
+  if (it.block) it.st = 'ready'; else { it.st = 'queued'; pump(it.eng!); }
 }
 export function stage(id: number) { q.staged = id; }
 

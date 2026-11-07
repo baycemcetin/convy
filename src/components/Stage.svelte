@@ -16,7 +16,7 @@
   import Dash from './Dash.svelte';
   import Dim from './Dim.svelte';
 
-  type Acts = { choose: () => void; convert: () => void; stop: (id: number) => void; stopAll: () => void; save: (id: number) => void; share: (id: number) => void; retry: (id: number) => void; remove: (id: number) => void; pick: (it: Item, label: string) => void; removeEngines: () => void };
+  type Acts = { choose: () => void; convert: () => void; stop: (id: number) => void; stopAll: () => void; save: (id: number) => void; reconvert: (id: number) => void; share: (id: number) => void; retry: (id: number) => void; remove: (id: number, e?: MouseEvent) => void; pick: (it: Item, label: string) => void; removeEngines: () => void };
   let { x, sub, count, completing, shown, instant, touch, acts }: { x: F; sub: Item | null; count: boolean; completing: boolean; shown: boolean; instant: boolean; touch: boolean; acts: Acts } = $props();
   const t = $derived(x.t);
   const items = $derived(q.items);
@@ -32,7 +32,7 @@
   const tout = (node: Element) => fade(node, { duration: sOut, easing: easeTurn });
 
   // count mode figures
-  const cd = $derived(items.filter((f) => f.st === 'done'));
+  const cd = $derived(items.filter((f) => f.st === 'done' || f.st === 'cleared'));
   const crun = $derived(items.filter((f) => f.st === 'running').length);
   const pairs = $derived([...new Set(items.map((f) => `${f.f}|${f.to}`))]);
 
@@ -44,7 +44,7 @@
       case 'engine': return t.stage.preparing;
       case 'block': return t.stage.notStarted;
       case 'running': return t.stage.converting;
-      case 'done': return t.stage.result;
+      case 'done': case 'cleared': return t.stage.result;
       case 'failed': return t.stage.failed;
       case 'unsupported': return t.stage.cantOpen;
       case 'offline': return t.stage.offline;
@@ -53,7 +53,7 @@
   });
 
   // the slot: one node, label / weight / action follow the state
-  type Slot = { label: string; cls: string; dis?: boolean; why?: string; aria?: string; run: () => void };
+  type Slot = { label: string; cls: string; dis?: boolean; why?: string; aria?: string; run: (e: MouseEvent) => void };
   const convertSlot = (why?: string): Slot => ({ label: n > 1 ? x.plural(ready, t.btn.convertOne, t.btn.convertN) : t.btn.convert, cls: 'prim', dis: !ready, why, run: acts.convert });
   const slot = $derived.by((): Slot | null => {
     if (count) return { label: t.btn.stopAll, cls: '', run: acts.stopAll };
@@ -65,15 +65,16 @@
       case 'block': return anyReady ? convertSlot('sg-why') : removeSlot(f); // nothing can start: the way out is Remove (K: no dead "Convert 0 files")
       case 'engine': case 'running': return { ...stopSlot(f), dis: completing };
       case 'done': return { label: t.btn.save, cls: 'prim', aria: n > 1 ? fmt(t.a11y.save, { name: outName(f) }) : undefined, run: () => acts.save(f.id) };
+      case 'cleared': return { label: t.btn.reconvert, cls: '', aria: n > 1 ? fmt(t.a11y.reconvert, { name: f.n }) : undefined, run: () => acts.reconvert(f.id) }; // same node as Save; neutral weight: the file is already saved
       case 'failed': return { label: t.btn.tryAgain, cls: '', run: () => acts.retry(f.id) };
       default: return anyReady ? convertSlot() : removeSlot(f);
     }
   });
-  const removeSlot = (f: Item): Slot => ({ label: t.btn.remove, cls: '', aria: fmt(t.a11y.remove, { name: f.n }), run: () => acts.remove(f.id) });
+  const removeSlot = (f: Item): Slot => ({ label: t.btn.remove, cls: '', aria: fmt(t.a11y.remove, { name: f.n }), run: (e) => acts.remove(f.id, e) });
   function stopSlot(f: Item): Slot {
     return jobs > 1 ? { label: t.btn.stopThis, cls: '', aria: fmt(t.a11y.stopThis, { name: f.n }), run: () => acts.stop(f.id) } : { label: t.btn.stop, cls: '', aria: fmt(t.a11y.stop, { name: f.n }), run: () => acts.stop(f.id) };
   }
-  const secondRemove = $derived(!!sub && !count && (view === 'failed' || ((view === 'unsupported' || view === 'offline') && items.some(isReady))));
+  const secondRemove = $derived(!!sub && !count && (view === 'failed' || view === 'done' || view === 'cleared' || ((view === 'unsupported' || view === 'offline') && items.some(isReady))));
   const pctV = $derived(sub?.p != null ? Math.round((completing ? 1 : sub.p) * 100) : null);
   const engP = $derived(q.engine?.p ?? 0);
   const est = $derived(!!sub && sub.approx && sub.o != null);
@@ -109,7 +110,9 @@
       <div class="sg-name" aria-hidden={count ? 'true' : undefined} in:tin out:tout onoutrostart={pin}>{#if sub && !count}<Fname n={sub.n} />{/if}</div>
     {/key}
 
-    {#if view === 'done' && !count && sub?.pv}
+    {#if view === 'cleared' && !count && sub?.pvGone}
+      {#key k}<figure class="pv tile gone" style="margin:0" in:tin out:tout onoutrostart={pin}><Icon n="storage" /><p>{t.stage.cleared}</p></figure>{/key}
+    {:else if view === 'done' && !count && sub?.pv}
       {@const pv = sub.pv}
       {#key k}
         <figure class="pv tile" style="margin:0" in:tin out:tout onoutrostart={pin}>
@@ -140,7 +143,7 @@
           {:else if view === 'running'}
             {#if pctV == null}{@render inFig(sub.i)}<Arrow p={0} cls="xl" />
             {:else}<span role="progressbar" aria-label={sub.n} aria-valuemin="0" aria-valuemax="100" aria-valuenow={pctV} aria-valuetext={fmt(t.sr.pct, { pct: pctV })}>{@render pctFig(pctV / 100)}</span><Arrow p={pctV / 100} cls="xl" />{/if}
-          {:else if view === 'done'}{@const sp = x.sizeParts(sub.o ?? 0)}{@render fig(sp[0], sp[1])}{/if}
+          {:else if view === 'done' || view === 'cleared'}{@const sp = x.sizeParts(sub.o ?? 0)}{@render fig(sp[0], sp[1])}{/if}
         </div>
       {/if}
     {/key}
@@ -155,6 +158,8 @@
           <span class="ebar" data-volt="engine" aria-hidden="true" style="--p:{engP}" in:tin out:tout onoutrostart={pin}><i></i></span>
         {:else if view === 'block' && sub}
           <div class="notice bare" id="q-notice" in:tin out:tout onoutrostart={pin}><Icon n="storage" /><span class="h">{t.quota.h}</span><p class="data" style="color:var(--c-ink)"><span class="sg">{fmt(t.quota.canUse, { size: x.size(sub.block!.free) })}</span></p><p>{t.quota.p}</p>{#if Object.values(q.saved).some(Boolean)}<div class="acts"><button class="btn sm quiet" type="button" onclick={acts.removeEngines}>{t.quota.acts[1]}</button></div>{/if}</div>
+        {:else if view === 'cleared'}
+          <span class="stx cl" in:tin out:tout onoutrostart={pin}><Icon n="storage" s16 cls="neu" />{t.st.cleared}</span>
         {:else if view === 'done'}
           <span class="pill" data-volt="pill" in:tin out:tout onoutrostart={pin}><Icon n="done" s16 /><span aria-hidden="true">{t.sig}</span><span class="sr">{t.sr.onDevice}</span></span>
         {/if}
@@ -165,11 +170,11 @@
       {/key}
       <div class="acts">
         {#if slot}
-          <button class="btn {slot.cls}" id="sg-act" type="button" data-testid="act" aria-disabled={slot.dis ? 'true' : undefined} aria-describedby={slot.why} aria-label={slot.aria} onclick={() => { if (!slot.dis) slot.run(); }}>{slot.label}</button>
+          <button class="btn {slot.cls}" id="sg-act" type="button" data-testid="act" aria-disabled={slot.dis ? 'true' : undefined} aria-describedby={slot.why} aria-label={slot.aria} onclick={(e) => { if (!slot.dis) slot.run(e); }}>{slot.label}</button>
         {/if}
         {#key k}
           {#if view === 'done' && sub && touch && sub.out?.type.split('/')[0] !== 'audio' && canShareItem(sub)}<button class="btn full touch" type="button" in:tin out:tout onoutrostart={pin} onclick={() => acts.share(sub!.id)}>{t.btn.share}</button>{/if}
-          {#if secondRemove && sub}<button class="btn quiet" type="button" aria-label={fmt(t.a11y.remove, { name: sub.n })} in:tin out:tout onoutrostart={pin} onclick={() => acts.remove(sub!.id)}>{t.btn.remove}</button>{/if}
+          {#if secondRemove && sub}<button class="btn quiet" type="button" aria-label={fmt(t.a11y.remove, { name: sub.n })} in:tin out:tout onoutrostart={pin} onclick={(e) => acts.remove(sub!.id, e)}>{t.btn.remove}</button>{/if}
           {#if view === 'needs'}<span class="note" id="sg-why" in:tin out:tout onoutrostart={pin}>{t.pick.reason}</span>
           {:else if view === 'ready' && sub && !isJob(sub)}<span class="note" in:tin out:tout onoutrostart={pin}>{est ? t.stage.estNote : t.stage.noEst}</span>
           {:else if view === 'block' && items.some(isReady) && sub}<span class="note" id="sg-why" in:tin out:tout onoutrostart={pin}>{fmt(t.stage.leftOut, { name: sub.n })}</span>
@@ -183,8 +188,8 @@
       <Readout {t} engine={engVal(x, items.find((f) => f.st === 'running') ?? null) ?? t.engVal.imageSaved} format={pairs.length === 1 ? cntFmt : null} size={cd.length ? cntSize : null} result={fmt(t.batch.doneOf, { d: cd.length, n })} />
     {:else if sub}
       <Readout {t} engine={view === 'unsupported' ? null : engVal(x, sub)} format={view === 'unsupported' ? sub.f : view === 'needs' ? fmtFrom : fmtCur}
-        size={view === 'done' ? sizeDone : view === 'ready' ? (est ? sizeEst : sizeIn) : view === 'running' ? sizeIn : sizeOnly}
-        result={view === 'done' ? resName : null} />
+        size={view === 'done' || view === 'cleared' ? sizeDone : view === 'ready' ? (est ? sizeEst : sizeIn) : view === 'running' ? sizeIn : sizeOnly}
+        result={view === 'done' || view === 'cleared' ? resName : null} />
     {/if}
   </div>
 {/if}

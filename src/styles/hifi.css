@@ -663,3 +663,19 @@ h1{ overflow-wrap:anywhere; hyphens:none; }   /* Firefox TR hyphenated display h
 /* companion to the §11.4 reduced block: its `.btn:active` (0,2,0) loses to the §11.5 press selector (0,5,0); same selector here so
    reduced motion really has no press scale (HAREKET §5). Reported to motion-director */
 @media (prefers-reduced-motion:reduce){ .btn:active:not(:focus-visible):not([disabled]):not([aria-disabled="true"]){ transform:none; } }
+
+/* =========================================================
+   KALDIR-VE-SILINDI (2026-11-07): Remove on finished rows + cleared state. No new component: the panel close-button recipe,
+   the preview frame and the state line (.stx) are reused; only their placement rules live here.
+   ========================================================= */
+/* row Remove: icon button, last in the action column, 12 px gap (.row .st gap). Quiet = ink-2 glyph; ink on hover (pointer only) */
+.row .st .rm{ color:var(--c-ink-2); }
+/* cleared preview: same frame and size as the picture it replaces (no layout shift); flat raised ground, glyph + one sentence */
+.pv.gone{ display:grid; place-content:center; justify-items:center; gap:var(--s2); padding:var(--s4); text-align:center; }
+.pv.gone svg.ic{ color:var(--c-ink-2); }
+.pv.gone p{ margin:0; max-width:24ch; font:400 var(--text-sm)/1.45 var(--font-ui); color:var(--c-ink-2); text-wrap:balance; }
+/* cleared state line in the pill's place: ink text, neutral glyph; wraps on a phone instead of overflowing */
+.sg-foot > .stx.cl{ justify-self:start; white-space:normal; font:500 var(--text-sm)/1.4 var(--font-ui); color:var(--c-ink); }
+/* phone: "Convert again" + Remove beside the name leaves ~90 px (390) / ~36 px (320, TR) for the name; the cleared row's actions
+   drop under its data line instead (name keeps the full width, same as a done row's data line) */
+@media (max-width:767px){ .row.cleared .st{ grid-row:3; grid-column:2 / -1; justify-content:flex-start; margin-top:var(--s2); } .row.cleared .nm{ min-height:0; } }
