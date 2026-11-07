@@ -73,7 +73,7 @@ try {
   ok((await pg.locator('a.lang').getAttribute('href')) === '/tr/donustur/heic-jpg/', 'language link goes to the same pair in TR');
   const r = await pg.goto('http://127.0.0.1:4323/convert/heif-to-png/'); ok(r.status() === 404, 'unpublished pair URL answers 404');
   const t = await pg.locator('#nf').innerText(); ok(/HEIC to PNG has no page/.test(t) && /JPG/.test(t), '404 suggests the published targets of HEIC');
-  const r2 = await pg.goto('http://127.0.0.1:4323/tr/donustur/heic-png/'); ok(r2.status() === 404 && /HEIC PNG için ayrı bir sayfa yok/.test(await pg.locator('#nf').innerText()), 'TR 404 + suggestion');
+  const r2 = await pg.goto('http://127.0.0.1:4323/tr/donustur/heic-png/'); ok(r2.status() === 404 && /HEIC → PNG için ayrı bir sayfa yok/.test(await pg.locator('#nf').innerText()), 'TR 404 + suggestion');
   const r3 = await pg.goto('http://127.0.0.1:4323/nothing/here/'); ok(r3.status() === 404 && (await pg.locator('#nf').isHidden()), 'plain 404 keeps the static links only');
 } finally { await b.close(); srv.kill(); }
 console.log(fails ? `${fails} FAILED` : 'all passed'); process.exit(fails ? 1 : 0);

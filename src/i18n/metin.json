@@ -521,7 +521,7 @@
     "err": {
       "track": "Bu dosyadaki ses izi okunamıyor.",
       "orig": "Orijinal dosyan olduğu gibi duruyor.",
-      "noText": "Bu PDF’te seçilebilir metin yok. Sayfalar taranmışsa PNG ya da JPG’ye çevir.",
+      "noText": "Bu PDF’de seçilebilir metin yok. Sayfalar taranmışsa PNG ya da JPG’ye çevir.",
       "acts": [
         "Ses olmadan dönüştür",
         "Başka format seç"

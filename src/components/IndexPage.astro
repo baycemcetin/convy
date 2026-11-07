@@ -21,7 +21,7 @@ const cats = CATEGORIES.map((k) => {
 <Content lang={lang} title={e.data.title} description={e.data.description} alt={both((l) => INDEX[l])} noindex={e.data.draft}>
   <script type="application/ld+json" slot="head" set:html={breadcrumb([[c.home, lang === 'en' ? '/' : '/tr/'], [c.convert, INDEX[lang]]])} />
   <h1>{e.data.h1}</h1>
-  <p class="lead"><Intro /></p>
+  <div class="lead"><Intro /></div>
   {e.data.draft && <p class="draftnote">{c.draftNote}</p>}
   {cats.map(({ k, rows }) => (
     <section class="cx" id={k}><h2>{c.cat[k]}</h2><div class="b idx">

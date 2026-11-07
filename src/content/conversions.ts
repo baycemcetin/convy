@@ -8,11 +8,11 @@ export interface Conversion { from: string; to: string; tier: 'A' | 'B'; slug: R
 // Turkish ablative / dative of the format name, written by hand (pronunciation decides the vowel: no automatic suffixing).
 // Pronunciation of HEIC, WebP, AVIF, JXL, OGG, Opus is a guess: the copywriter confirms.
 const TR_SUFFIX: Record<string, [string, string]> = {
-  jpg: ["JPG'den", "JPG'ye"], png: ["PNG'den", "PNG'ye"], webp: ["WebP'ten", "WebP'e"], avif: ["AVIF'ten", "AVIF'e"], heic: ["HEIC'ten", "HEIC'e"],
+  jpg: ["JPG'den", "JPG'ye"], png: ["PNG'den", "PNG'ye"], webp: ["WebP'den", "WebP'ye"], avif: ["AVIF'ten", "AVIF'e"], heic: ["HEIC'ten", "HEIC'e"],
   gif: ["GIF'ten", "GIF'e"], bmp: ["BMP'den", "BMP'ye"], tiff: ["TIFF'ten", "TIFF'e"], ico: ["ICO'dan", "ICO'ya"], jxl: ["JXL'den", "JXL'ye"], psd: ["PSD'den", "PSD'ye"],
   mp3: ["MP3'ten", "MP3'e"], wav: ["WAV'dan", "WAV'a"], m4a: ["M4A'dan", "M4A'ya"], ogg: ["OGG'dan", "OGG'a"], flac: ["FLAC'tan", "FLAC'a"],
-  mp4: ["MP4'ten", "MP4'e"], mov: ["MOV'dan", "MOV'a"], webm: ["WebM'den", "WebM'e"], mkv: ["MKV'den", "MKV'ye"], avi: ["AVI'dan", "AVI'ya"],
-  docx: ["DOCX'ten", "DOCX'e"], md: ["Markdown'dan", "Markdown'a"], html: ["HTML'den", "HTML'e"], txt: ["TXT'den", "TXT'ye"], pdf: ["PDF'ten", "PDF'e"],
+  mp4: ["MP4'ten", "MP4'e"], mov: ["MOV'dan", "MOV'a"], webm: ["WebM'den", "WebM'e"], mkv: ["MKV'den", "MKV'ye"], avi: ["AVI'den", "AVI'ye"],
+  docx: ["DOCX'ten", "DOCX'e"], md: ["Markdown'dan", "Markdown'a"], html: ["HTML'den", "HTML'ye"], txt: ["TXT'den", "TXT'ye"], pdf: ["PDF'den", "PDF'ye"],
 };
 const NAME: Record<string, string> = { md: 'Markdown', webp: 'WebP', webm: 'WebM' }; // display name where the id's uppercase is wrong
 export const fmtName = (id: string) => NAME[id] ?? byId(id)!.label;

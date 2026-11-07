@@ -33,9 +33,9 @@ export const CHROME = {
     cat: { image: 'Görsel', audio: 'Ses', video: 'Video', document: 'Belge', pdf: 'PDF' },
     h: { how: 'Burada nasıl yapılır', note: 'Bu dönüşüm hakkında', limits: 'Sınırlar', faq: 'Sorular', related: 'İlgili dönüşümler', about: '{name} hakkında' },
     sum: { engine: 'Motor', dl: 'İndirme', off: 'Çevrimdışı', size: 'Yaklaşık {mb} MB, sonraki sefer için saklanır', offline: 'Motor saklandıktan sonra, sayfa açıkken çevrimdışı çalışır', noEngine: 'Sayfanın içinde çalışır, ayrı motor indirmesi yok', fallback: 'Çoğunlukla sayfanın içinde çalışır; yedek motor gerekirse yaklaşık {mb} MB daha iner' },
-    rel: { same: '{a} için diğerleri', target: '{b} hedefli diğerleri', reverse: 'Tersi', all: 'Tüm {k} dönüşümleri' },
+    rel: { same: 'Başka {a} dönüşümleri', target: 'Sonucu {b} olan diğerleri', reverse: 'Ters yönde', all: 'Tüm {k} dönüşümleri' },
     draftNote: 'Taslak içerik. Üretime girmez.',
-    nf: { h1: 'Bu dönüşüm burada yok', p: 'Bu adreste bir sayfa yok.', pair: '{a} {b} için ayrı bir sayfa yok.', from: '{a} burada neye dönüşebilir', to: '{b} hangi biçimlerden gelebilir', all: 'Tüm dönüşümler', home: 'Dönüştürücüyü aç' },
+    nf: { h1: 'Bu dönüşüm burada yok', p: 'Bu adreste bir sayfa yok.', pair: '{a} → {b} için ayrı bir sayfa yok.', from: '{a} burada neye dönüşebilir', to: 'Burada neler {b} olabilir', all: 'Tüm dönüşümler', home: 'Dönüştürücüyü aç' },
     menu: 'Menü',
   },
 } as const;
