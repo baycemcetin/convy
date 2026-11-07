@@ -122,6 +122,7 @@ export async function preview(r: RunResult, to: string, signal: AbortSignal): Pr
   }
   const av = r.blob.type.split('/')[0];
   if ((av === 'audio' || av === 'video') && document.createElement(av).canPlayType(r.blob.type)) return { kind: av, url: URL.createObjectURL(r.blob) };
-  if (to === 'md' || to === 'txt') return { kind: 'text', text: new TextDecoder().decode(await r.blob.slice(0, 64 * 1024).arrayBuffer()) };
+  // MD pictures are data URIs (pandoc worker): show their head only, not 64 KB of base64
+  if (to === 'md' || to === 'txt') return { kind: 'text', text: new TextDecoder().decode(await r.blob.slice(0, 64 * 1024).arrayBuffer()).replace(/(data:[\w/+.-]+;base64,)[\w+/=]{16,}/g, '$1…') };
   return null;
 }
