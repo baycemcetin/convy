@@ -2,7 +2,7 @@
 // "Convert": queued → running → done | failed | cancelled. Item fields follow the hi-fi data model (veri.js) so the
 // island templates map 1:1: n name, f FROM label, k kind, to TO label, i/o sizes in MB, dim, dur, st, p, eng.
 import { detect, targets, engineOf, outName, byId, type Format, type EngineKey } from '../engines/formats';
-import { run, probeAV, estimateOut, EngineError } from '../engines/index';
+import { run, probeAV, estimateOut, EngineError, preview, type Preview } from '../engines/index';
 import { manifest, savedEngines, removeSavedEngines, type EngineId } from '../engines/load-wasm';
 import { OPFS_OUT_MIN } from '../engines/limits';
 
@@ -11,7 +11,7 @@ export interface Item {
   id: number; file: File; fmt: Format | null;
   n: string; f: string; k: string; to: string | null; i: number; o: number | null; approx: boolean;
   dim: string | null; w: number | null; h: number | null; dur: number | null;
-  st: St; p: number | null; eng: EngineKey | null; out: Blob | null; url: string | null;
+  st: St; p: number | null; eng: EngineKey | null; out: Blob | null; pv: Preview; outN: string | null; // pv: result preview (Ek B); outN: output file name (a PDF's pages arrive as name.zip)
   block: { need: number; free: number } | null; error: 'tooBig' | 'failed' | 'timeout' | null; saved: boolean;
   targets: string[];
 }
@@ -23,8 +23,8 @@ export const q = $state({
   items: [] as Item[],
   staged: null as number | null,            // id of the file on the stage (T1: a row's name button stages it)
   engine: null as null | { key: EngineKey; p: number },   // engine download in progress (engine line / readout)
-  saved: { av: false, image: false } as Record<EngineId, boolean>,
-  sizes: { av: null, image: null } as Record<EngineId, null | { size: number; transfer: number }>, // MB, from manifest (T11)
+  saved: { av: false, image: false, doc: false, pdf: false } as Record<EngineId, boolean>,
+  sizes: { av: null, image: null, doc: null, pdf: null } as Record<EngineId, null | { size: number; transfer: number }>, // MB, from manifest (T11)
   store: null as null | { usage: number; quota: number },  // MB, storage.estimate()
   online: typeof navigator === 'undefined' ? true : navigator.onLine,
 });
@@ -33,7 +33,7 @@ export const byIdItem = (id: number | null) => q.items.find((x) => x.id === id) 
 
 /** Manifest sizes + saved state + estimate(); call on mount and after engine downloads / removal. */
 export async function refreshDevice() {
-  for (const id of ['av', 'image'] as EngineId[]) {
+  for (const id of ['av', 'image', 'doc', 'pdf'] as EngineId[]) {
     const m = await manifest(id).catch(() => null);
     if (m) q.sizes[id] = { size: MB(m.size), transfer: MB(m.transfer) };
   }
@@ -49,7 +49,7 @@ export function add(files: FileList | File[]) {
     const it: Item = {
       id: nextId++, file, fmt, n: file.name, f: fmt?.label ?? (file.name.split('.').pop() || '?').toUpperCase(), k: fmt?.kind ?? 'unknown',
       to: null, i: MB(file.size), o: null, approx: false, dim: null, w: null, h: null, dur: null,
-      st: fmt && targets(fmt).length ? 'needs' : 'unsupported', p: null, eng: fmt ? engineOf(fmt) : null, out: null, url: null,
+      st: fmt && targets(fmt).length ? 'needs' : 'unsupported', p: null, eng: fmt ? engineOf(fmt) : null, out: null, pv: null, outN: null,
       block: null, error: null, saved: false, targets: fmt ? targets(fmt).map((t) => byId(t)!.label) : [],
     };
     q.items.push(it);
@@ -77,7 +77,7 @@ export function applyToKind(kind: string, label: string) { for (const it of q.it
 async function checkQuota(it: Item) {
   const e = await navigator.storage?.estimate?.().catch(() => null);
   if (!e?.quota) { it.block = null; return; }
-  const key = it.eng === 'image' ? 'image' : 'av';
+  const key = it.eng as EngineId;
   const engine = q.saved[key] ? 0 : (q.sizes[key]?.size ?? 0) * 1e6;
   const out = (it.o ?? it.i) * 1e6;
   const need = engine + (out > OPFS_OUT_MIN ? out : 0);
@@ -91,21 +91,21 @@ export const readyCount = () => q.items.filter(ready).length;
 /** "Convert": every ready file becomes a job. One runner per engine (image / av) so a video never blocks photos. */
 export function convert() {
   for (const it of q.items) if (ready(it)) { it.st = 'queued'; it.p = null; }
-  pump('image'); pump('av');
+  for (const k of ['image', 'av', 'doc', 'pdf'] as EngineKey[]) pump(k);
 }
 const busy: Record<string, boolean> = {};
 async function pump(key: EngineKey) {
   if (busy[key]) return;
   busy[key] = true;
   try {
-    for (let it; (it = q.items.find((x) => x.st === 'queued' && (x.eng === 'image') === (key === 'image'))); ) await exec(it);
+    for (let it; (it = q.items.find((x) => x.st === 'queued' && x.eng === key)); ) await exec(it);
   } finally { busy[key] = false; }
 }
 
 async function exec(it: Item) {
   const ac = new AbortController(); ctrls.set(it.id, ac);
   it.st = 'running'; it.p = null;
-  const ekey = it.eng === 'image' ? 'image' : 'av';
+  const ekey = it.eng as EngineId;
   try {
     const to = it.to!.toLowerCase();
     const r = await run(it.file, it.fmt!, to, outName(it.n, to), {
@@ -116,7 +116,9 @@ async function exec(it: Item) {
     it.out = r.blob; it.o = MB(r.blob.size); it.approx = false;
     if (r.w) { it.w = r.w; it.h = r.h!; it.dim = `${r.w} × ${r.h}`; }
     if (r.duration) it.dur = r.duration;
-    it.url = URL.createObjectURL(r.blob); it.st = 'done'; it.p = 1;
+    it.outN = r.name ?? outName(it.n, to);
+    it.pv = await preview(r, to).catch(() => null);
+    it.st = 'done'; it.p = 1;
     if (!q.saved[ekey]) refreshDevice();
   } catch (e: any) {
     q.engine = null;
@@ -131,12 +133,12 @@ export function stop(id: number) {
   ctrls.get(id)?.abort();
 }
 export function stopAll() { for (const it of q.items) if (it.st === 'queued' || it.st === 'running') stop(it.id); }
-export function retry(id: number) { const it = byIdItem(id); if (it && (it.st === 'failed' || it.st === 'cancelled') && it.to) { it.st = 'queued'; it.error = null; pump(it.eng === 'image' ? 'image' : 'av'); } }
+export function retry(id: number) { const it = byIdItem(id); if (it && (it.st === 'failed' || it.st === 'cancelled') && it.to) { it.st = 'queued'; it.error = null; pump(it.eng!); } }
 export function remove(id: number) {
   const i = q.items.findIndex((x) => x.id === id); if (i < 0) return;
   const [it] = q.items.splice(i, 1);
   ctrls.get(id)?.abort();
-  if (it.url) URL.revokeObjectURL(it.url);
+  if (it.pv && 'url' in it.pv) URL.revokeObjectURL(it.pv.url);
   if (q.staged === id) q.staged = q.items[Math.min(i, q.items.length - 1)]?.id ?? null;
 }
 export function stage(id: number) { q.staged = id; }
@@ -150,13 +152,13 @@ function download(blob: Blob, name: string) {
 /** Save one result (T7: marks it saved). */
 export function save(id: number) {
   const it = byIdItem(id); if (!it?.out) return;
-  download(it.out, outName(it.n, it.to!.toLowerCase())); it.saved = true;
+  download(it.out, it.outN!); it.saved = true;
 }
 /** iOS share sheet for images/video when canShare({files}) (Ek B). share() must be the first await in the click. */
-export const canShareItem = (it: Item) => !!it.out && typeof navigator !== 'undefined' && !!navigator.canShare?.({ files: [new File([it.out], outName(it.n, it.to!.toLowerCase()), { type: it.out.type })] });
+export const canShareItem = (it: Item) => !!it.out && typeof navigator !== 'undefined' && !!navigator.canShare?.({ files: [new File([it.out], it.outN!, { type: it.out.type })] });
 export async function share(id: number) {
   const it = byIdItem(id); if (!it?.out) return;
-  await navigator.share({ files: [new File([it.out], outName(it.n, it.to!.toLowerCase()), { type: it.out.type })] }).then(() => { it.saved = true; }, () => {});
+  await navigator.share({ files: [new File([it.out], it.outN!, { type: it.out.type })] }).then(() => { it.saved = true; }, () => {});
 }
 /** "Save n done (ZIP)": finished files only (DECISIONS 2026-11-07). Names are de-duplicated. */
 export async function saveZip() {
@@ -165,7 +167,7 @@ export async function saveZip() {
   const { zip } = await import('fflate');
   const files: Record<string, [Uint8Array, { level: 0 }]> = {};
   for (const it of done) {
-    let name = outName(it.n, it.to!.toLowerCase());
+    let name = it.outN!;
     for (let k = 2; files[name]; k++) name = name.replace(/(\.[^.]+)$/, ` (${k})$1`);
     files[name] = [new Uint8Array(await it.out!.arrayBuffer()), { level: 0 }]; // outputs are already compressed
   }

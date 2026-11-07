@@ -6,7 +6,7 @@
   import { q, readyCount, canShareItem, type Item } from '../lib/queue.svelte';
   import { fmt, type F } from '../lib/fmt';
   import { T, d, pin, easeTurn } from '../lib/motion';
-  import { isReady, isJob, outName, engVal, viewOf } from '../lib/view';
+  import { isReady, isJob, outName, engVal, viewOf, engWord } from '../lib/view';
   import Readout from './Readout.svelte';
   import Picker from './Picker.svelte';
   import Arrow from './Arrow.svelte';
@@ -77,7 +77,6 @@
   const engP = $derived(q.engine?.p ?? 0);
   const est = $derived(!!sub && sub.approx && sub.o != null);
   const kindIsBatch = $derived(!!sub && sub.k === 'image' && items.filter((f) => f.k === sub!.k && (f.st === 'needs' || isReady(f))).length > 1);
-  const mediaKind = $derived(sub?.out?.type.split('/')[0]);
   function onLoad(e: Event) { (e.currentTarget as HTMLElement).classList.add('ok'); }
 </script>
 
@@ -86,7 +85,7 @@
 {#snippet inFig(mb: number)}{@const sp = x.sizeParts(mb)}{@render fig(sp[0], sp[1])}<span class="from">{t.stage.input}</span>{/snippet}
 {#snippet conv(f: Item)}{f.f} <Ar to={t.sr.to} /> {#if f.to}{f.to}{:else}<Dash sr={t.sr.pending} />{/if}{/snippet}
 {#snippet sizeIn()}{x.size(sub!.i)} <Ar to={t.sr.to} /> <Dash sr={t.sr.pending} />{/snippet}
-{#snippet sizeEst()}{x.size(sub!.i)} <Ar to={t.sr.to} /> ≈ {x.size(sub!.o)}{/snippet}
+{#snippet sizeEst()}{x.size(sub!.i)} <Ar to={t.sr.to} /> <span aria-hidden="true">≈ </span><span class="sr">{t.sr.approx} </span>{x.size(sub!.o)}{/snippet}
 {#snippet sizeDone()}{x.size(sub!.i)} <Ar to={t.sr.to} /> {x.size(sub!.o)}{/snippet}
 {#snippet sizeOnly()}{x.size(sub!.i)}{/snippet}
 {#snippet fmtCur()}{@render conv(sub!)}{/snippet}
@@ -109,13 +108,15 @@
       <div class="sg-name" aria-hidden={count ? 'true' : undefined} in:tin out:tout onoutrostart={pin}>{#if sub && !count}<Fname n={sub.n} />{/if}</div>
     {/key}
 
-    {#if view === 'done' && !count && sub && mediaKind && ['image', 'video', 'audio'].includes(mediaKind) && sub.url}
+    {#if view === 'done' && !count && sub?.pv}
+      {@const pv = sub.pv}
       {#key k}
         <figure class="pv tile" style="margin:0" in:tin out:tout onoutrostart={pin}>
-          {#if mediaKind === 'image'}<img src={sub.url} alt="" decoding="async" onload={onLoad} />
-          {:else if mediaKind === 'video'}<video src={sub.url} muted playsinline controls preload="metadata" onloadeddata={onLoad}></video>
-          {:else}<svg class="scn" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden="true"><path d="M0 160V96L70 52 120 84 190 30 262 92 312 64 400 112V160Z" fill="var(--c-line)" /><path d="M0 160V124L90 98 170 126 250 96 330 120 400 104V160Z" fill="var(--c-line-strong)" opacity=".5" /></svg><audio src={sub.url} controls preload="metadata"></audio>{/if}
-          {#if sub.w && sub.h && mediaKind !== 'audio'}<figcaption class="cap"><Dim w={sub.w} h={sub.h} by={(t.sr as any).by} /></figcaption>{/if}
+          {#if pv.kind === 'img'}<img src={pv.url} alt="" decoding="async" onload={onLoad} />
+          {:else if pv.kind === 'video'}<video src={pv.url} muted playsinline controls preload="metadata" onloadeddata={onLoad}></video>
+          {:else if pv.kind === 'audio'}<svg class="scn" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden="true"><path d="M0 160V96L70 52 120 84 190 30 262 92 312 64 400 112V160Z" fill="var(--c-line)" /><path d="M0 160V124L90 98 170 126 250 96 330 120 400 104V160Z" fill="var(--c-line-strong)" opacity=".5" /></svg><audio src={pv.url} controls preload="metadata"></audio>
+          {:else}<pre class="txt">{pv.text}</pre>{/if}
+          {#if sub.w && sub.h && (pv.kind === 'img' || pv.kind === 'video')}<figcaption class="cap"><Dim w={sub.w} h={sub.h} by={t.sr.by} /></figcaption>{/if}
         </figure>
       {/key}
     {/if}
@@ -132,7 +133,7 @@
       {:else if sub}
         <div class="sg-meter" in:tin out:tout onoutrostart={pin}>
           {#if view === 'needs'}{@render inFig(sub.i)}
-          {:else if view === 'ready'}{#if est}{@const sp = x.sizeParts(sub.o!)}<span class="fig"><span class="u">≈ </span>{sp[0]}<span class="u"> {sp[1]}</span></span>{:else}{@render inFig(sub.i)}{/if}
+          {:else if view === 'ready'}{#if est}{@const sp = x.sizeParts(sub.o!)}<span class="fig"><span class="u" aria-hidden="true">≈ </span><span class="sr">{t.sr.approx} </span>{sp[0]}<span class="u"> {sp[1]}</span></span>{:else}{@render inFig(sub.i)}{/if}
           {:else if view === 'engine'}{@render pctFig(engP)}
           {:else if view === 'block'}{@const sp = x.sizeParts(sub.block!.need)}{@render fig(sp[0], sp[1])}<span class="from">{t.stage.needs}</span>
           {:else if view === 'running'}
@@ -159,14 +160,14 @@
       {/key}
       {#key k}
         {#if count}<span class="data big" in:tin out:tout onoutrostart={pin}>{fmt(t.batch.running, { n: crun })}</span>
-        {:else if view === 'engine'}<span class="data" in:tin out:tout onoutrostart={pin}>{fmt(t.engLine, { engine: sub?.eng === 'image' ? t.engName.image : t.engName.video, size: x.dl(q.sizes[sub?.eng === 'image' ? 'image' : 'av']?.transfer) })}</span>{/if}
+        {:else if view === 'engine'}<span class="data" in:tin out:tout onoutrostart={pin}>{fmt(t.engLine, { engine: engWord(t, sub?.eng ?? undefined), size: x.dl(sub?.eng ? q.sizes[sub.eng]?.transfer : null) })}</span>{/if}
       {/key}
       <div class="acts">
         {#if slot}
           <button class="btn {slot.cls}" id="sg-act" type="button" data-testid="act" aria-disabled={slot.dis ? 'true' : undefined} aria-describedby={slot.why} aria-label={slot.aria} onclick={() => { if (!slot.dis) slot.run(); }}>{slot.label}</button>
         {/if}
         {#key k}
-          {#if view === 'done' && sub && touch && mediaKind !== 'audio' && canShareItem(sub)}<button class="btn full touch" type="button" in:tin out:tout onoutrostart={pin} onclick={() => acts.share(sub!.id)}>{t.btn.share}</button>{/if}
+          {#if view === 'done' && sub && touch && sub.out?.type.split('/')[0] !== 'audio' && canShareItem(sub)}<button class="btn full touch" type="button" in:tin out:tout onoutrostart={pin} onclick={() => acts.share(sub!.id)}>{t.btn.share}</button>{/if}
           {#if secondRemove && sub}<button class="btn quiet" type="button" aria-label={fmt(t.a11y.remove, { name: sub.n })} in:tin out:tout onoutrostart={pin} onclick={() => acts.remove(sub!.id)}>{t.btn.remove}</button>{/if}
           {#if view === 'needs'}<span class="note" id="sg-why" in:tin out:tout onoutrostart={pin}>{t.pick.reason}</span>
           {:else if view === 'ready' && sub && !isJob(sub)}<span class="note" in:tin out:tout onoutrostart={pin}>{est ? t.stage.estNote : t.stage.noEst}</span>

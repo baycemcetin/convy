@@ -348,6 +348,7 @@
       "kb": "kilobytes",
       "mb": "megabytes",
       "gb": "gigabytes",
+      "approx": "about",
       "onDevice": "Converted on this device."
     }
   },
@@ -699,6 +700,7 @@
       "kb": "kilobayt",
       "mb": "megabayt",
       "gb": "gigabayt",
+      "approx": "yaklaşık",
       "onDevice": "Bu cihazda dönüştü."
     }
   }

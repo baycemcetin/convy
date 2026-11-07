@@ -59,6 +59,10 @@
   // ---- transitions of item state: live region, completing hold, t-show, count mode ----
   const prev = new Map<number, { st: string; block: boolean }>();
   let prevEngine: string | null = null;
+  let engineSaid = false;
+  // batch boundary (live.batch): the jobs one Convert press created + jobs that join while that batch still runs
+  const batchIds = new Set<number>();
+  let batchOpen = false;
   $effect(() => {
     const items = q.items.map((i) => ({ i, st: i.st, block: !!i.block }));
     const running = q.items.filter(isJob).length;
@@ -67,6 +71,7 @@
       if (!p) {
         live?.say(st === 'unsupported' ? fmt(t.live.unsupported, { name: i.n, ext: i.f }) : fmt(st === 'needs' ? t.live.needs : t.live.added, { name: i.n, size: x.say(i.i) }));
       } else if (p.st !== st) {
+        if ((st === 'queued' || st === 'running') && !batchIds.has(i.id)) { if (!batchOpen) { batchIds.clear(); batchOpen = true; } batchIds.add(i.id); }
         if (st === 'running') setTimeout(() => shown.add(i.id), T.tShow);
         if (st === 'done') onDone(i, running);
         if (st === 'failed') live?.failed(i.n, (name) => fmt(t.live.failed, { name }), (f, names) => fmt(t.live.failedN, { f, names }));
@@ -74,8 +79,9 @@
       if (block && !p?.block) live?.say(fmt(t.live.blocked, { name: i.n, size: x.say(i.i) }));
       prev.set(i.id, { st, block });
     }
+    if (!running) batchOpen = false;
     const e = q.engine?.key ?? null;
-    if (prevEngine === 'av' && !e && q.items.some((i) => i.eng === 'av' && i.st === 'running')) live?.say(t.live.engine);
+    if (prevEngine === 'av' && !e && !engineSaid && q.items.some((i) => i.eng === 'av' && i.st === 'running')) { engineSaid = true; live?.say(t.live.engine); } // once: ffmpeg reloads from cache per job
     prevEngine = e;
     if (count && running <= 1) { clearTimeout(countT); countT = window.setTimeout(() => { if (q.items.filter((i) => i.st === 'running').length <= 1) count = false; }, T.dwell); }
   });
@@ -85,10 +91,11 @@
     const now = Date.now(); doneTimes.push(now);
     while (doneTimes.length && now - doneTimes[0] > T.dwell) doneTimes.shift();
     if (doneTimes.length >= 2) count = true;
-    const batch = q.items.filter((f) => f.st === 'done' || isJob(f) || f.st === 'failed');
-    // last job of an all-done batch → live.batch with summed sizes; otherwise "d of n converted" (HAREKET §5.1)
+    const ids = new Set(batchIds);
+    const batch = q.items.filter((f) => ids.has(f.id));
+    // last job of an all-done batch → live.batch with sizes summed over this batch only; otherwise "d of n converted" (HAREKET §5.1)
     const summary = () => {
-      const dn = q.items.filter((f) => f.st === 'done');
+      const dn = batch.filter((f) => f.st === 'done');
       return running === 0 && dn.length === batch.length
         ? fmt(t.live.batch, { n: dn.length, in: x.say(dn.reduce((s, f) => s + f.i, 0)), out: x.say(dn.reduce((s, f) => s + (f.o ?? 0), 0)) })
         : fmt(t.live.progress, { d: dn.length, n: batch.length });

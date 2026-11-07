@@ -57,12 +57,12 @@
   const icons = ['image', 'video', 'document'];
   const savedWord = $derived(P.eng[0][1]), notSavedWord = $derived(P.eng[2][1]);
   const engRow = (k: (typeof keys)[number]) => {
-    const saved = k !== 'doc' && q.saved[k];
-    const s = k === 'doc' ? null : q.sizes[k];
+    const saved = q.saved[k];
+    const s = q.sizes[k];
     return { saved, word: saved ? savedWord : notSavedWord, val: !s ? null : saved ? fmt(P.uses, { size: x.size(s.size) }) : fmt(P.dl, { size: x.dl(s.transfer) }) }; // unknown size: no value (R-2026-13)
   };
-  const anySaved = $derived(q.saved.av || q.saved.image);
-  const frees = $derived((q.saved.av ? q.sizes.av?.size ?? 0 : 0) + (q.saved.image ? q.sizes.image?.size ?? 0 : 0));
+  const anySaved = $derived(q.saved.av || q.saved.image || q.saved.doc || q.saved.pdf);
+  const frees = $derived((['av', 'image', 'doc', 'pdf'] as const).reduce((a, k) => a + (q.saved[k] ? q.sizes[k]?.size ?? 0 : 0), 0));
   const other = $derived(x.lang === 'en' ? 'tr' : 'en');
 </script>
 

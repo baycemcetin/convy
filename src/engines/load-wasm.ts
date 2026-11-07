@@ -1,7 +1,7 @@
 // Engine files: manifest + split wasm parts (scripts/prep-engines.mjs). Cache-first in Cache Storage under
 // versioned paths, so a cached engine is never stale. Progress = raw bytes received / manifest.size.
 export interface Manifest { engine: string; version: string; size: number; transfer: number; parts: { name: string; size: number }[]; side: { name: string; size: number }[]; }
-export const ENGINES = { av: 'ffmpeg-st@0.12.10', image: 'magick@0.0.46' } as const;
+export const ENGINES = { av: 'ffmpeg-st@0.12.10', image: 'magick@0.0.46', doc: 'pandoc@1.1.0', pdf: 'pdfjs@6.5.438' } as const;
 export type EngineId = keyof typeof ENGINES;
 const CACHE = 'convy-engines-v1';
 const base = (id: EngineId) => new URL(`/engines/${ENGINES[id]}/`, self.location.origin).href;
@@ -43,7 +43,7 @@ export async function loadEngine(id: EngineId, onProgress?: (p: number) => void)
 
 /** Which engines are fully in Cache Storage (device panel, readout "saved"). */
 export async function savedEngines(): Promise<Record<EngineId, boolean>> {
-  const out = { av: false, image: false } as Record<EngineId, boolean>;
+  const out = { av: false, image: false, doc: false, pdf: false } as Record<EngineId, boolean>;
   const cache = typeof caches !== 'undefined' ? await caches.open(CACHE).catch(() => null) : null;
   if (!cache) return out;
   for (const id of Object.keys(ENGINES) as EngineId[]) {

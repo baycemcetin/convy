@@ -32,3 +32,6 @@ svg.arw path.fill{ transition:stroke-dashoffset var(--d-data) var(--ease-data); 
 
 /* drop target active (HAREKET §3.9: colour only) */
 .stage.drop{ border-color:var(--c-line-strong); }
+
+/* MD / TXT result preview: the first 64 KB as plain text (textContent only, never HTML) */
+.pv pre.txt{ position:absolute; inset:0; margin:0; padding:var(--s3); overflow:hidden; white-space:pre-wrap; overflow-wrap:anywhere; font:500 var(--text-xs)/1.5 var(--font-ui); font-feature-settings:var(--data-features); color:var(--c-ink-2); }

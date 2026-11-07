@@ -7,7 +7,7 @@
   import { ENGINES } from '../engines/load-wasm';
   import { fmt, type F } from '../lib/fmt';
   import { T, d, easeTurn } from '../lib/motion';
-  import { isJob, outName, stateWord } from '../lib/view';
+  import { isJob, outName, stateWord, engWord } from '../lib/view';
   import Icon from './Icon.svelte';
   import Fname from './Fname.svelte';
   import Arrow from './Arrow.svelte';
@@ -58,9 +58,9 @@
       <div class={it ? `row ${it.st}${staged ? ' staged' : ''} pick` : 'eng'} data-testid={it ? 'item' : undefined} data-st={it?.st} data-saved={it?.saved ? '' : undefined}
         in:inT={{ id: it?.id ?? -1 }} out:fade={{ duration: d(T.exit) }} animate:flip={{ duration: d(200), easing: easeTurn }}>
         {#if !it}
-          <Icon n="engine" /><span class="t">{fmt(t.engLine, { engine: eng?.key === 'image' ? t.engName.image : t.engName.video, size: x.dl(q.sizes[eng?.key === 'image' ? 'image' : 'av']?.transfer) })}</span>
+          <Icon n="engine" /><span class="t">{fmt(t.engLine, { engine: engWord(t, eng?.key), size: x.dl(eng ? q.sizes[eng.key]?.transfer : null) })}</span>
           {#if arrows + 1 > 3}<span class="ebar neutral" style="--p:{ep}"><i></i></span>{:else}<span class="ebar" data-volt="engine" style="--p:{ep}"><i></i></span>{/if}
-          <span class="m data"><span><span class="sg">{x.pct(ep)}{@render seg()}</span> <span class="sg">{ENGINES[eng?.key === 'image' ? 'image' : 'av'].split(/[-@]/)[0]}</span></span>{#if eng?.key !== 'image'}<span>{t.engNeed}</span>{/if}</span>
+          <span class="m data"><span><span class="sg">{x.pct(ep)}{@render seg()}</span> <span class="sg">{ENGINES[eng?.key ?? 'av'].split(/[-@]/)[0]}</span></span>{#if eng?.key === 'av'}<span>{t.engNeed}</span>{/if}</span>
 
         {:else}
           <Icon n={it.k} />
@@ -68,8 +68,8 @@
           {#if !staged}
             <span class="dt"><span class="data">
               <span class="sg">{it.f}{#if it.to}{' '}<Ar to={t.sr.to} />{' '}{it.to}{/if}{@render seg()}</span>
-              <span class="sg">{#if it.st === 'done'}{x.size(it.i)} <Ar to={t.sr.to} /> {x.size(it.o)}{:else if it.o != null && it.approx}{x.size(it.i)} <Ar to={t.sr.to} /> ≈ {x.size(it.o)}{:else}{x.size(it.i)}{/if}{@render seg()}</span>
-              {#if it.st === 'done' && it.w && it.h}<span class="sg"><Dim w={it.w} h={it.h} by={(t.sr as any).by} />{@render seg()}</span>{:else if it.st === 'done' && it.k === 'audio' && it.dur}<span class="sg">{x.dur(it.dur)}{@render seg()}</span>{/if}
+              <span class="sg">{#if it.st === 'done'}{x.size(it.i)} <Ar to={t.sr.to} /> {x.size(it.o)}{:else if it.o != null && it.approx}{x.size(it.i)} <Ar to={t.sr.to} /> <span aria-hidden="true">≈ </span><span class="sr">{t.sr.approx} </span>{x.size(it.o)}{:else}{x.size(it.i)}{/if}{@render seg()}</span>
+              {#if it.st === 'done' && it.w && it.h}<span class="sg"><Dim w={it.w} h={it.h} by={t.sr.by} />{@render seg()}</span>{:else if it.st === 'done' && it.k === 'audio' && it.dur}<span class="sg">{x.dur(it.dur)}{@render seg()}</span>{/if}
               <span class="sg"><span class="stx">{#if run && !comp}{#if it.p == null}{t.st.runningNoPct}{:else}{t.st.running.split('{pct}')[0].replace(/\s*·\s*$/, '')}<span aria-hidden="true"> · {x.pct(it.p)}</span>{/if}
                 {:else if it.block}<Icon n="storage" s16 cls="neu" />{t.st.blocked}
                 {:else if it.st === 'done' || comp}<Icon n="done" s16 />{it.saved ? t.st.saved : t.st.done}
@@ -89,6 +89,6 @@
         {/if}
       </div>
     {/each}
-    <div class="sum"><span class="data">{failed ? fmt(t.batch.failedSum, { d: done.length, f: failed }) : fmt(t.batch.doneOf, { d: done.length, n })}</span>{#if done.length}<span class="r"><span class="data">{fmt(t.batch.zip, { size: x.size(zipSize) })}</span>{#if n >= 8}<button class="btn" type="button" aria-describedby={left ? 'zip-why' : undefined} onclick={acts.saveZip}>{fmt(t.btn.saveDone, { d: done.length })}</button>{/if}</span>{/if}</div>
+    <div class="sum"><span class="data">{failed ? fmt(t.batch.failedSum, { d: done.length, f: failed }) : fmt(t.batch.doneOf, { d: done.length, n })}</span>{#if done.length}<span class="r"><span class="data">{#each fmt(t.batch.zip, { size: x.size(zipSize) }).split('≈') as part, i}{#if i}<span aria-hidden="true">≈</span><span class="sr">{t.sr.approx}</span>{/if}{part}{/each}</span>{#if n >= 8}<button class="btn" type="button" aria-describedby={left ? 'zip-why' : undefined} onclick={acts.saveZip}>{fmt(t.btn.saveDone, { d: done.length })}</button>{/if}</span>{/if}</div>
   </section>
 {/if}
