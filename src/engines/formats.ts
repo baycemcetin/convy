@@ -28,7 +28,7 @@ export const byId = (id: string) => FORMATS.find((f) => f.id === id);
 
 // Outputs per input kind (MIMARI §16). Order of the first three = hi-fi target chips (veri.js TARGETS, design assumption D8).
 const OUT: Record<Kind, string[]> = {
-  image: ['jpg', 'png', 'webp', 'avif', 'gif', 'bmp', 'tiff', 'ico', 'jxl'],
+  image: ['jpg', 'png', 'webp', 'pdf', 'avif', 'gif', 'bmp', 'tiff', 'ico', 'jxl'],
   audio: ['mp3', 'm4a', 'flac', 'wav', 'ogg', 'opus'],
   video: ['mp4', 'webm', 'gif', 'mp3', 'm4a'],
   document: ['docx', 'md', 'epub', 'odt', 'html', 'txt'],

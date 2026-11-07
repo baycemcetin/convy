@@ -3,6 +3,7 @@
 import { initializeImageMagick, ImageMagick, MagickFormat, MagickColor, AlphaAction, ResourceLimits } from '@imagemagick/magick-wasm';
 import { loadEngine } from './load-wasm';
 import { IMAGE_MAX_MP } from './limits';
+import { jpegPdf, pixelsPdf } from './pdf-write';
 
 const FMT: Record<string, MagickFormat> = {
   jpg: MagickFormat.Jpeg, png: MagickFormat.Png, webp: MagickFormat.WebP, avif: MagickFormat.Avif, heic: MagickFormat.Heic,
@@ -30,6 +31,8 @@ self.onmessage = async ({ data: { id, file, from, to, quality = 85, maxSide } })
     await init(id);
     self.postMessage({ id, type: 'progress', p: null });
     const bytes = new Uint8Array(await (file as Blob).arrayBuffer());
+    const direct = to === 'pdf' && from === 'jpg' ? jpegPdf(bytes) : null; // JPEG goes into the PDF without re-encoding
+    if (direct) { self.postMessage({ id, type: 'done', out: direct, w: null, h: null }, [direct.buffer]); return; }
     const res = ImageMagick.read(bytes, FMT[from], (img) => {
       img.autoOrient();
       clean(img);
@@ -38,6 +41,10 @@ self.onmessage = async ({ data: { id, file, from, to, quality = 85, maxSide } })
       if (NO_ALPHA.has(to) && img.hasAlpha) { img.backgroundColor = new MagickColor(255, 255, 255); img.alpha(AlphaAction.Remove); }
       img.quality = quality;
       const w = img.width, h = img.height;
+      if (to === 'pdf') {
+        img.depth = 8; const a = img.hasAlpha, icc = img.getProfile('icc')?.data ?? null;
+        return img.write(a ? MagickFormat.Rgba : MagickFormat.Rgb, (d) => ({ out: pixelsPdf(d, w, h, a, icc), w, h }));
+      }
       return img.write(FMT[to], (d) => ({ out: d.slice(), w, h })); // data only valid inside the callback
     });
     self.postMessage({ id, type: 'done', ...res }, [res.out.buffer]);

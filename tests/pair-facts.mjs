@@ -1,6 +1,6 @@
 // Self-check for the image facts in src/content/pair-facts.ts. Runs the image worker's exact steps (src/engines/magick.worker.ts:
 // read with explicit format → autoOrient → metadata clean (EXIF/XMP/IPTC out, ICC kept) → white background for JPG/BMP → quality 85
-// → write) in Node with the shipped wasm.
+// → write; PDF through src/engines/pdf-write.ts, read back with pdf.js) in Node with the shipped wasm.
 // Node output is byte-identical to the browsers' (heic→jpg 50 654 B, heic→png 135 556 B in test-results/t2/inputs-*.json).
 // Usage: node tests/pair-facts.mjs     (exit 1 on the first fact that no longer holds)
 import { readFileSync } from 'node:fs';
@@ -9,11 +9,18 @@ import { initializeImageMagick, ImageMagick, MagickImage, MagickImageCollection,
 
 await initializeImageMagick(readFileSync(new URL('../public/engines/magick@0.0.46/magick.0.wasm', import.meta.url)));
 const FMT = { jpg: F.Jpeg, png: F.Png, webp: F.WebP, avif: F.Avif, heic: F.Heic, gif: F.Gif, bmp: F.Bmp, tiff: F.Tiff, ico: F.Ico, jxl: F.Jxl };
+const { jpegPdf, pixelsPdf } = await import('../src/engines/pdf-write.ts');
+const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
 // same as magick.worker.ts clean()
 const clean = (img) => {
   for (const p of img.profileNames) if (p !== 'icc' && p !== 'icm') img.removeProfile(p);
   for (const a of img.attributeNames) if (/^(exif|xmp|iptc|8bim|comment|tiff:(artist|copyright|document|hostcomputer|make|model|software|timestamp))/i.test(a)) img.removeAttribute(a);
 };
+const toPdf = (b, from) => (from === 'jpg' && jpegPdf(b)) || ImageMagick.read(b, FMT[from], (img) => {
+  img.autoOrient(); clean(img); img.depth = 8; const a = img.hasAlpha, icc = img.getProfile('icc')?.data ?? null, w = img.width, h = img.height;
+  return img.write(a ? F.Rgba : F.Rgb, (d) => pixelsPdf(d, w, h, a, icc));
+});
+const pdfInfo = async (b) => { const d = await pdfjs.getDocument({ data: b.slice(), isEvalSupported: false }).promise; const p = await d.getPage(1); const r = { pages: d.numPages, view: p.view.map((x) => +x.toFixed(2)) }; return r; };
 const SECRETS = ['TestCam', 'Secret caption', 'SecretComment', 'GPSLatitude', 'Exif\0'];
 const leaks = (b) => SECRETS.filter((s) => Buffer.from(b).includes(s));
 const fx = (f) => readFileSync(new URL('./fixtures/' + f, import.meta.url));
@@ -63,6 +70,23 @@ await check('EXIF/GPS, XMP, IPTC, comment removed; orientation applied; ICC kept
 });
 await check('EXIF removed through webp/avif input', () => {
   for (const mid of ['webp', 'avif']) { const m = ImageMagick.read(exifJpg, F.Jpeg, (i) => i.write(FMT[mid], (d) => d.slice())); assert.equal(info(m, mid).gps, '41/1,0/1,0/1', 'fixture'); for (const to of ['jpg', 'png']) assert.equal(info(convert(m, mid, to), to).gps, null, mid + '->' + to); }
+});
+await check('jpg → pdf: JPEG embedded without re-encoding, metadata segments cut, ICC as ICCBased, orientation 6 → portrait page at 150 dpi', async () => {
+  const pdf = toPdf(meta, 'jpg'), s = Buffer.from(pdf);
+  const sos = meta.indexOf(Buffer.from([0xff, 0xda])), scan = meta.subarray(sos, meta.lastIndexOf(Buffer.from([0xff, 0xd9])) + 2);
+  assert.ok(s.includes(scan), 'scan bytes identical'); assert.ok(s.includes('/DCTDecode') && s.includes('/ICCBased'));
+  assert.deepEqual(leaks(pdf), []); assert.deepEqual(await pdfInfo(pdf), { pages: 1, view: [0, 0, 15.36, 30.72] });
+  const big = toPdf(fx('photo12mp.jpg'), 'jpg'); assert.deepEqual((await pdfInfo(big)).view, [0, 0, 1958.4, 1474.56]);
+});
+await check('png/heic/webp(alpha) → pdf: Flate (lossless), alpha as SMask, metadata gone', async () => {
+  const png = toPdf(fx('sample.png'), 'png'); assert.ok(Buffer.from(png).includes('/FlateDecode')); assert.equal((await pdfInfo(png)).pages, 1);
+  const h = toPdf(metaHeic, 'heic'); assert.deepEqual(leaks(h), []); assert.ok(Buffer.from(h).includes('/ICCBased')); assert.deepEqual((await pdfInfo(h)).view, [0, 0, 15.36, 30.72]);
+  assert.ok(Buffer.from(toPdf(halfRed, 'png')).includes('/SMask'), 'png alpha → SMask');
+  const a = toPdf(fx('alpha.webp'), 'webp'); assert.ok(Buffer.from(a).includes('/SMask')); assert.deepEqual(leaks(a), []);
+  // lossless: the Flate stream inflates to exactly magick's RGB pixels
+  const { inflateSync } = await import('node:zlib'); const raw = ImageMagick.read(fx('sample.png'), F.Png, (i) => { i.autoOrient(); i.depth = 8; return i.write(F.Rgb, (d) => d.slice()); });
+  const at = Buffer.from(png).indexOf('stream\n', Buffer.from(png).indexOf('/Subtype/Image')) + 7, len = +/\/Length (\d+)>>\nstream\n$/.exec(Buffer.from(png.subarray(0, at)).toString('latin1'))[1];
+  assert.ok(Buffer.from(inflateSync(png.subarray(at, at + len))).equals(Buffer.from(raw)), 'pixels identical');
 });
 await check('transparency → white in JPG, kept in PNG/WebP', () => {
   const j = info(convert(halfRed, 'png', 'jpg'), 'jpg'); assert.equal(j.alpha, false); assert.ok(j.px[1] > 100 && j.px[2] > 100, 'blended with white ' + j.px);

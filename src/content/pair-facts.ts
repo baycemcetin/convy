@@ -52,6 +52,15 @@ const image = (from: string, to: string, o: Partial<PairFacts> & { animated?: bo
   extra: [ORIENT, ICC, ...(o.extra ?? [])],
 });
 
+// ---- image → PDF shared (src/engines/pdf-write.ts)
+const PW = 'src/engines/pdf-write.ts';
+const PDF_PAGE = f('One image → one single-page PDF. Page size from the pixels at 150 dpi (12 MP 4080×3072 → 1958×1475 pt ≈ 69×52 cm); a side above 14 400 pt (PDF limit) is scaled down to it. No setting in the UI. Several images into one PDF: not offered.', 'measured', PW + ':6-7,20-21; ' + SELF);
+const PDF_PATH = f('Same bytes in Chromium, Firefox, WebKit; each PDF reopened with pdf.js (1 page, size, rendered orientation checked).', 'measured', IMGPDF);
+const toPdf = (from: string, o: Partial<PairFacts> & { lossy: Fact }): PairFacts => ({
+  from, to: 'pdf', engine: 'magick', download: IMG_DL, offline: OFFLINE, path: PDF_PATH, quality: PDF_PAGE, animation: null, transparency: null,
+  limits: [], extra: [], metadata: null, ...o,
+});
+
 // ---- audio/video shared
 const FF_LIMIT = f('ffmpeg path: refused before start when the estimated output is above 1 GB (500 MB on iPhone/iPad); estimate = duration × target bit rate.', 'code', 'src/engines/limits.ts:3; src/engines/index.ts:125-137');
 const FF_TIMEOUT = f('ffmpeg path: stopped after 120 s + 2 s per input MB (wall clock).', 'code', 'src/engines/limits.ts:10; src/engines/ffmpeg.ts:29');
@@ -112,6 +121,21 @@ export const PAIR_FACTS: PairFacts[] = [
   mp3From('wav', [f('Converted in Chromium, Firefox, WebKit (sample.wav → 6 755 B MP3, identical).', 'measured', 'test-results/final-e2e-*.json')]),
   mp3From('m4a', [f('M4A/AAC input not tested in a browser (no M4A fixture); FLAC → M4A is tested the other way.', 'unverified', 'tests/e2e.mjs:7-9')]),
   image('png', 'webp', { metadata: PNG_META }),
+  toPdf('jpg', {
+    lossy: f('No quality loss: the JPEG data go into the PDF as they are (DCTDecode), not re-encoded; the scan bytes in the PDF are identical to the source.', 'measured', PW + ' jpegPdf; ' + SELF + '; ' + IMGPDF),
+    metadata: f('EXIF (incl. GPS), XMP, IPTC, comments and the MPF/extra images after the first image are cut from the embedded JPEG without re-encoding; the ICC profile goes in as the PDF colour space (ICCBased).', 'measured', PW + ' jpegPdf; ' + SELF + '; ' + IMGPDF + ' (tests/fixtures/meta.jpg)'),
+    limits: [f('JPEGs that are 12-bit, lossless or arithmetic-coded are not embedded directly; they go through the image engine and in losslessly (Flate) instead.', 'code', PW + ' jpegPdf (SOF check)')],
+    extra: [f('EXIF orientation is applied through the page matrix, without re-encoding: orientation 6 → portrait page, rendered upright.', 'measured', PW + ':10-12; ' + IMGPDF),
+      f('The image engine (≤5.4 MB) is still downloaded before the first conversion, although the JPEG path does not use it.', 'code', MW + ':31-35'),
+      f('Output ≈ input size: meta.jpg 1 339 B → PDF 1 651 B.', 'measured', IMGPDF)],
+  }),
+  toPdf('png', {
+    lossy: f('Lossless: 8-bit RGB pixels, Flate-compressed; the stream inflates to exactly the source pixels. 16-bit PNG is reduced to 8 bits per channel.', 'measured', PW + ' pixelsPdf; ' + MW + ':45-46; ' + SELF + ' (pixels identical)'),
+    metadata: f('Metadata removed (same step as image outputs), ICC profile kept as the PDF colour space.', 'measured', MW + ':38; ' + SELF + ' (heic → pdf with meta.heic; same pixel path)'),
+    transparency: f('Transparency is kept as a soft mask (SMask).', 'measured', PW + ' pixelsPdf; ' + SELF + ' (half-transparent PNG) ; ' + IMGPDF + ' (alpha.webp, rendered over white)'),
+    limits: [IMG_LIMIT],
+    extra: [ORIENT, f('Output ≈ PNG size: sample.png 96 453 B → PDF 105 947 B.', 'measured', IMGPDF)],
+  }),
   image('jpg', 'webp', { srcAlpha: false, extra: [f('Browser timing: 15 MP JPG → WebP 7.0–8.2 s, output 6.6 MB.', 'measured', 'test-results/t2/inputs-*.json (big15mp.jpg)')] }),
 ];
 

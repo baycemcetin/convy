@@ -1,7 +1,7 @@
 // Engine registry (MIMARI §3): picks the engine per job and runs it. Image → magick worker; audio/video → Mediabunny
 // worker when WebCodecs can decode+encode the tracks, otherwise ffmpeg ST (HEVC MOV, GIF, MP3, old containers, no WebCodecs).
 import { FFMPEG_MEMFS_MAX_OUT, PREVIEW_DOWNSCALE_MP, JOB_TIMEOUT_MS, OPFS_OUT_MIN } from './limits';
-import type { Format } from './formats';
+import { byId, type Format } from './formats';
 
 export interface RunResult { blob: Blob; w?: number | null; h?: number | null; duration?: number | null; engine: 'magick' | 'mediabunny' | 'ffmpeg' | 'pandoc' | 'pdfjs'; name?: string; }
 export interface RunHooks { engine?: (p: number) => void; progress?: (p: number | null) => void; }
@@ -137,8 +137,9 @@ export function estimateOut(inBytes: number, to: string, duration: number | null
   return duration ? (duration * KBPS[to] * 1000) / 8 : inBytes;
 }
 
-const MIME: Record<string, string> = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp', avif: 'image/avif', gif: 'image/gif', bmp: 'image/bmp', tiff: 'image/tiff', ico: 'image/x-icon', jxl: 'image/jxl', mp3: 'audio/mpeg', m4a: 'audio/mp4', wav: 'audio/wav', flac: 'audio/flac', ogg: 'audio/ogg', opus: 'audio/ogg', mp4: 'video/mp4', webm: 'video/webm', txt: 'text/plain;charset=utf-8', md: 'text/markdown;charset=utf-8', html: 'text/html;charset=utf-8', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', odt: 'application/vnd.oasis.opendocument.text', epub: 'application/epub+zip' };
-export const mime = (to: string) => MIME[to] || 'application/octet-stream';
+// FORMATS holds each MIME; only the output-specific ones differ (charset, Opus in Ogg)
+const MIME: Record<string, string> = { opus: 'audio/ogg', txt: 'text/plain;charset=utf-8', md: 'text/markdown;charset=utf-8', html: 'text/html;charset=utf-8' };
+export const mime = (to: string) => MIME[to] || byId(to)?.mime || 'application/octet-stream';
 
 /** Result-card preview (MIMARI Ek B): img for browser-native images (magick downscale above PREVIEW_DOWNSCALE_MP), magick PNG for
  *  TIFF/JXL, audio/video only when canPlayType says yes, first 64 KB of MD/TXT as text. Everything else: no preview. */
