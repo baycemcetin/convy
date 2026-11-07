@@ -5,22 +5,25 @@ import type { Format } from './formats';
 
 export interface RunResult { blob: Blob; w?: number | null; h?: number | null; duration?: number | null; engine: 'magick' | 'mediabunny' | 'ffmpeg' | 'pandoc' | 'pdfjs'; name?: string; }
 export interface RunHooks { engine?: (p: number) => void; progress?: (p: number | null) => void; }
-export class EngineError extends Error { constructor(public code: 'tooBig' | 'unsupported' | 'failed' | 'timeout' | 'noText', msg = code) { super(msg); } }
+export type ErrCode = 'tooBig' | 'unsupported' | 'failed' | 'timeout' | 'noText' | 'pixels' | 'password' | 'unreadable' | 'codec' | 'memory' | 'quota' | 'storage' | 'engine';
+// wname: the worker's error name (PasswordException, QuotaExceededError…); with code 'failed' the reason is read lazily by classify.ts
+export class EngineError extends Error { constructor(public code: ErrCode, msg: string = code, public wname = '') { super(msg); } }
 
 let seq = 0;
 function call(worker: Worker, msg: any, hooks: RunHooks, signal: AbortSignal, transfer: Transferable[] = []) {
   const id = ++seq;
   return new Promise<any>((res, rej) => {
+    let started = false; // a progress message means the engine is up: a worker crash after that is the job (memory), before it the engine
     const end = (settle: () => void) => { worker.removeEventListener('message', on); worker.removeEventListener('error', err); worker.removeEventListener('messageerror', err); settle(); };
     const on = ({ data }: MessageEvent) => {
       if (data.id !== id) return;
       if (data.type === 'engine') hooks.engine?.(data.p);
-      else if (data.type === 'progress') hooks.progress?.(data.p);
-      else end(() => (data.type === 'done' ? res(data) : rej(new EngineError('failed', data.error))));
+      else if (data.type === 'progress') { started = true; hooks.progress?.(data.p); }
+      else end(() => (data.type === 'done' ? res(data) : rej(new EngineError('failed', data.error, data.name))));
     };
     // an error outside the worker's try (module failed to load, async wasm abort) would otherwise leave the job running forever
     // (offline + chunk never fetched). The worker is dead after that, so drop it: the next job builds a fresh one
-    const err = (e: Event) => end(() => { drop(worker); rej(new EngineError('failed', (e as ErrorEvent).message || e.type)); });
+    const err = (e: Event) => end(() => { drop(worker); rej(new EngineError(started ? 'memory' : 'engine', (e as ErrorEvent).message || e.type)); });
     worker.addEventListener('message', on);
     worker.addEventListener('error', err);
     worker.addEventListener('messageerror', err);
@@ -124,7 +127,7 @@ export async function run(file: File, from: Format, to: string, outName: string,
   hooks.progress?.(0);
   const { ffmpegConvert } = await import('./ffmpeg'); // fallback engine: keep @ffmpeg/ffmpeg out of the island chunk
   const out = await ffmpegConvert(file, to, outName, { engine: hooks.engine, progress: hooks.progress }, signal)
-    .catch((e) => { throw e.name === 'AbortError' ? e : new EngineError(e.message === 'timeout' ? 'timeout' : 'failed', e.message); });
+    .catch((e) => { throw e.name === 'AbortError' ? e : new EngineError(e.message === 'timeout' ? 'timeout' : 'failed', e.message, e.name); });
   return { blob: new Blob([out as BlobPart], { type: mime(to) }), w: pr.w, h: pr.h, duration: pr.duration, engine: 'ffmpeg' };
 }
 

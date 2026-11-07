@@ -55,7 +55,7 @@ self.onmessage = async ({ data: { id, file, to, scale = 2, quality = 0.9 } }) =>
     }
     self.postMessage({ id, type: 'done', pages, n, w, h }, pages);
   } catch (e: any) {
-    self.postMessage({ id, type: 'error', error: String(e?.message || e) });
+    self.postMessage({ id, type: 'error', error: String(e?.message || e), name: e?.name });
   } finally {
     task?.destroy();
   }

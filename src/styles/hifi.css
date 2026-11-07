@@ -679,3 +679,4 @@ h1{ overflow-wrap:anywhere; hyphens:none; }   /* Firefox TR hyphenated display h
 /* phone: "Convert again" + Remove beside the name leaves ~90 px (390) / ~36 px (320, TR) for the name; the cleared row's actions
    drop under its data line instead (name keeps the full width, same as a done row's data line) */
 @media (max-width:767px){ .row.cleared .st{ grid-row:3; grid-column:2 / -1; justify-content:flex-start; margin-top:var(--s2); } .row.cleared .nm{ min-height:0; } }
+.sg-foot .blk{ padding-top:var(--s3); } /* quota block: format picker above the notice (WAVE3 [15]) */

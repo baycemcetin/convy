@@ -69,14 +69,14 @@
     for (const { i, st, block } of items) {
       const p = prev.get(i.id);
       if (!p) {
-        live?.say(st === 'unsupported' ? fmt(t.live.unsupported, { name: i.n, ext: i.f }) : fmt(st === 'needs' ? t.live.needs : t.live.added, { name: i.n, size: x.say(i.i) }));
+        live?.say(i.empty ? fmt(t.live.empty, { name: i.n }) : st === 'unsupported' ? fmt(t.live.unsupported, { name: i.n, ext: i.f }) : fmt(st === 'needs' ? t.live.needs : t.live.added, { name: i.n, size: x.say(i.i) }));
       } else if (p.st !== st) {
         if ((st === 'queued' || st === 'running') && !batchIds.has(i.id)) { if (!batchOpen) { batchIds.clear(); batchOpen = true; } batchIds.add(i.id); }
         if (st === 'running') setTimeout(() => shown.add(i.id), T.tShow);
         if (st === 'done') onDone(i, running);
         if (st === 'cancelled') live?.say(fmt(t.live.stopped, { name: i.n }));
-        if (st === 'offline') live?.say(fmt(t.live.offline, { name: i.n, size: x.dl(q.sizes.av?.transfer) }));
-        if (st === 'failed') live?.failed(i.n, (name) => fmt(t.live.failed, { name }), (f, names) => fmt(t.live.failedN, { f, names }));
+        if (st === 'offline') live?.say(fmt(t.live[({ av: 'offline', image: 'offlineImage', doc: 'offlineDoc', pdf: 'offlinePdf' } as const)[i.eng ?? 'av']], { name: i.n, size: x.dl(q.sizes[i.eng ?? 'av']?.transfer) }));
+        if (st === 'failed') live?.failed(i.n, (name) => { const w = i.error && (t.err.tag as Record<string, string>)[i.error]; return w ? fmt(t.live.failedWhy, { name, why: w }) : fmt(t.live.failed, { name }); }, (f, names) => fmt(t.live.failedN, { f, names }));
       }
       if (block && !p?.block) live?.say(fmt(t.live.blocked, { name: i.n, size: x.say(i.i) }));
       prev.set(i.id, { st, block });

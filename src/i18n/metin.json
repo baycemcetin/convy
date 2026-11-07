@@ -47,7 +47,8 @@
     "engName": {
       "video": "video engine",
       "image": "image engine",
-      "doc": "document engine"
+      "doc": "document engine",
+      "pdf": "PDF engine"
     },
     "engNeed": "Needed for audio and video",
     "stage": {
@@ -67,7 +68,8 @@
       "estNote": "Estimated from length and bit rate.",
       "noEst": "The output size is known when it’s done.",
       "cleared": "No preview.",
-      "leftOut": "This file is left out: not enough room."
+      "leftOut": "This file is left out: not enough room.",
+      "empty": "Empty file"
     },
     "st": {
       "done": "Converted",
@@ -83,7 +85,9 @@
       "warned": "Ready · not tested at this size",
       "offline": "Engine not saved",
       "runningNoPct": "Converting",
-      "needs": "Choose a format"
+      "needs": "Choose a format",
+      "failedWhy": "Couldn’t convert · {why}",
+      "empty": "Empty file · 0 bytes"
     },
     "btn": {
       "convert": "Convert",
@@ -122,21 +126,49 @@
     },
     "err": {
       "track": "The audio track in this file can’t be read.",
-      "orig": "Your original file is untouched.", "noText": "No selectable text in this PDF.",
+      "orig": "Your original file is untouched.",
+      "noText": "No selectable text in this PDF. If its pages are scans, convert it to PNG or JPG instead.",
       "acts": [
         "Convert without sound",
         "Choose another format"
-      ]
+      ],
+      "timeout": "It ran past the time limit, so Convy stopped it. Try a smaller file or another format.",
+      "tooBig": "The result would be over {size}, more than this engine can hold in memory. Try a shorter file or a format that makes smaller files.",
+      "pixels": "On this device Convy opens images up to {mp} megapixels, and this one is larger. Make it smaller in another app first.",
+      "unreadable": "Convy can’t read this file; it may be damaged or incomplete. If you can, export or download it again.",
+      "password": "This PDF is password-protected. Remove the password in a PDF app, then try again.",
+      "memory": "The browser ran out of memory on this file. Close other tabs and try again, or choose a smaller file.",
+      "quota": "The browser ran out of room while writing the result. Remove saved engines or choose a smaller file.",
+      "storage": "This browser didn’t let Convy write a result this large. In a private window, try a normal one.",
+      "engine": "Convy couldn’t get the {engine} ready. Check your connection, then try again.",
+      "codec": "Convy can’t decode the audio or video in this file yet. Try another format.",
+      "tag": {
+        "timeout": "time limit",
+        "tooBig": "result too large",
+        "pixels": "pixel limit",
+        "unreadable": "unreadable file",
+        "password": "password-protected",
+        "memory": "out of memory",
+        "quota": "not enough room",
+        "storage": "storage blocked",
+        "engine": "engine not ready",
+        "codec": "codec not supported",
+        "noText": "no selectable text"
+      }
     },
     "unsup": {
       "h": "Convy can’t open .{ext} files yet.",
       "a": "See the formats it can convert",
-      "pair": "PDF → {to} isn’t available. Convy turns PDFs into PNG, JPG or text."
+      "pair": "PDF → {to} isn’t available. Convy turns PDFs into PNG, JPG or text.",
+      "empty": "This file is 0 bytes, so there is nothing to convert. If it’s in a cloud folder, download it to this device first, then choose it again."
     },
     "off": {
       "needs": "This file needs the audio & video engine (about {size}). Go online once to save it on this device.",
       "works": "Images still convert offline: the image engine is saved on this device.",
-      "tag": "Offline · saved engines still work"
+      "tag": "Offline · saved engines still work",
+      "needsImage": "This file needs the image engine (about {size}). Go online once to save it on this device.",
+      "needsDoc": "This file needs the document engine (about {size}). Go online once to save it on this device.",
+      "needsPdf": "This file needs the PDF engine (about {size}). Go online once to save it on this device."
     },
     "batch": {
       "files": "{n} files",
@@ -146,7 +178,8 @@
       "target": "Images to",
       "running": "{n} converting",
       "fileOne": "{n} file",
-      "skipped": "{n} files left out of the ZIP: Convy already deleted its copies.", "skippedOne": "{n} file left out of the ZIP: Convy already deleted its copy.",
+      "skipped": "{n} files left out of the ZIP: Convy already deleted its copies.",
+      "skippedOne": "{n} file left out of the ZIP: Convy already deleted its copy.",
       "zipOnly": "Only finished files go in the ZIP."
     },
     "how": {
@@ -318,12 +351,18 @@
       "blocked": "{name} added, {size}. Not started: not enough room in this browser.",
       "warned": "{name} added, {size}. Ready, but not tested at this size.",
       "unsupported": "{name} added. Convy can’t open .{ext} files yet.",
-      "offline": "{name} added. It needs the audio and video engine, about {size}. Go online once to save it on this device.",
+      "offline": "{name} needs the audio and video engine, about {size}. Go online once to save it on this device.",
       "ios": "{name} added. Your iPhone already turned this photo into a JPG.",
       "na": "{name}: {from} to {to} isn’t available.",
       "progress": "{d} of {n} converted.",
       "failedN": "{f} files couldn’t convert: {names}.",
-      "removed": "{name} removed.", "stopped": "{name} stopped."
+      "removed": "{name} removed.",
+      "stopped": "{name} stopped.",
+      "offlineImage": "{name} needs the image engine, about {size}. Go online once to save it on this device.",
+      "offlineDoc": "{name} needs the document engine, about {size}. Go online once to save it on this device.",
+      "offlinePdf": "{name} needs the PDF engine, about {size}. Go online once to save it on this device.",
+      "failedWhy": "{name} couldn’t convert: {why}.",
+      "empty": "{name} added. The file is empty, 0 bytes."
     },
     "written": "{w} written · ≈ {t}",
     "onGauge": "Shown above",
@@ -404,7 +443,8 @@
     "engName": {
       "video": "Video motoru",
       "image": "Görsel motoru",
-      "doc": "Belge motoru"
+      "doc": "Belge motoru",
+      "pdf": "PDF motoru"
     },
     "engNeed": "Ses ve video için gerekli",
     "stage": {
@@ -424,7 +464,8 @@
       "estNote": "Süre ve bit hızına göre tahmin.",
       "noEst": "Çıktı boyutu iş bitince belli olur.",
       "cleared": "Önizleme yok.",
-      "leftOut": "Bu dosya dahil değil: yer yetmiyor."
+      "leftOut": "Bu dosya dahil değil: yer yetmiyor.",
+      "empty": "Boş dosya"
     },
     "st": {
       "done": "Dönüştü",
@@ -440,7 +481,9 @@
       "warned": "Hazır · bu boyutta test edilmedi",
       "offline": "Motor saklı değil",
       "runningNoPct": "Dönüşüyor",
-      "needs": "Format seç"
+      "needs": "Format seç",
+      "failedWhy": "Dönüştürülemedi · {why}",
+      "empty": "Boş dosya · 0 bayt"
     },
     "btn": {
       "convert": "Dönüştür",
@@ -479,21 +522,49 @@
     },
     "err": {
       "track": "Bu dosyadaki ses izi okunamıyor.",
-      "orig": "Orijinal dosyan olduğu gibi duruyor.", "noText": "Bu PDF’te seçilebilir metin yok.",
+      "orig": "Orijinal dosyan olduğu gibi duruyor.",
+      "noText": "Bu PDF’te seçilebilir metin yok. Sayfalar taranmışsa PNG ya da JPG’ye çevir.",
       "acts": [
         "Ses olmadan dönüştür",
         "Başka format seç"
-      ]
+      ],
+      "timeout": "Süre sınırı aşıldı, Convy işi durdurdu. Daha küçük bir dosya ya da başka bir format dene.",
+      "tooBig": "Sonuç {size} sınırını aşacaktı; bu motor bu kadarını bellekte tutamıyor. Daha kısa bir dosya ya da daha küçük dosya üreten bir format dene.",
+      "pixels": "Convy bu cihazda en fazla {mp} megapiksel görsel açıyor; bu görsel daha büyük. Önce başka bir uygulamada küçült.",
+      "unreadable": "Convy bu dosyayı okuyamıyor; dosya bozuk ya da eksik olabilir. Mümkünse yeniden dışa aktar ya da indir.",
+      "password": "Bu PDF parolayla korunuyor. Parolayı bir PDF uygulamasında kaldır, sonra yeniden dene.",
+      "memory": "Tarayıcının belleği bu dosyaya yetmedi. Diğer sekmeleri kapatıp yeniden dene ya da daha küçük bir dosya seç.",
+      "quota": "Sonuç yazılırken tarayıcıda yer kalmadı. Saklanan motorları sil ya da daha küçük bir dosya seç.",
+      "storage": "Bu tarayıcı, Convy’nin bu büyüklükte bir sonuç yazmasına izin vermedi. Gizli penceredeysen normal bir pencerede dene.",
+      "engine": "{engine} hazırlanamadı. Bağlantını kontrol et, sonra yeniden dene.",
+      "codec": "Convy bu dosyadaki ses ya da videoyu henüz çözemiyor. Başka bir format dene.",
+      "tag": {
+        "timeout": "süre sınırı",
+        "tooBig": "sonuç çok büyük",
+        "pixels": "piksel sınırı",
+        "unreadable": "dosya okunamadı",
+        "password": "parola korumalı",
+        "memory": "bellek yetmedi",
+        "quota": "yer yetmedi",
+        "storage": "depolama engellendi",
+        "engine": "motor hazırlanamadı",
+        "codec": "kodek desteklenmiyor",
+        "noText": "seçilebilir metin yok"
+      }
     },
     "unsup": {
       "h": "Convy henüz .{ext} dosyalarını açamıyor.",
       "a": "Dönüştürebildiği formatlara bak",
-      "pair": "PDF → {to} dönüşümü yok. Convy PDF’leri PNG, JPG ya da metne çevirir."
+      "pair": "PDF → {to} dönüşümü yok. Convy PDF’leri PNG, JPG ya da metne çevirir.",
+      "empty": "Bu dosya 0 bayt, dönüştürülecek bir şey yok. Bulut klasöründeyse önce bu cihaza indir, sonra yeniden seç."
     },
     "off": {
       "needs": "Bu dosya için ses ve video motoru gerekiyor (yaklaşık {size}). Bu cihaza saklamak için bir kez internete bağlan.",
       "works": "Görseller çevrimdışı da dönüşür: görsel motoru bu cihazda saklı.",
-      "tag": "Çevrimdışı · saklı motorlar çalışır"
+      "tag": "Çevrimdışı · saklı motorlar çalışır",
+      "needsImage": "Bu dosya için görsel motoru gerekiyor (yaklaşık {size}). Bu cihaza saklamak için bir kez internete bağlan.",
+      "needsDoc": "Bu dosya için belge motoru gerekiyor (yaklaşık {size}). Bu cihaza saklamak için bir kez internete bağlan.",
+      "needsPdf": "Bu dosya için PDF motoru gerekiyor (yaklaşık {size}). Bu cihaza saklamak için bir kez internete bağlan."
     },
     "batch": {
       "files": "{n} dosya",
@@ -503,7 +574,8 @@
       "target": "Görselleri çevir",
       "running": "{n} dönüşüyor",
       "fileOne": "{n} dosya",
-      "skipped": "{n} dosya ZIP’e girmedi: Convy kopyalarını daha önce sildi.", "skippedOne": "{n} dosya ZIP’e girmedi: Convy kopyasını daha önce sildi.",
+      "skipped": "{n} dosya ZIP’e girmedi: Convy kopyalarını daha önce sildi.",
+      "skippedOne": "{n} dosya ZIP’e girmedi: Convy kopyasını daha önce sildi.",
       "zipOnly": "ZIP’e yalnızca biten dosyalar girer."
     },
     "how": {
@@ -675,12 +747,18 @@
       "blocked": "{name} eklendi, {size}. Başlamadı: tarayıcıda yer yetmiyor.",
       "warned": "{name} eklendi, {size}. Hazır, ama bu boyutta test edilmedi.",
       "unsupported": "{name} eklendi. Convy henüz .{ext} dosyalarını açamıyor.",
-      "offline": "{name} eklendi. Ses ve video motoru gerekiyor, yaklaşık {size}. Bu cihaza saklamak için bir kez internete bağlan.",
+      "offline": "{name} için ses ve video motoru gerekiyor, yaklaşık {size}. Bu cihaza saklamak için bir kez internete bağlan.",
       "ios": "{name} eklendi. iPhone bu fotoğrafı zaten JPG’ye çevirmiş.",
       "na": "{name}: {from} formatından {to} formatına dönüşüm yok.",
       "progress": "{n} dosyadan {d} tanesi dönüştü.",
       "failedN": "{f} dosya dönüştürülemedi: {names}.",
-      "removed": "{name} kaldırıldı.", "stopped": "{name} durduruldu."
+      "removed": "{name} kaldırıldı.",
+      "stopped": "{name} durduruldu.",
+      "offlineImage": "{name} için görsel motoru gerekiyor, yaklaşık {size}. Bu cihaza saklamak için bir kez internete bağlan.",
+      "offlineDoc": "{name} için belge motoru gerekiyor, yaklaşık {size}. Bu cihaza saklamak için bir kez internete bağlan.",
+      "offlinePdf": "{name} için PDF motoru gerekiyor, yaklaşık {size}. Bu cihaza saklamak için bir kez internete bağlan.",
+      "failedWhy": "{name} dönüştürülemedi: {why}.",
+      "empty": "{name} eklendi. Dosya boş, 0 bayt."
     },
     "written": "{w} yazıldı · ≈ {t}",
     "onGauge": "Yukarıda",

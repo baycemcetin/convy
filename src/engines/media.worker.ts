@@ -75,6 +75,6 @@ self.onmessage = async ({ data: { id, op, ...args } }) => {
     const r = await ops[op](args, id);
     self.postMessage({ id, type: 'done', ...r }, r.out ? [r.out.buffer] : []);
   } catch (e: any) {
-    self.postMessage({ id, type: 'error', error: String(e?.message || e) });
+    self.postMessage({ id, type: 'error', error: String(e?.message || e), name: e?.name });
   }
 };

@@ -72,13 +72,14 @@ const why = $derived([left ? t.batch.zipOnly : '', cleared ? x.plural(cleared, t
           {#if !staged}
             <span class="dt"><span class="data">
               <span class="sg">{it.f}{#if it.to}{' '}<Ar to={t.sr.to} />{' '}{it.to}{/if}{@render seg()}</span>
-              <span class="sg">{#if fin}{x.size(it.i)} <Ar to={t.sr.to} /> {x.size(it.o)}{:else if it.o != null && it.approx}{x.size(it.i)} <Ar to={t.sr.to} /> <span aria-hidden="true">≈ </span><span class="sr">{t.sr.approx} </span>{x.size(it.o)}{:else}{x.size(it.i)}{/if}{@render seg()}</span>
+              {#if !it.empty}<span class="sg">{#if fin}{x.size(it.i)} <Ar to={t.sr.to} /> {x.size(it.o)}{:else if it.o != null && it.approx}{x.size(it.i)} <Ar to={t.sr.to} /> <span aria-hidden="true">≈ </span><span class="sr">{t.sr.approx} </span>{x.size(it.o)}{:else}{x.size(it.i)}{/if}{@render seg()}</span>{/if}
               {#if fin && it.w && it.h}<span class="sg"><Dim w={it.w} h={it.h} by={t.sr.by} />{@render seg()}</span>{:else if fin && it.k === 'audio' && it.dur}<span class="sg">{x.dur(it.dur)}{@render seg()}</span>{/if}
               <span class="sg"><span class="stx">{#if run && !comp}{#if it.p == null}{t.st.runningNoPct}{:else}{t.st.running.split('{pct}')[0].replace(/\s*·\s*$/, '')}<span aria-hidden="true"> · {x.pct(it.p)}</span>{/if}
                 {:else if it.block}<Icon n="storage" s16 cls="neu" />{t.st.blocked}
                 {:else if it.st === 'cleared'}<Icon n="storage" s16 cls="neu" />{t.st.cleared}
                 {:else if it.st === 'done' || comp}<Icon n="done" s16 />{it.saved ? t.st.saved : t.st.done}
-                {:else if it.st === 'failed'}<Icon n="error" s16 cls="err" />{t.st.failed}
+                {:else if it.empty}{t.st.empty}
+                {:else if it.st === 'failed'}<Icon n="error" s16 cls="err" />{#if it.error && (t.err.tag as Record<string, string>)[it.error]}{fmt(t.st.failedWhy, { why: (t.err.tag as Record<string, string>)[it.error] })}{:else}{t.st.failed}{/if}
                 {:else}{stateWord(x, it)}{/if}</span></span>
             </span></span>
           {/if}
@@ -90,7 +91,7 @@ const why = $derived([left ? t.batch.zipOnly : '', cleared ? x.plural(cleared, t
             {:else if it.st === 'failed' && !staged}<button class="btn sm" type="button" aria-describedby="nm-{it.id}" onclick={() => acts.retry(it.id)}>{t.btn.tryAgain}</button>{@render rm(it)}
             {:else if it.block && !staged}<button class="btn sm" type="button" aria-label={fmt(t.a11y.remove, { name: it.n })} onclick={() => acts.remove(it.id)}>{t.btn.remove}</button>{/if}
           </span>
-          {#if it.st === 'unsupported' && !staged}<span class="more"><span class="msg">{fmt(t.unsup.h, { ext: it.f })} <a href="#formats">{t.unsup.a}</a></span></span>{/if}
+          {#if it.st === 'unsupported' && !it.empty && !staged}<span class="more"><span class="msg">{fmt(t.unsup.h, { ext: it.f })} <a href="#formats">{t.unsup.a}</a></span></span>{/if}
 
         {/if}
       </div>

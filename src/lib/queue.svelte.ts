@@ -2,7 +2,7 @@
 // "Convert": queued → running → done | failed | cancelled. Item fields follow the hi-fi data model (veri.js) so the
 // island templates map 1:1: n name, f FROM label, k kind, to TO label, i/o sizes in MB, dim, dur, st, p, eng.
 import { detect, targets, engineOf, outName, byId, type Format, type EngineKey } from '../engines/formats';
-import { run, probeAV, estimateOut, EngineError, preview, release, sweepOpfs, dropSession, type Preview } from '../engines/index';
+import { run, probeAV, estimateOut, EngineError, type ErrCode, preview, release, sweepOpfs, dropSession, type Preview } from '../engines/index';
 import { manifest, savedEngines, removeSavedEngines, type EngineId } from '../engines/load-wasm';
 import { OPFS_OUT_MIN } from '../engines/limits';
 
@@ -12,7 +12,7 @@ export interface Item {
   n: string; f: string; k: string; to: string | null; i: number; o: number | null; approx: boolean;
   dim: string | null; w: number | null; h: number | null; dur: number | null;
   st: St; p: number | null; eng: EngineKey | null; out: Blob | null; pv: Preview; outN: string | null; // pv: result preview (Ek B); outN: output file name (a PDF's pages arrive as name.zip)
-  block: { need: number; free: number } | null; error: 'tooBig' | 'failed' | 'timeout' | 'noText' | null; saved: boolean; pvGone: boolean; // pvGone: a preview existed and went with the OPFS copy (empty frame, same size)
+  block: { need: number; free: number } | null; error: ErrCode | null; empty: boolean; saved: boolean; pvGone: boolean; // pvGone: a preview existed and went with the OPFS copy (empty frame, same size)
   targets: string[];
 }
 const MB = (b: number) => b / 1e6;
@@ -55,13 +55,13 @@ const spend = (it: Item) => {
 
 export const byIdItem = (id: number | null) => q.items.find((x) => x.id === id) || null;
 
+const IDS: EngineId[] = ['av', 'image', 'doc', 'pdf'];
 /** Manifest sizes + saved state + estimate(); call on mount and after engine downloads / removal. */
 export async function refreshDevice() {
-  for (const id of ['av', 'image', 'doc', 'pdf'] as EngineId[]) {
-    const m = await manifest(id).catch(() => null);
-    if (m) q.sizes[id] = { size: MB(m.size), transfer: MB(m.transfer) };
-  }
-  q.saved = await savedEngines();
+  // all four at once: WebKit logs a console error for a fetch that starts while a navigation (language switch right after load) tears the page down
+  const ms = await Promise.all(IDS.map((id) => manifest(id).catch(() => null)));
+  ms.forEach((m, k) => { if (m) q.sizes[IDS[k]] = { size: MB(m.size), transfer: MB(m.transfer) }; });
+  q.saved = await savedEngines(ms);
   const e = await navigator.storage?.estimate?.().catch(() => null);
   if (e) q.store = { usage: MB(e.usage || 0), quota: MB(e.quota || 0) };
 }
@@ -76,7 +76,8 @@ export async function add(files: FileList | File[], before?: (items: Item[]) => 
     return <Item>{
       id: nextId++, file, fmt, n: file.name, f: fmt?.label ?? (file.name.split('.').pop() || '?').toUpperCase(), k: fmt?.kind ?? 'unknown',
       to: null, i: MB(file.size), o: null, approx: false, dim: null, w: null, h: null, dur: null,
-      st: fmt && targets(fmt).length ? 'needs' : 'unsupported', p: null, eng: fmt ? engineOf(fmt) : null, out: null, pv: null, outN: null,
+      st: fmt && targets(fmt).length && file.size ? 'needs' : 'unsupported', empty: file.size === 0, // a 0-byte file is never convertible: 'unsupported' + empty flag (own copy)
+      p: null, eng: fmt ? engineOf(fmt) : null, out: null, pv: null, outN: null,
       block: null, error: null, saved: false, pvGone: false, targets: fmt ? targets(fmt).map((t) => byId(t)!.label) : [],
     };
   });
@@ -136,6 +137,7 @@ async function exec(it: Item) {
   it.st = 'running'; it.p = null;
   const ekey = it.eng as EngineId;
   try {
+    if ((globalThis as any).__convyFail) throw new EngineError((globalThis as any).__convyFail); // test hook (tests/reasons.mjs): fail with this reason code
     const to = it.to!.toLowerCase();
     const r = await run(it.file, it.fmt!, to, outName(it.n, to), {
       engine: (p) => { q.engine = p >= 1 ? null : { key: it.eng!, p }; },
@@ -152,8 +154,10 @@ async function exec(it: Item) {
   } catch (e: any) {
     q.engine = null;
     if (e?.name === 'AbortError') { it.st = 'cancelled'; it.p = null; }
-    else if (!navigator.onLine && it.eng === 'av' && !q.saved.av) it.st = 'offline'; // copy exists for the video engine only (off.needs)
-    else { it.st = 'failed'; it.error = e instanceof EngineError ? (e.code === 'unsupported' ? 'failed' : e.code) : 'failed'; console.warn('[convy]', it.n, e); }
+    else if (!navigator.onLine && !q.saved[ekey]) it.st = 'offline'; // engine never saved + no connection (copy per engine: off.needs*)
+    else { let c: ErrCode = e instanceof EngineError ? e.code : 'failed';
+      if (c === 'failed' || c === 'unsupported') c = await import('../engines/classify').then((m) => m.classify(e?.wname || e?.name, e?.message), () => 'failed');
+      it.error = c; it.st = 'failed'; console.warn('[convy]', it.n, e); }
   } finally { ctrls.delete(it.id); }
 }
 

@@ -38,5 +38,5 @@ export function viewOf(it: Item, completing: boolean, shown: boolean): View {
   return it.st as View;
 }
 
-/** engine line wording: image / video / document (PDF reads as the document engine: engName has no PDF word) */
-export const engWord = (t: F['t'], key: string | undefined) => (key === 'image' ? t.engName.image : key === 'av' ? t.engName.video : t.engName.doc);
+/** engine line wording: image / video / document / PDF */
+export const engWord = (t: F['t'], key: string | undefined) => (key === 'image' ? t.engName.image : key === 'av' ? t.engName.video : key === 'pdf' ? t.engName.pdf : t.engName.doc);

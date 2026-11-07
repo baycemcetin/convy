@@ -42,12 +42,12 @@ export async function loadEngine(id: EngineId, onProgress?: (p: number) => void)
 }
 
 /** Which engines are fully in Cache Storage (device panel, readout "saved"). */
-export async function savedEngines(): Promise<Record<EngineId, boolean>> {
+export async function savedEngines(ms?: (Manifest | null)[]): Promise<Record<EngineId, boolean>> {
   const out = { av: false, image: false, doc: false, pdf: false } as Record<EngineId, boolean>;
   const cache = typeof caches !== 'undefined' ? await caches.open(CACHE).catch(() => null) : null;
   if (!cache) return out;
-  for (const id of Object.keys(ENGINES) as EngineId[]) {
-    const m = await manifest(id).catch(() => null);
+  for (const [k, id] of (Object.keys(ENGINES) as EngineId[]).entries()) {
+    const m = ms ? ms[k] : await manifest(id).catch(() => null);
     out[id] = !!m && (await Promise.all([...m.parts, ...m.side].map((p) => cache.match(base(id) + p.name)))).every(Boolean);
   }
   return out;

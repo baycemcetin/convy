@@ -35,6 +35,6 @@ self.onmessage = async ({ data: { id, file, from, to, quality = 85, maxSide } })
     });
     self.postMessage({ id, type: 'done', ...res }, [res.out.buffer]);
   } catch (e: any) {
-    self.postMessage({ id, type: 'error', error: String(e?.message || e) });
+    self.postMessage({ id, type: 'error', error: String(e?.message || e), name: e?.name });
   }
 };

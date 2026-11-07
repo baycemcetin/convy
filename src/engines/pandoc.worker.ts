@@ -8,6 +8,8 @@ import { loadEngine } from './load-wasm';
 const READ: Record<string, string> = { docx: 'docx', odt: 'odt', md: 'markdown', html: 'html', epub: 'epub', rtf: 'rtf', tex: 'latex' };
 const WRITE: Record<string, string> = { docx: 'docx', odt: 'odt', md: 'markdown', html: 'html5', epub: 'epub3', txt: 'plain' };
 
+// EPUB chapters arrive as <section id="c1.xhtml">/empty anchors: markdown prints them as `[]{#c1.xhtml}` and `::: {#c1.xhtml}`. Dropping span/div attributes (and raw HTML, which would print them as tags) removes the residue; the text stays.
+const EPUB_NOISE = '-bracketed_spans-fenced_divs-native_spans-native_divs-raw_html';
 const MEDIA = 'convy-media', IMG: Record<string, string> = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', svg: 'image/svg+xml', bmp: 'image/bmp', tif: 'image/tiff', tiff: 'image/tiff', webp: 'image/webp', emf: 'image/emf', wmf: 'image/wmf' };
 /** MD: every extracted picture path → data URI, in one pass (a big document can hold many pictures). */
 function inline(md: string, media: [string, Blob][]) {
@@ -22,7 +24,7 @@ self.onmessage = async ({ data: { id, file, from, to, title } }) => {
     const pandoc = await ready.catch((e) => { ready = null; throw e; });
     self.postMessage({ id, type: 'progress', p: null });
     const inName = 'in.' + from, outName = 'out.' + to;
-    const options: Record<string, unknown> = { from: READ[from], to: WRITE[to], 'input-files': [inName], 'output-file': outName, standalone: to === 'html' || to === 'epub' };
+    const options: Record<string, unknown> = { from: READ[from], to: to === 'md' && from === 'epub' ? WRITE.md + EPUB_NOISE : WRITE[to], 'input-files': [inName], 'output-file': outName, standalone: to === 'html' || to === 'epub' };
     if (to === 'epub') options.metadata = { title };
     if (to === 'html') options.variables = { pagetitle: title }; // otherwise pandoc titles the page after our temp name: <title>in</title>
     // embedded pictures (DOCX/ODT/EPUB) would otherwise be dropped: HTML gets them as data URIs (one file; this build has no
@@ -36,6 +38,6 @@ self.onmessage = async ({ data: { id, file, from, to, title } }) => {
     const buf = media.length ? inline(await out.text(), media) : await out.arrayBuffer();
     self.postMessage({ id, type: 'done', out: buf }, [buf]);
   } catch (e: any) {
-    self.postMessage({ id, type: 'error', error: String(e?.message || e) });
+    self.postMessage({ id, type: 'error', error: String(e?.message || e), name: e?.name });
   }
 };

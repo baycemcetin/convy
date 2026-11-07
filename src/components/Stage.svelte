@@ -15,6 +15,7 @@
   import Ar from './Ar.svelte';
   import Dash from './Dash.svelte';
   import Dim from './Dim.svelte';
+  import { FFMPEG_MEMFS_MAX_OUT, IMAGE_MAX_MP } from '../engines/limits';
 
   type Acts = { choose: () => void; convert: () => void; stop: (id: number) => void; stopAll: () => void; save: (id: number) => void; reconvert: (id: number) => void; share: (id: number) => void; retry: (id: number) => void; remove: (id: number, e?: MouseEvent) => void; pick: (it: Item, label: string) => void; removeEngines: () => void };
   let { x, sub, count, completing, shown, instant, touch, acts }: { x: F; sub: Item | null; count: boolean; completing: boolean; shown: boolean; instant: boolean; touch: boolean; acts: Acts } = $props();
@@ -46,11 +47,19 @@
       case 'running': return t.stage.converting;
       case 'done': case 'cleared': return t.stage.result;
       case 'failed': return t.stage.failed;
-      case 'unsupported': return t.stage.cantOpen;
+      case 'unsupported': return sub?.empty ? t.stage.empty : t.stage.cantOpen;
       case 'offline': return t.stage.offline;
     }
     return '';
   });
+
+  // failure reason (engines/index.ts classify): sentence for the stage, null → the generic text. {size} is the result limit, {mp} the pixel limit.
+  const lim = FFMPEG_MEMFS_MAX_OUT / 1e6;
+  const why = $derived.by(() => {
+    const f = sub, c = f?.error; const s = c && c !== 'failed' ? (t.err as Record<string, unknown>)[c] : null;
+    return f && typeof s === 'string' ? fmt(s, { size: lim >= 1000 ? `${x.num(lim / 1000, 0)} GB` : `${x.num(lim, 0)} MB`, mp: x.num(IMAGE_MAX_MP, 0), engine: engWord(t, f.eng ?? undefined) }) : null;
+  });
+  const OFF = { av: 'needs', image: 'needsImage', doc: 'needsDoc', pdf: 'needsPdf' } as const;
 
   // the slot: one node, label / weight / action follow the state
   type Slot = { label: string; cls: string; dis?: boolean; why?: string; aria?: string; run: (e: MouseEvent) => void };
@@ -130,9 +139,10 @@
         <div class="sg-meter" in:tin out:tout onoutrostart={pin}><span role="progressbar" aria-label={fmt(t.stage.batch, { n })} aria-valuemin="0" aria-valuemax={n} aria-valuenow={cd.length} aria-valuetext={fmt(t.sr.count, { d: cd.length, n })}><span class="fig">{cd.length}<span class="u"> {fmt(t.stage.of, { n })}</span></span></span></div>
       {:else if sub && (view === 'failed' || view === 'unsupported' || view === 'offline')}
         <div class="sg-say" in:tin out:tout onoutrostart={pin}>
-          {#if view === 'failed'}<Icon n="error" cls="err" /><h2>{sub.error === 'noText' ? t.err.noText : t.err.orig}</h2>
+          {#if view === 'failed'}<Icon n="error" cls="err" />{#if why}<h2 class="long">{why}</h2><p>{t.err.orig}</p>{:else}<h2>{t.err.orig}</h2>{/if}
+          {:else if view === 'unsupported' && sub.empty}<Icon n={sub.k} cls="neu" /><h2 class="long">{t.unsup.empty}</h2>
           {:else if view === 'unsupported'}<Icon n={sub.k} cls="neu" /><h2>{fmt(t.unsup.h, { ext: sub.f })}</h2><p><a href="#formats">{t.unsup.a}</a></p>
-          {:else}<Icon n="engine" cls="neu" /><h2 class="long">{fmt(t.off.needs, { size: x.dl(q.sizes.av?.transfer) })}</h2><p>{t.off.works}</p>{/if}
+          {:else}<Icon n="engine" cls="neu" /><h2 class="long">{fmt(t.off[OFF[sub.eng ?? 'av']], { size: x.dl(q.sizes[sub.eng ?? 'av']?.transfer) })}</h2>{#if sub.eng === 'av'}<p>{t.off.works}</p>{/if}{/if}
         </div>
       {:else if sub}
         <div class="sg-meter" in:tin out:tout onoutrostart={pin}>
@@ -157,6 +167,7 @@
         {:else if view === 'engine'}
           <span class="ebar" data-volt="engine" aria-hidden="true" style="--p:{engP}" in:tin out:tout onoutrostart={pin}><i></i></span>
         {:else if view === 'block' && sub}
+          <div class="blk" in:tin out:tout onoutrostart={pin}><Picker it={sub} legend={t.pick.legend} more={t.pick.more} onpick={(l) => acts.pick(sub!, l)} /></div>
           <div class="notice bare" id="q-notice" in:tin out:tout onoutrostart={pin}><Icon n="storage" /><span class="h">{t.quota.h}</span><p class="data" style="color:var(--c-ink)"><span class="sg">{fmt(t.quota.canUse, { size: x.size(sub.block!.free) })}</span></p><p>{t.quota.p}</p>{#if Object.values(q.saved).some(Boolean)}<div class="acts"><button class="btn sm quiet" type="button" onclick={acts.removeEngines}>{t.quota.acts[1]}</button></div>{/if}</div>
         {:else if view === 'cleared'}
           <span class="stx cl" in:tin out:tout onoutrostart={pin}><Icon n="storage" s16 cls="neu" />{t.st.cleared}</span>
@@ -188,7 +199,7 @@
       <Readout {t} engine={engVal(x, items.find((f) => f.st === 'running') ?? null) ?? t.engVal.imageSaved} format={pairs.length === 1 ? cntFmt : null} size={cd.length ? cntSize : null} result={fmt(t.batch.doneOf, { d: cd.length, n })} />
     {:else if sub}
       <Readout {t} engine={view === 'unsupported' ? null : engVal(x, sub)} format={view === 'unsupported' ? sub.f : view === 'needs' ? fmtFrom : fmtCur}
-        size={view === 'done' || view === 'cleared' ? sizeDone : view === 'ready' ? (est ? sizeEst : sizeIn) : view === 'running' ? sizeIn : sizeOnly}
+        size={view === 'unsupported' && sub.empty ? null : view === 'done' || view === 'cleared' ? sizeDone : view === 'ready' ? (est ? sizeEst : sizeIn) : view === 'running' ? sizeIn : sizeOnly}
         result={view === 'done' || view === 'cleared' ? resName : null} />
     {/if}
   </div>
