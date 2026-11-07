@@ -26,13 +26,14 @@ const OFFLINE_PDF_FONTS = f('Fonts/cmaps a PDF needs are fetched on first use ou
 const IMG_PATH = f('Same engine and same output in every browser: byte-identical output in Chromium, Firefox, WebKit and Node.', 'measured', 'test-results/t2/inputs-{chromium,firefox,webkit}.json (heic→jpg 50 654 B, heic→png 135 556 B); ' + SELF);
 const IMG_PATH_CODE = f('Same engine (magick-wasm) in every browser; no browser-specific branch.', 'code', 'src/engines/index.ts:89-93');
 const IMG_LIMIT = f('Images above 250 megapixels are refused (100 MP on iPhone/iPad) instead of exhausting memory.', 'code', 'src/engines/limits.ts:8; ' + MW + ':19');
-const EXIF = f('EXIF metadata is kept in the output, including camera make and GPS location.', 'measured', SELF + ' (EXIF incl. GPS kept)');
-const ORIENT = f('Rotation is applied to the pixels (autoOrient) and the orientation tag reset to 1, so the picture stands the right way in every viewer.', 'measured', MW + ':28; ' + SELF);
-const ICC = f('ICC colour profile handling not checked.', 'unverified', '-');
+const IMGPDF = 'tests/img-pdf.mjs (test-results/w3-img-pdf-{chromium,firefox,webkit}.json)';
+const EXIF = f('Metadata is removed from the output: EXIF (camera make/model, date, GPS location), XMP, IPTC and comments.', 'measured', MW + ':13-18,38; ' + SELF + ' (EXIF/GPS, XMP, IPTC, comment removed; tests/fixtures/meta.jpg)');
+const ORIENT = f('Rotation is applied to the pixels (autoOrient) before the EXIF block is removed, so the picture stands the right way in every viewer.', 'measured', MW + ':37; ' + SELF + '; ' + IMGPDF);
+const ICC = f('The ICC colour profile is kept (Display P3 fixture: profile present in JPG, PNG, WebP, AVIF, TIFF, JXL output).', 'measured', MW + ':15; ' + SELF);
 const ALPHA_WHITE = f('Transparent areas become white (JPG has no transparency).', 'measured', MW + ':31; ' + SELF + ' (transparency → white)');
 const ALPHA_KEEP = f('Transparency is kept.', 'measured', SELF + ' (kept in PNG/WebP)');
 const NO_ALPHA_SRC = null;
-const PNG_META = f('EXIF inside a PNG source (eXIf chunk) not tested; most PNGs carry none.', 'unverified', '-');
+const PNG_META = f('Metadata in a PNG source (eXIf, XMP) goes through the same removal step; not tested with a PNG that carries it.', 'code', MW + ':13-18,38');
 const FIRST_FRAME = f('Animated input: only the first frame is converted.', 'measured', MW + ':27 (ImageMagick.read = one image); ' + SELF);
 const Q85 = (fmt: string) => f(`${fmt} quality 85 (fixed, no setting in the UI).`, 'code', MW + ':22,32');
 const LOSSLESS_PNG = f('PNG is lossless: no further quality loss; the file is usually much larger (12 MP JPG 1.2 MB → PNG 11.8 MB).', 'measured', 'scratch run 2026-11-07, photo12mp.jpg (see 05-build/PAIR-FACTS.md)');
@@ -86,9 +87,9 @@ const pdfTo = (to: 'jpg' | 'png'): PairFacts => ({
 });
 
 export const PAIR_FACTS: PairFacts[] = [
-  image('heic', 'jpg', { srcAlpha: false, path: IMG_PATH, metadata: f('EXIF incl. GPS kept (HEIC made by macOS sips with EXIF+GPS, then converted).', 'measured', 'scratch run 2026-11-07 (see 05-build/PAIR-FACTS.md)'),
+  image('heic', 'jpg', { srcAlpha: false, path: IMG_PATH, metadata: f('EXIF incl. GPS removed, ICC kept (tests/fixtures/meta.heic, made by macOS sips with EXIF+GPS+Display P3), in Chromium, Firefox, WebKit.', 'measured', IMGPDF + '; ' + SELF),
     extra: [f('Sample: 1280×720 HEIC 39 KB → JPG 51 KB.', 'measured', 'test-results/t2/inputs-*.json'), f('HEIC image sequences/Live Photo motion: only the still image.', 'unverified', '-')] }),
-  image('heic', 'png', { srcAlpha: false, path: IMG_PATH, metadata: f('EXIF incl. GPS kept (sips-made HEIC).', 'measured', 'scratch run 2026-11-07'),
+  image('heic', 'png', { srcAlpha: false, path: IMG_PATH, metadata: f('EXIF incl. GPS removed, ICC kept (meta.heic), in Chromium, Firefox, WebKit.', 'measured', IMGPDF + '; ' + SELF),
     extra: [f('Sample: 1280×720 HEIC 39 KB → PNG 136 KB.', 'measured', 'test-results/t2/inputs-*.json')] }),
   image('webp', 'png', { animated: true }),
   image('webp', 'jpg', { animated: true }),
@@ -106,8 +107,8 @@ export const PAIR_FACTS: PairFacts[] = [
     download: AV_DL, path: f('Always ffmpeg, every browser (GIF is not a Mediabunny output). Same bytes in Chromium, Firefox, WebKit (sample.mp4 → 875 487 B).', 'measured', 'src/engines/media.worker.ts:6-9,41; test-results/final-e2e-*.json'),
     offline: OFFLINE, extra: [] },
   mp4From('webm', [f('Firefox: whether it can encode H.264/AAC via WebCodecs decides the path; not tested (no WebM fixture).', 'unverified', '-')]),
-  image('avif', 'jpg', { metadata: f('EXIF incl. GPS kept through AVIF input.', 'measured', SELF + ' (EXIF kept through webp/avif input)') }),
-  image('avif', 'png', { metadata: f('EXIF incl. GPS kept through AVIF input.', 'measured', SELF) }),
+  image('avif', 'jpg', { metadata: f('EXIF incl. GPS removed through AVIF input.', 'measured', SELF + ' (EXIF removed through webp/avif input)') }),
+  image('avif', 'png', { metadata: f('EXIF incl. GPS removed through AVIF input.', 'measured', SELF) }),
   mp3From('wav', [f('Converted in Chromium, Firefox, WebKit (sample.wav → 6 755 B MP3, identical).', 'measured', 'test-results/final-e2e-*.json')]),
   mp3From('m4a', [f('M4A/AAC input not tested in a browser (no M4A fixture); FLAC → M4A is tested the other way.', 'unverified', 'tests/e2e.mjs:7-9')]),
   image('png', 'webp', { metadata: PNG_META }),

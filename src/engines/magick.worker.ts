@@ -9,6 +9,12 @@ const FMT: Record<string, MagickFormat> = {
   gif: MagickFormat.Gif, bmp: MagickFormat.Bmp, tiff: MagickFormat.Tiff, ico: MagickFormat.Ico, jxl: MagickFormat.Jxl, psd: MagickFormat.Psd,
 };
 const NO_ALPHA = new Set(['jpg', 'bmp']);
+// Privacy default (DECISIONS 2026-11-07): drop EXIF (GPS), XMP, IPTC/8BIM and comments after autoOrient; keep the ICC profile.
+// Not strip(): it also tells the PNG coder to skip iCCP, which would lose the profile we keep.
+const clean = (img: any) => {
+  for (const p of img.profileNames) if (p !== 'icc' && p !== 'icm') img.removeProfile(p);
+  for (const a of img.attributeNames) if (/^(exif|xmp|iptc|8bim|comment|tiff:(artist|copyright|document|hostcomputer|make|model|software|timestamp))/i.test(a)) img.removeAttribute(a);
+};
 
 let ready: Promise<void> | null = null;
 const init = (id: number) => (ready ??= (async () => {
@@ -26,6 +32,7 @@ self.onmessage = async ({ data: { id, file, from, to, quality = 85, maxSide } })
     const bytes = new Uint8Array(await (file as Blob).arrayBuffer());
     const res = ImageMagick.read(bytes, FMT[from], (img) => {
       img.autoOrient();
+      clean(img);
       if (maxSide && Math.max(img.width, img.height) > maxSide) img.thumbnail(maxSide, maxSide);
       if (to === 'ico' && Math.max(img.width, img.height) > 256) img.resize(256, 256);
       if (NO_ALPHA.has(to) && img.hasAlpha) { img.backgroundColor = new MagickColor(255, 255, 255); img.alpha(AlphaAction.Remove); }
