@@ -1,0 +1,699 @@
+{
+  "_not": "Convy hi-fi mikro metin (EN + TR). Tek kaynak: build.py bunu ekran.html'e gömer. Anahtarlar sabit; {yer_tutucu} değerleri çalışma anında hesaplanır, çevrilmez. Ses: STRATEJI §4 (net, titiz, ölçülü; sayı ver, koşulu söyle; 'upload/yükle' yok, ünlem yok). Yasak listesi: STRATEJI Ek.",
+  "en": {
+    "nav": [
+      "Formats",
+      "How it works",
+      "FAQ"
+    ],
+    "dev": "This device",
+    "offline": "Offline",
+    "menu": "Menu",
+    "other": "TR",
+    "skip": "Skip to converter",
+    "kick": "File converter · runs on this device",
+    "h1": "Convert files. Nothing left to guess.",
+    "lead": "Images, audio, video and documents, converted in your browser.",
+    "choose": "Choose files",
+    "dropAny": "or drop them anywhere",
+    "proof": [
+      "No ads",
+      "No account",
+      "No size cap of ours",
+      "Open source (GPL-3.0)"
+    ],
+    "lbl": {
+      "engine": "Engine",
+      "size": "Size",
+      "progress": "Progress",
+      "result": "Result",
+      "where": "Where",
+      "format": "Format",
+      "queue": "Queue",
+      "needs": "Needs",
+      "free": "Can use",
+      "written": "Written",
+      "files": "Files"
+    },
+    "whereVal": "This device",
+    "engVal": {
+      "imageSaved": "Image engine · saved",
+      "docSaved": "Document engine · saved",
+      "avFetching": "Audio & video engine · {pct}",
+      "avNotSaved": "Audio & video engine · not saved",
+      "avReady": "Audio & video engine · saved"
+    },
+    "engLine": "Getting the {engine} ready · about {size}, saved for next time",
+    "engName": {
+      "video": "video engine",
+      "image": "image engine",
+      "doc": "document engine"
+    },
+    "engNeed": "Needed for audio and video",
+    "stage": {
+      "converting": "Converting",
+      "preparing": "Preparing engine",
+      "result": "Result",
+      "notStarted": "Not started",
+      "failed": "Couldn’t convert",
+      "cantOpen": "Can’t open",
+      "offline": "Needs a connection once",
+      "batch": "Converting {n} files",
+      "needs": "needed",
+      "of": "of {n}",
+      "waitsEngine": "Starts when the engine is ready. You can press Convert now.",
+      "noPct": "This engine doesn’t report progress. Document jobs usually finish in under a second.",
+      "input": "input",
+      "estNote": "Estimated from length and bit rate.",
+      "noEst": "The output size is known when it’s done.",
+      "leftOut": "This file is left out: not enough room."
+    },
+    "st": {
+      "done": "Converted",
+      "running": "Converting · {pct}",
+      "waiting": "Waiting for engine",
+      "queued": "Waiting for image engine",
+      "ready": "Ready",
+      "failed": "Couldn’t convert",
+      "blocked": "Not enough room",
+      "unsupported": "Can’t open",
+      "warned": "Ready · not tested at this size",
+      "offline": "Engine not saved",
+      "runningNoPct": "Converting",
+      "needs": "Choose a format"
+    },
+    "btn": {
+      "convert": "Convert",
+      "add": "Add files",
+      "save": "Save",
+      "saveAll": "Save all (ZIP)",
+      "stop": "Stop",
+      "stopAll": "Stop all",
+      "remove": "Remove",
+      "share": "Save to Photos…",
+      "tryAgain": "Try again",
+      "close": "Close",
+      "convertOne": "Convert 1 file",
+      "convertN": "Convert {n} files",
+      "stopThis": "Stop this file",
+      "saveDone": "Save {d} finished (ZIP)"
+    },
+    "sig": "Converted here.",
+    "quota": {
+      "h": "Not enough room in this browser for this file.",
+      "p": "Nothing has started yet. Lower the resolution, choose a smaller file, or remove saved engines to free up room.",
+      "canUse": "Convy can use {size} in this browser",
+      "acts": [
+        "Lower resolution",
+        "Remove saved engines"
+      ]
+    },
+    "mem": {
+      "h": "Convy hasn’t been tested with files over {size}.",
+      "p": "The browser may run out of memory. You can still try; your original stays untouched.",
+      "acts": [
+        "Try anyway",
+        "Choose another file"
+      ]
+    },
+    "err": {
+      "track": "The audio track in this file can’t be read.",
+      "orig": "Your original file is untouched.",
+      "acts": [
+        "Convert without sound",
+        "Choose another format"
+      ]
+    },
+    "unsup": {
+      "h": "Convy can’t open .{ext} files yet.",
+      "a": "See the formats it can convert",
+      "pair": "PDF → {to} isn’t available. Convy turns PDFs into PNG, JPG or text."
+    },
+    "off": {
+      "needs": "This file needs the audio & video engine (about {size}). Go online once to save it on this device.",
+      "works": "Images still convert offline: the image engine is saved on this device.",
+      "tag": "Offline · saved engines still work"
+    },
+    "batch": {
+      "files": "{n} files",
+      "doneOf": "{d} of {n} finished",
+      "failedSum": "{d} finished · {f} couldn’t convert",
+      "zip": "ZIP ≈ {size}",
+      "target": "Images to",
+      "running": "{n} converting",
+      "fileOne": "{n} file",
+      "zipOnly": "Only finished files go in the ZIP."
+    },
+    "how": {
+      "t": "How Convy works",
+      "steps": [
+        "See the engine before it loads.",
+        "See the progress while it runs.",
+        "See the result before you save it."
+      ],
+      "link": "Engines and limits"
+    },
+    "foot": [
+      "Formats",
+      "How it works",
+      "FAQ",
+      "Privacy",
+      "About & licenses",
+      "Source on GitHub"
+    ],
+    "made": "Made by Zeze Workshop",
+    "panel": {
+      "t": "This device",
+      "where": "Files are converted in this browser, on this device.",
+      "engT": "Saved engines",
+      "eng": [
+        [
+          "Image engine",
+          "saved"
+        ],
+        [
+          "Audio & video engine",
+          "saved"
+        ],
+        [
+          "Document engine",
+          "not saved"
+        ]
+      ],
+      "storeT": "Storage",
+      "store": "Convy uses {used} · can use {avail} in this browser",
+      "offT": "Offline",
+      "offReady": "Ready offline: images, audio, video. Not yet: documents.",
+      "saveAll": "Save all engines for offline",
+      "removeAll": "Remove saved engines",
+      "frees": "frees {size}",
+      "keep": "Safari may remove saved engines after 7 days without a visit. Any browser may remove them when storage runs low.",
+      "themeT": "Theme",
+      "theme": [
+        "System",
+        "Dark",
+        "Light"
+      ],
+      "langT": "Language",
+      "lang": [
+        "English",
+        "Türkçe"
+      ],
+      "install": "Install Convy",
+      "installNote": "Shown only when this browser offers it.",
+      "uses": "uses {size}",
+      "dl": "about {size} to download",
+      "removeNote": "Removed engines download again when needed."
+    },
+    "fmt": {
+      "crumb": [
+        "Convert",
+        "Image",
+        "HEIC to JPG"
+      ],
+      "kick": "Image · HEIC to JPG",
+      "h1": "Convert HEIC to JPG",
+      "lead": "Turn HEIC photos into JPG files in your browser.",
+      "facts": [
+        [
+          "Engine",
+          "Image engine"
+        ],
+        [
+          "Engine size",
+          "about {transfer}"
+        ],
+        [
+          "Preview",
+          "Before you save"
+        ],
+        [
+          "Offline",
+          "After first use"
+        ],
+        [
+          "Many files",
+          "Yes · ZIP"
+        ]
+      ],
+      "choose": "Choose HEIC files",
+      "whatX": "What is HEIC?",
+      "whatY": "What is JPG?",
+      "x": "HEIC is the image format iPhones use for photos by default. Many apps and websites outside Apple’s can’t open it.",
+      "y": "JPG opens almost everywhere: browsers, editors, email and forms. At the same image quality, a JPG is usually larger than its HEIC.",
+      "draft": "Draft · copywriter + SEO (MDX)",
+      "faqT": "Questions about HEIC to JPG",
+      "faq": [
+        "Does converting to JPG lose quality?",
+        "Can I convert many HEIC photos at once?",
+        "Does it work on iPhone?",
+        "Does it work offline?"
+      ],
+      "relT": "More conversions",
+      "rel": [
+        "HEIC → PNG",
+        "HEIC → WebP",
+        "PNG → JPG",
+        "WebP → JPG",
+        "TIFF → JPG",
+        "PDF → JPG"
+      ],
+      "ios": "Your iPhone already turned this photo into a JPG when you picked it. To convert the original HEIC, choose it from Files.",
+      "iosSt": "Already a JPG"
+    },
+    "hiw": {
+      "kick": "How it works",
+      "h1": "What happens when you convert a file",
+      "lead": "Convy converts files in your browser. Here is what loads, where the work happens and where the limits are.",
+      "toc": [
+        "Engines",
+        "Where the work happens",
+        "Limits",
+        "Offline",
+        "Check it yourself"
+      ],
+      "steps": [
+        [
+          "01",
+          "The engine loads",
+          "The first time you convert a type of file, its engine downloads and is saved for next time. The audio & video engine is about {size}."
+        ],
+        [
+          "02",
+          "This tab converts",
+          "The engine runs in a background worker of this tab. The page shows real progress."
+        ],
+        [
+          "03",
+          "You save the result",
+          "You see the result and its numbers first. Nothing is saved until you press Save."
+        ]
+      ],
+      "check": "You can check this yourself: while a file converts, open the Network tab in your browser’s developer tools."
+    },
+    "priv": {
+      "kick": "Privacy",
+      "h1": "What Convy sends, and what it doesn’t",
+      "pending": "This text is written after the analytics decision (MIMARI §13). Both options are cookieless.",
+      "toc": [
+        "Files",
+        "Analytics",
+        "Engines",
+        "Contact"
+      ]
+    },
+    "live": {
+      "added": "IMG_4021.heic added, 3.1 megabytes.",
+      "engine": "Video engine ready.",
+      "start": "Converting.",
+      "done": "IMG_4021.jpg ready. 3.1 to 1.2 megabytes.",
+      "failed": "interview.mkv couldn’t convert: the audio track can’t be read.",
+      "batch": "3 files converted. 236 to 103 megabytes.",
+      "needs": "{name} added, {size}. Choose a format.",
+      "blocked": "{name} added, {size}. Not started: not enough room in this browser.",
+      "warned": "{name} added, {size}. Ready, but not tested at this size.",
+      "unsupported": "{name} added. Convy can’t open .{ext} files yet.",
+      "offline": "{name} added. It needs the audio and video engine, about {size}. Go online once to save it on this device.",
+      "ios": "{name} added. Your iPhone already turned this photo into a JPG.",
+      "na": "{name}: {from} to {to} isn’t available.",
+      "progress": "{d} of {n} converted.",
+      "failedN": "{f} files couldn’t convert: {names}.",
+      "removed": "{name} removed."
+    },
+    "written": "{w} written · ≈ {t}",
+    "onGauge": "Shown above",
+    "pick": {
+      "legend": "Convert to",
+      "more": "More formats",
+      "reason": "Choose a format to start."
+    },
+    "a11y": {
+      "save": "Save {name}",
+      "stop": "Stop {name}",
+      "remove": "Remove {name}",
+      "stopThis": "Stop this file, {name}",
+      "nav": "Main",
+      "footer": "Footer",
+      "crumb": "Breadcrumb",
+      "stage": "Converter"
+    },
+    "sr": {
+      "pending": "not known yet",
+      "to": "to",
+      "fileOf": "file {i} of {n}",
+      "pct": "{pct} percent, converting",
+      "count": "{d} of {n} converted",
+      "mb": "megabytes",
+      "gb": "gigabytes",
+      "onDevice": "Converted on this device."
+    }
+  },
+  "tr": {
+    "nav": [
+      "Formatlar",
+      "Nasıl çalışır",
+      "SSS"
+    ],
+    "dev": "Bu cihaz",
+    "offline": "Çevrimdışı",
+    "menu": "Menü",
+    "other": "EN",
+    "skip": "Dönüştürücüye geç",
+    "kick": "Dosya dönüştürücü · bu cihazda çalışır",
+    "h1": "Dosyanı dönüştür. Tahmine yer yok.",
+    "lead": "Görsel, ses, video ve belge dosyaların tarayıcında dönüşür.",
+    "choose": "Dosya seç",
+    "dropAny": "ya da istediğin yere bırak",
+    "proof": [
+      "Reklam yok",
+      "Hesap yok",
+      "Boyut sınırı koymuyoruz",
+      "Açık kaynak (GPL-3.0)"
+    ],
+    "lbl": {
+      "engine": "Motor",
+      "size": "Boyut",
+      "progress": "İlerleme",
+      "result": "Sonuç",
+      "where": "Nerede",
+      "format": "Format",
+      "queue": "Kuyruk",
+      "needs": "Gereken",
+      "free": "Kullanılabilir",
+      "written": "Yazılan",
+      "files": "Dosya"
+    },
+    "whereVal": "Bu cihaz",
+    "engVal": {
+      "imageSaved": "Görsel motoru · saklı",
+      "docSaved": "Belge motoru · saklı",
+      "avFetching": "Ses ve video motoru · {pct}",
+      "avNotSaved": "Ses ve video motoru · saklı değil",
+      "avReady": "Ses ve video motoru · saklı"
+    },
+    "engLine": "{engine} hazırlanıyor · yaklaşık {size}, sonraki sefer için saklanıyor",
+    "engName": {
+      "video": "Video motoru",
+      "image": "Görsel motoru",
+      "doc": "Belge motoru"
+    },
+    "engNeed": "Ses ve video için gerekli",
+    "stage": {
+      "converting": "Dönüşüyor",
+      "preparing": "Motor hazırlanıyor",
+      "result": "Sonuç",
+      "notStarted": "Başlamadı",
+      "failed": "Dönüştürülemedi",
+      "cantOpen": "Açılamıyor",
+      "offline": "Bir kez bağlantı gerekiyor",
+      "batch": "{n} dosya dönüşüyor",
+      "needs": "gerekli",
+      "of": "/ {n}",
+      "waitsEngine": "Motor hazır olunca başlar. Dönüştür’e şimdiden basabilirsin.",
+      "noPct": "Bu motor ilerleme bildirmiyor. Belge işleri genellikle bir saniyeden kısa sürer.",
+      "input": "girdi",
+      "estNote": "Süre ve bit hızına göre tahmin.",
+      "noEst": "Çıktı boyutu iş bitince belli olur.",
+      "leftOut": "Bu dosya dahil değil: yer yetmiyor."
+    },
+    "st": {
+      "done": "Dönüştü",
+      "running": "Dönüşüyor · {pct}",
+      "waiting": "Motor bekleniyor",
+      "queued": "Görsel motoru bekleniyor",
+      "ready": "Hazır",
+      "failed": "Dönüştürülemedi",
+      "blocked": "Yer yetmiyor",
+      "unsupported": "Açılamıyor",
+      "warned": "Hazır · bu boyutta test edilmedi",
+      "offline": "Motor saklı değil",
+      "runningNoPct": "Dönüşüyor",
+      "needs": "Format seç"
+    },
+    "btn": {
+      "convert": "Dönüştür",
+      "add": "Dosya ekle",
+      "save": "Kaydet",
+      "saveAll": "Hepsini kaydet (ZIP)",
+      "stop": "Durdur",
+      "stopAll": "Hepsini durdur",
+      "remove": "Kaldır",
+      "share": "Fotoğraflar’a kaydet…",
+      "tryAgain": "Yeniden dene",
+      "close": "Kapat",
+      "convertOne": "1 dosyayı dönüştür",
+      "convertN": "{n} dosyayı dönüştür",
+      "stopThis": "Bu dosyayı durdur",
+      "saveDone": "Biten {d} dosyayı kaydet (ZIP)"
+    },
+    "sig": "Burada dönüştü.",
+    "quota": {
+      "h": "Bu dosya için tarayıcıda yeterli yer yok.",
+      "p": "Henüz hiçbir şey başlamadı. Çözünürlüğü düşür, daha küçük bir dosya seç ya da yer açmak için saklanan motorları sil.",
+      "canUse": "Convy bu tarayıcıda {size} kullanabilir",
+      "acts": [
+        "Çözünürlüğü düşür",
+        "Saklanan motorları sil"
+      ]
+    },
+    "mem": {
+      "h": "Convy {size} üzerindeki dosyalarla test edilmedi.",
+      "p": "Tarayıcının belleği yetmeyebilir. Yine de deneyebilirsin; orijinal dosyan olduğu gibi kalır.",
+      "acts": [
+        "Yine de dene",
+        "Başka dosya seç"
+      ]
+    },
+    "err": {
+      "track": "Bu dosyadaki ses izi okunamıyor.",
+      "orig": "Orijinal dosyan olduğu gibi duruyor.",
+      "acts": [
+        "Ses olmadan dönüştür",
+        "Başka format seç"
+      ]
+    },
+    "unsup": {
+      "h": "Convy henüz .{ext} dosyalarını açamıyor.",
+      "a": "Dönüştürebildiği formatlara bak",
+      "pair": "PDF → {to} dönüşümü yok. Convy PDF’leri PNG, JPG ya da metne çevirir."
+    },
+    "off": {
+      "needs": "Bu dosya için ses ve video motoru gerekiyor (yaklaşık {size}). Bu cihaza saklamak için bir kez internete bağlan.",
+      "works": "Görseller çevrimdışı da dönüşür: görsel motoru bu cihazda saklı.",
+      "tag": "Çevrimdışı · saklı motorlar çalışır"
+    },
+    "batch": {
+      "files": "{n} dosya",
+      "doneOf": "{d}/{n} bitti",
+      "failedSum": "{d} bitti · {f} dönüştürülemedi",
+      "zip": "ZIP ≈ {size}",
+      "target": "Görselleri çevir",
+      "running": "{n} dönüşüyor",
+      "fileOne": "{n} dosya",
+      "zipOnly": "ZIP’e yalnızca biten dosyalar girer."
+    },
+    "how": {
+      "t": "Convy nasıl çalışır",
+      "steps": [
+        "Motoru inmeden önce gör.",
+        "İlerlemeyi iş sürerken gör.",
+        "Sonucu kaydetmeden önce gör."
+      ],
+      "link": "Motorlar ve sınırlar"
+    },
+    "foot": [
+      "Formatlar",
+      "Nasıl çalışır",
+      "SSS",
+      "Gizlilik",
+      "Hakkında ve lisanslar",
+      "GitHub’da kaynak"
+    ],
+    "made": "Zeze Workshop yaptı",
+    "panel": {
+      "t": "Bu cihaz",
+      "where": "Dosyalar bu tarayıcıda, bu cihazda dönüştürülür.",
+      "engT": "Saklanan motorlar",
+      "eng": [
+        [
+          "Görsel motoru",
+          "saklı"
+        ],
+        [
+          "Ses ve video motoru",
+          "saklı"
+        ],
+        [
+          "Belge motoru",
+          "saklı değil"
+        ]
+      ],
+      "storeT": "Depolama",
+      "store": "Convy {used} kullanıyor · bu tarayıcıda {avail} kullanabilir",
+      "offT": "Çevrimdışı",
+      "offReady": "Çevrimdışı hazır: görsel, ses, video. Henüz hazır değil: belge.",
+      "saveAll": "Tüm motorları çevrimdışı için sakla",
+      "removeAll": "Saklanan motorları sil",
+      "frees": "{size} yer açar",
+      "keep": "Safari, 7 gün ziyaret etmezsen saklanan motorları silebilir. Depolama azalınca her tarayıcı silebilir.",
+      "themeT": "Tema",
+      "theme": [
+        "Sistem",
+        "Koyu",
+        "Açık"
+      ],
+      "langT": "Dil",
+      "lang": [
+        "English",
+        "Türkçe"
+      ],
+      "install": "Convy’yi kur",
+      "installNote": "Yalnızca tarayıcın sunuyorsa görünür.",
+      "uses": "{size} yer kaplıyor",
+      "dl": "yaklaşık {size} indirilir",
+      "removeNote": "Silinen motorlar gerektiğinde yeniden iner."
+    },
+    "fmt": {
+      "crumb": [
+        "Dönüştür",
+        "Görsel",
+        "HEIC’ten JPG’ye"
+      ],
+      "kick": "Görsel · HEIC’ten JPG’ye",
+      "h1": "HEIC’i JPG’ye dönüştür",
+      "lead": "HEIC fotoğraflarını tarayıcında JPG’ye çevir.",
+      "facts": [
+        [
+          "Motor",
+          "Görsel motoru"
+        ],
+        [
+          "Motor boyutu",
+          "yaklaşık {transfer}"
+        ],
+        [
+          "Önizleme",
+          "Kaydetmeden önce"
+        ],
+        [
+          "Çevrimdışı",
+          "İlk kullanımdan sonra"
+        ],
+        [
+          "Birden çok dosya",
+          "Evet · ZIP"
+        ]
+      ],
+      "choose": "HEIC dosyası seç",
+      "whatX": "HEIC nedir?",
+      "whatY": "JPG nedir?",
+      "x": "HEIC, iPhone’un fotoğraflarda varsayılan olarak kullandığı görsel formatı. Apple dışındaki birçok uygulama ve site bu formatı açamaz.",
+      "y": "JPG neredeyse her yerde açılır: tarayıcılar, düzenleyiciler, e-posta ve formlar. Aynı görüntü kalitesinde JPG dosyası genellikle HEIC’ten büyüktür.",
+      "draft": "Taslak · copywriter + SEO (MDX)",
+      "faqT": "HEIC’ten JPG’ye: sık sorulanlar",
+      "faq": [
+        "JPG’ye çevirmek kaliteyi düşürür mü?",
+        "Birden çok HEIC fotoğrafı aynı anda çevirebilir miyim?",
+        "iPhone’da çalışır mı?",
+        "Çevrimdışı çalışır mı?"
+      ],
+      "relT": "Diğer dönüşümler",
+      "rel": [
+        "HEIC → PNG",
+        "HEIC → WebP",
+        "PNG → JPG",
+        "WebP → JPG",
+        "TIFF → JPG",
+        "PDF → JPG"
+      ],
+      "ios": "Seçtiğin anda iPhone bu fotoğrafı JPG’ye çevirdi. Orijinal HEIC’i dönüştürmek için onu Dosyalar uygulamasından seç.",
+      "iosSt": "Zaten JPG"
+    },
+    "hiw": {
+      "kick": "Nasıl çalışır",
+      "h1": "Bir dosyayı dönüştürdüğünde ne olur",
+      "lead": "Convy dosyaları tarayıcında dönüştürür. Burada neyin indiğini, işin nerede yapıldığını ve sınırların nerede olduğunu görürsün.",
+      "toc": [
+        "Motorlar",
+        "İş nerede yapılır",
+        "Sınırlar",
+        "Çevrimdışı",
+        "Kendin kontrol et"
+      ],
+      "steps": [
+        [
+          "01",
+          "Motor iner",
+          "Bir dosya türünü ilk kez dönüştürdüğünde motoru iner ve sonraki sefer için saklanır. Ses ve video motoru yaklaşık {size}."
+        ],
+        [
+          "02",
+          "Bu sekme dönüştürür",
+          "Motor bu sekmenin arka planında çalışır. Sayfa gerçek ilerlemeyi gösterir."
+        ],
+        [
+          "03",
+          "Sonucu sen kaydedersin",
+          "Önce sonucu ve sayılarını görürsün. Kaydet’e basmadan hiçbir şey kaydedilmez."
+        ]
+      ],
+      "check": "Bunu kendin de kontrol edebilirsin: bir dosya dönüşürken tarayıcının geliştirici araçlarında Ağ sekmesini aç."
+    },
+    "priv": {
+      "kick": "Gizlilik",
+      "h1": "Convy ne gönderir, ne göndermez",
+      "pending": "Bu metin analitik kararından sonra yazılır (MIMARI §13). İki seçenek de çerezsiz.",
+      "toc": [
+        "Dosyalar",
+        "Analitik",
+        "Motorlar",
+        "İletişim"
+      ]
+    },
+    "live": {
+      "added": "IMG_4021.heic eklendi, 3,1 megabayt.",
+      "engine": "Video motoru hazır.",
+      "start": "Dönüşüyor.",
+      "done": "IMG_4021.jpg hazır. 3,1’den 1,2 megabayta.",
+      "failed": "interview.mkv dönüştürülemedi: ses izi okunamıyor.",
+      "batch": "3 dosya dönüştürüldü. 236’dan 103 megabayta.",
+      "needs": "{name} eklendi, {size}. Format seç.",
+      "blocked": "{name} eklendi, {size}. Başlamadı: tarayıcıda yer yetmiyor.",
+      "warned": "{name} eklendi, {size}. Hazır, ama bu boyutta test edilmedi.",
+      "unsupported": "{name} eklendi. Convy henüz .{ext} dosyalarını açamıyor.",
+      "offline": "{name} eklendi. Ses ve video motoru gerekiyor, yaklaşık {size}. Bu cihaza saklamak için bir kez internete bağlan.",
+      "ios": "{name} eklendi. iPhone bu fotoğrafı zaten JPG’ye çevirmiş.",
+      "na": "{name}: {from} formatından {to} formatına dönüşüm yok.",
+      "progress": "{n} dosyadan {d} tanesi dönüştü.",
+      "failedN": "{f} dosya dönüştürülemedi: {names}.",
+      "removed": "{name} kaldırıldı."
+    },
+    "written": "{w} yazıldı · ≈ {t}",
+    "onGauge": "Yukarıda",
+    "pick": {
+      "legend": "Çıktı formatı",
+      "more": "Diğer formatlar",
+      "reason": "Başlamak için bir format seç."
+    },
+    "a11y": {
+      "save": "Kaydet, {name}",
+      "stop": "Durdur, {name}",
+      "remove": "Kaldır, {name}",
+      "stopThis": "Bu dosyayı durdur, {name}",
+      "nav": "Ana",
+      "footer": "Alt bilgi",
+      "crumb": "Sayfa yolu",
+      "stage": "Dönüştürücü"
+    },
+    "sr": {
+      "pending": "henüz belli değil",
+      "to": ", sonuç",
+      "fileOf": "dosya {i}, toplam {n}",
+      "pct": "yüzde {pct}, dönüşüyor",
+      "count": "{n} dosyadan {d} tanesi dönüştü",
+      "mb": "megabayt",
+      "gb": "gigabayt",
+      "onDevice": "Bu cihazda dönüştü."
+    }
+  }
+}

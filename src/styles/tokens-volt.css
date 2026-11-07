@@ -1,0 +1,60 @@
+/* Convy · palet Volt · üretici _kaynak/palet.py (elle düzenleme) */
+:root, [data-theme="light"] {
+  --c-bg: #F5F6F2;
+  --c-surface: #FDFEFC;
+  --c-raised: #ECEDE8;
+  --c-line: #D7D8D3;
+  --c-line-strong: #7D8085;
+  --c-ink: #0F1113;
+  --c-ink-2: #4A4D51;
+  --c-ink-3: #606368;
+  --c-accent: #CCFC31;
+  --c-on-accent: #0F1113;
+  --c-accent-text: #4D7002;
+  --c-focus: #4D7002;
+  --c-danger: #CC291F;
+  --c-on-danger: #FCFCFA;
+  --c-danger-text: #BE241B;
+  --c-signal: #4D7002;
+  --c-trace: color-mix(in srgb, var(--c-line-strong) 40%, transparent);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-bg: #0B0C0E;
+    --c-surface: #131518;
+    --c-raised: #1C1E21;
+    --c-line: #292C2F;
+    --c-line-strong: #696C70;
+    --c-ink: #F0F1EB;
+    --c-ink-2: #B1B4B9;
+    --c-ink-3: #909499;
+    --c-accent: #CCFC31;
+    --c-on-accent: #0B0C0E;
+    --c-accent-text: #CCFC31;
+    --c-focus: #CCFC31;
+    --c-danger: #F75F4C;
+    --c-on-danger: #0B0C0E;
+    --c-danger-text: #FE8169;
+    --c-signal: #CCFC31;
+    --c-trace: color-mix(in srgb, var(--c-line-strong) 55%, transparent);
+  }
+}
+[data-theme="dark"] {
+  --c-bg: #0B0C0E;
+  --c-surface: #131518;
+  --c-raised: #1C1E21;
+  --c-line: #292C2F;
+  --c-line-strong: #696C70;
+  --c-ink: #F0F1EB;
+  --c-ink-2: #B1B4B9;
+  --c-ink-3: #909499;
+  --c-accent: #CCFC31;
+  --c-on-accent: #0B0C0E;
+  --c-accent-text: #CCFC31;
+  --c-focus: #CCFC31;
+  --c-danger: #F75F4C;
+  --c-on-danger: #0B0C0E;
+  --c-danger-text: #FE8169;
+  --c-signal: #CCFC31;
+  --c-trace: color-mix(in srgb, var(--c-line-strong) 55%, transparent);
+}

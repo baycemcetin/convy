@@ -1,0 +1,134 @@
+/* Convy · type-scale.css · v4 (heading option B "single weight, fixed rhythm", Cem 2026-11-06; letter-spacing -0.04em on ALL headings)
+   One family: Inter, wght 400-500, opsz pinned to 14 (fonts/fonts.css, 29,4 KB). Voices differ by tone, size, case and tracking, not by weight:
+   headings H1-H4 = 500 · body = 400 · labels, buttons, data = 500 · wordmark (SVG, never typed) is the only heavy mass.
+   Hierarchy comes from: 1.5 modular scale (80 / 54 / 36 / 24), 8 px baseline, tone (ink vs ink-3), uppercase `case` labels, big tabular figures.
+   Requires fonts/fonts.css. One font file. No italics, no synthesis: nothing may ask for 600/700/800. */
+
+:root {
+  --font-ui: "Convy UI", "Convy UI Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* tool interface scale (fixed rem; the tool must not reflow with the viewport) */
+  --text-2xs: 0.6875rem;  /* 11  legal, engine meta only */
+  --text-xs:  0.75rem;    /* 12  data meta, badges, labels */
+  --text-sm:  0.8125rem;  /* 13  secondary UI, captions, result line */
+  --text-base:0.875rem;   /* 14  default UI, buttons, lists */
+  --text-md:  1rem;       /* 16  body, inputs (16 stops iOS zoom) */
+
+  /* headings: 1.5 scale, fluid between 390 px (min) and 1440 px (max) viewports. Exact lerp, not rounded:
+     H1 44 -> 80 · H2 32 -> 54 · H3 24 -> 36 · H4 20 -> 24 px */
+  --h1: clamp(2.75rem, 1.914rem + 3.43vw, 5rem);
+  --h2: clamp(2rem,    1.489rem + 2.10vw, 3.375rem);
+  --h3: clamp(1.5rem,  1.221rem + 1.14vw, 2.25rem);
+  --h4: clamp(1.25rem, 1.157rem + 0.38vw, 1.5rem);
+  --lead: clamp(1.125rem, 1.05rem + 0.35vw, 1.375rem);   /* 18 -> 22 */
+
+  /* legacy aliases (tool + pano still use these names) */
+  --display-1: var(--h1);  --display-2: var(--h2);  --display-3: var(--h3);
+  --text-lg: 1.25rem;  --text-xl: 1.5rem;  --text-2xl: 2rem;   /* tool fixed sizes = the heading minimums (H4 20 / H3 24 / H2 32); the tool does not reflow */
+
+  /* weights: two only */
+  --w-regular: 400;   /* body */
+  --w-medium:  500;   /* headings, labels, buttons, data voice */
+
+  /* line height: at the desktop maximum every heading lands on the 8 px grid
+     (80 x 1.0 = 80 · 54 x 1.04 = 56 · 36 x 1.11 = 40 · 24 x 1.33 = 32 · body 16 x 1.5 = 24 · label 16) */
+  --lh-h1: 1;  --lh-h2: 1.04;  --lh-h3: 1.11;  --lh-h4: 1.33;
+  --leading-ui: 1.35;  --leading-body: 1.5;  --leading-data: 1.45;
+
+  /* tracking: -0.04em on every heading, one value (Cem). Opsz 14 is the loosest cut, so the tight value is what makes it read as a system. */
+  --tracking-heading: -0.04em;
+  --tracking-lead:    -0.01em;
+  --tracking-label:    0.08em;   /* uppercase labels */
+  --tracking-ui:       0;
+
+  /* measure */
+  --measure-body: 62ch;        /* 45-75 target; EN/TR averages */
+  --measure-lead: 48ch;
+  --measure-heading: 18ch;
+
+  /* data voice: tnum = equal-width digits, zero = slashed 0, ss02 = disambiguation (I / l / 1), cv05 = l with tail, cv08 = I with serifs. */
+  --data-features: "tnum" 1, "zero" 1, "ss02" 1, "cv05" 1, "cv08" 1;
+}
+
+html {
+  font-family: var(--font-ui);
+  font-size: 100%;
+  line-height: var(--leading-body);
+  font-synthesis: none;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  text-size-adjust: 100%;
+}
+
+h1, h2, h3, h4 { font-weight: var(--w-medium); letter-spacing: var(--tracking-heading); text-wrap: balance; margin: 0; }
+h1 { font-size: var(--h1); line-height: var(--lh-h1); max-width: var(--measure-heading); }
+h2 { font-size: var(--h2); line-height: var(--lh-h2); max-width: var(--measure-heading); }
+h3 { font-size: var(--h3); line-height: var(--lh-h3); max-width: var(--measure-heading); }
+h4 { font-size: var(--h4); line-height: var(--lh-h4); }
+p, li { text-wrap: pretty; max-width: var(--measure-body); }
+
+/* Numbers in prose stay proportional. tnum is opt-in: columns, results, tables. */
+.num, td, .t-data, [data-num] { font-variant-numeric: tabular-nums slashed-zero; }
+.num-prop { font-variant-numeric: proportional-nums; }
+
+/* Heading roles (same as h1-h4; use the class when the semantic tag must differ) */
+.t-h1, .t-display-1 { font: var(--w-medium) var(--h1)/var(--lh-h1) var(--font-ui); letter-spacing: var(--tracking-heading); }
+.t-h2, .t-display-2 { font: var(--w-medium) var(--h2)/var(--lh-h2) var(--font-ui); letter-spacing: var(--tracking-heading); }
+.t-h3, .t-display-3 { font: var(--w-medium) var(--h3)/var(--lh-h3) var(--font-ui); letter-spacing: var(--tracking-heading); }
+.t-h4, .t-heading   { font: var(--w-medium) var(--h4)/var(--lh-h4) var(--font-ui); letter-spacing: var(--tracking-heading); }
+/* tool aliases: drop-zone heading = H2 role, tool heading = H3 role */
+.t-empty { font: var(--w-medium) var(--h2)/var(--lh-h2) var(--font-ui); letter-spacing: var(--tracking-heading); }
+.t-title { font: var(--w-medium) var(--h3)/var(--lh-h3) var(--font-ui); letter-spacing: var(--tracking-heading); }
+/* Big figure ("%62", "3,1 MB"): the signature. H1 size, 500, tabular, so live values do not jitter. Hierarchy by tone: unit/denominator in --c-ink-3. */
+.t-figure { font: var(--w-medium) var(--h1)/var(--lh-h1) var(--font-ui); letter-spacing: var(--tracking-heading); font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "ss02" 1; } /* no slashed zero at figure size: reads as "Ø" at 80 px (Cem, 2026-11-07) */
+.t-figure--md { font-size: var(--h3); line-height: var(--lh-h3); }
+.t-figure .dim { color: var(--c-ink-3); }
+
+/* Text roles */
+.t-lead      { font: var(--w-regular) var(--lead)/1.4 var(--font-ui); letter-spacing: var(--tracking-lead); max-width: var(--measure-lead); color: var(--c-ink-2); }
+.t-body      { font: var(--w-regular) var(--text-md)/var(--leading-body) var(--font-ui); }
+.t-ui        { font: var(--w-medium)  var(--text-base)/var(--leading-ui) var(--font-ui); }
+.t-button    { font: var(--w-medium)  var(--text-base)/1 var(--font-ui); }
+.t-caption   { font: var(--w-regular) var(--text-sm)/var(--leading-ui) var(--font-ui); color: var(--c-ink-2); }
+/* Label: 12 px, uppercase, wide, tone ink-3. `case` aligns punctuation to capitals; tnum for numbered labels ("01 RENK"). */
+.t-label     { font: var(--w-medium)  var(--text-xs)/1.35 var(--font-ui); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--c-ink-3); font-feature-settings: "case" 1, "tnum" 1; }
+
+/* Data voice = evidence. Used for: result line, engine size, file names, percentages, sizes, formats. */
+.t-data, code, kbd, samp {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: var(--w-medium);
+  line-height: var(--leading-data);
+  letter-spacing: 0;
+  font-feature-settings: var(--data-features);
+  font-variant-ligatures: none;      /* keep two characters two characters; use the real → glyph */
+}
+.t-data--md { font-size: var(--text-sm); }
+
+/* Result line: "HEIC → JPG · 3,1 MB → 1,2 MB · Bu cihazda dönüştürüldü" */
+.result-line {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--w-medium);
+  line-height: var(--leading-data);
+  letter-spacing: 0;
+  font-feature-settings: var(--data-features);
+  font-variant-ligatures: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.result-line .sep   { opacity: .45; }   /* · separators (real spaces around them in markup) */
+.result-line .arrow { opacity: .75; }   /* → */
+.result-line .note  { font-weight: var(--w-regular); }        /* "Bu cihazda dönüştürüldü" */
+.engine-size, .file-name, .progress-pct { font-family: var(--font-ui); font-size: var(--text-xs); font-weight: var(--w-medium); font-feature-settings: var(--data-features); }
+.progress-pct { min-width: 4ch; text-align: end; }
+
+/* Turkish: uppercase must go through the locale (i -> İ, ı -> I). Always set lang="tr" on <html>; text-transform follows it. */
+:lang(tr) .uc { text-transform: uppercase; }
+
+@media (max-width: 480px) {
+  :root { --measure-body: 100%; --measure-heading: 100%; }
+  .result-line { white-space: normal; overflow: visible; }
+}

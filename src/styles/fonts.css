@@ -1,0 +1,32 @@
+/* Convy · fonts.css
+   Self-host only (COEP require-corp: no third-party CDN). ONE file: Inter variable, 29,4 KB woff2 (v4, heading option B).
+   Axes: wght 400-500 only; opsz is PINNED to 14 (text cut) at build time, so there is no opsz axis and nothing to switch.
+   Nothing in the system asks for 600/700/800: headings, labels, buttons and data are 500, body is 400. The heavy mass lives only in the wordmark (SVG).
+   Rebuild: fontTools.varLib.instancer.instantiateVariableFont(font, {"wght": (400, 500), "opsz": 14}); previous 48,9 KB file: _eski/convy-ui-v3-wght400-800-opsz.woff2.
+   SIL OFL 1.1, no Reserved Font Name (OFL-Inter.txt alongside) -> subsetting allowed, name kept.
+   Subset: Basic Latin, Latin-1, Latin Extended-A (TR: ğĞ şŞ ıİ çÇ öÖ üÜ), plus · – — ‘ ’ “ ” … → × ≈ ± − % ₺.
+   Features kept: kern calt case ccmp locl tnum zero ss02 cv05 cv08.
+   Preload (tool page, the only font request):
+   <link rel="preload" href="/fonts/convy-ui.woff2" as="font" type="font/woff2" crossorigin>
+   (`crossorigin` is required even for same-origin fonts.) */
+
+@font-face {
+  font-family: "Convy UI";
+  src: url("/fonts/convy-ui.woff2") format("woff2");
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0020-007E, U+00A0-017F, U+0130-0131, U+2009, U+2013-2014, U+2018-201D, U+2022, U+2026, U+202F, U+2032-2033, U+20AC, U+20BA, U+2116, U+2122, U+2190-2193, U+2212, U+2248, U+2260, U+2264-2265;
+}
+
+/* Metric-matched fallback: the swap causes (almost) no layout shift.
+   size-adjust = frequency-weighted average advance (Turkish letter set), Inter 0.522 em / Arial 0.485 em;
+   ascent/descent = Inter hhea metrics / size-adjust. */
+@font-face {
+  font-family: "Convy UI Fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("Helvetica");
+  size-adjust: 107.5%;
+  ascent-override: 90.1%;
+  descent-override: 22.4%;
+  line-gap-override: 0%;
+}

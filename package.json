@@ -1,0 +1,28 @@
+{
+  "name": "convy",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "engines": "node scripts/prep-engines.mjs",
+    "dev": "node scripts/prep-engines.mjs && astro dev",
+    "build": "node scripts/prep-engines.mjs && astro build && node scripts/headers.mjs",
+    "preview": "node scripts/serve.mjs --port 4321",
+    "check": "astro check",
+    "test:e2e": "node tests/e2e.mjs"
+  },
+  "dependencies": {
+    "@ffmpeg/core": "0.12.10",
+    "@ffmpeg/ffmpeg": "0.12.15",
+    "@imagemagick/magick-wasm": "0.0.46",
+    "fflate": "0.8.3",
+    "mediabunny": "1.65.2"
+  },
+  "devDependencies": {
+    "@astrojs/svelte": "9.1.1",
+    "astro": "7.4.2",
+    "playwright-core": "1.64.1",
+    "svelte": "5.57.2"
+  }
+}
