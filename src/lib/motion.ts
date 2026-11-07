@@ -28,3 +28,15 @@ export function pin(e: Event) {
   if (getComputedStyle(n).position === 'absolute') return;
   Object.assign(n.style, { position: 'absolute', top: n.offsetTop + 'px', left: n.offsetLeft + 'px', width: n.offsetWidth + 'px', margin: '0', pointerEvents: 'none' });
 }
+
+/** svelte/animate flip without the zoom/transform-origin parsing: rows have no transform and a centred origin (smaller than the library one) */
+export const flip = (_n: Element, { from, to }: { from: DOMRect; to: DOMRect }, p: { duration: number; easing: (t: number) => number }) => {
+  const dx = from.left + from.width / 2 - to.left - to.width / 2, dy = from.top + from.height / 2 - to.top - to.height / 2;
+  const sx = from.width / to.width, sy = from.height / to.height;
+  return { duration: p.duration, easing: p.easing, css: (t: number, u: number) => `transform:translate(${u * dx}px,${u * dy}px) scale(${t + u * sx},${t + u * sy})` };
+};
+
+type Tr = { duration: number; delay?: number; easing?: (t: number) => number; y?: number };
+/** svelte/transition fade and fly (y only) without unit parsing; elements here carry no transform of their own */
+export const fade = (n: Element, p: Tr) => { const o = +getComputedStyle(n).opacity; return { delay: p.delay, duration: p.duration, easing: p.easing, css: (t: number) => `opacity:${t * o}` }; };
+export const fly = (n: Element, p: Tr) => { const o = +getComputedStyle(n).opacity; return { delay: p.delay, duration: p.duration, easing: p.easing, css: (t: number, u: number) => `transform:translateY(${u * p.y!}px);opacity:${t * o}` }; };

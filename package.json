@@ -10,6 +10,7 @@
     "build": "node scripts/prep-engines.mjs && astro build && node scripts/headers.mjs",
     "preview": "node scripts/serve.mjs --port 4321",
     "check": "astro check",
+    "size": "node tests/qa3-size.mjs",
     "test:e2e": "node tests/e2e.mjs"
   },
   "dependencies": {

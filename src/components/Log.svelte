@@ -1,12 +1,10 @@
 <script lang="ts">
   // Queue log (ekranlar.js log() + bilesen.js row()). Header = batch tools only. One file: the stage says everything, the queue is only
   // the way to add more (K2). Rows enter with fly 8 px + stagger, leave with fade + flip (HAREKET §3.4, §6.1).
-  import { fly, fade } from 'svelte/transition';
-  import { flip } from 'svelte/animate';
   import { q, type Item } from '../lib/queue.svelte';
   import { ENGINES } from '../engines/load-wasm';
   import { fmt, type F } from '../lib/fmt';
-  import { T, d, easeTurn } from '../lib/motion';
+  import { T, d, easeTurn, flip, fly, fade } from '../lib/motion';
   import { isJob, outName, stateWord, engWord } from '../lib/view';
   import Icon from './Icon.svelte';
   import Fname from './Fname.svelte';
@@ -15,7 +13,7 @@
   import Dim from './Dim.svelte';
 
   type Acts = { add: () => void; stopAll: () => void; saveZip: () => void; save: (id: number) => void; reconvert: (id: number) => void; retry: (id: number) => void; remove: (id: number, e?: MouseEvent) => void; stage: (id: number, e: MouseEvent) => void; pick: (it: Item, label: string) => void };
-  let { x, instant, subId, count, completing, engOnStage, delay, acts }: { x: F; instant: boolean; subId: number | null; count: boolean; completing: Set<number>; engOnStage: boolean; delay: (id: number) => number; acts: Acts } = $props();
+  let { x, instant, subId, count, completing, engOnStage, delay, acts }: { x: F; instant: boolean; subId: number | null; count: boolean; completing: number[]; engOnStage: boolean; delay: (id: number) => number; acts: Acts } = $props();
   const t = $derived(x.t);
   const items = $derived(q.items);
   const n = $derived(items.length);
@@ -26,7 +24,7 @@ const left = $derived(n - done.length - cleared);
 const why = $derived([left ? t.batch.zipOnly : '', cleared ? x.plural(cleared, t.batch.skippedOne, t.batch.skipped) : ''].filter(Boolean).join(' '));
   const jobs = $derived(items.filter(isJob).length);
   // Volt budget (KIMLIK §1, DECISIONS 2026-11-07): arrows of processing jobs + engine bar ≤ 3; the bar turns neutral as the 4th
-  const arrows = $derived(items.filter((f) => f.st === 'running' && (f.p != null || completing.has(f.id))).length);
+  const arrows = $derived(items.filter((f) => f.st === 'running' && (f.p != null || completing.includes(f.id))).length);
   const eng = $derived(q.engine && !engOnStage ? q.engine : null);
   const engBefore = $derived(eng ? items.find((f) => f.eng === eng.key && isJob(f))?.id ?? null : null);
   type R = { key: string; it?: Item };
@@ -55,7 +53,7 @@ const why = $derived([left ? t.batch.zipOnly : '', cleared ? x.plural(cleared, t
     {#each rows as r (r.key)}
       {@const it = r.it}
       {@const staged = !!it && it.id === subId && !count}
-      {@const comp = !!it && completing.has(it.id)}
+      {@const comp = !!it && completing.includes(it.id)}
       {@const run = !!it && (it.st === 'running' || comp)}
       {@const fin = !!it && (it.st === 'done' || it.st === 'cleared')}
       {@const ep = eng?.p ?? 0}

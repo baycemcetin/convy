@@ -3,7 +3,6 @@
   // Stage subject rule (veri.js): oldest running job; else the file that needs attention; else the last result. A row's name button
   // pins a file (T1). The stage keeps a subject ≥ 1200 ms; ≥ 2 completions inside that window switch it to count mode (HAREKET §3.1).
   import { onMount, tick, type Snippet } from 'svelte';
-  import { SvelteSet } from 'svelte/reactivity';
   import { q, add, setTarget, applyToKind, convert, stop, stopAll, retry, remove, stage, save, share, saveZip, reconvert, refreshDevice, removeEngines, byIdItem, type Item } from '../lib/queue.svelte';
   import { formatter, fmt } from '../lib/fmt';
   import { announcer } from '../lib/live';
@@ -33,15 +32,15 @@
   let subId = $state<number | null>(null);
   let since = 0;
   let count = $state(false);
-  const completing = new SvelteSet<number>();
-  const shown = new SvelteSet<number>();
+  let completing = $state<number[]>([]);
+  let shown = $state<number[]>([]);
   const doneTimes: number[] = [];
   let dwellT = 0, countT = 0;
 
   function rule(): number | null {
     const it = q.items;
     const pick = (f: (i: Item) => boolean) => it.find(f)?.id;
-    return pick((i) => completing.has(i.id)) ?? pick((i) => i.st === 'running') ?? pick((i) => i.st === 'queued')
+    return pick((i) => completing.includes(i.id)) ?? pick((i) => i.st === 'running') ?? pick((i) => i.st === 'queued')
       ?? pick((i) => i.st === 'failed') ?? pick((i) => i.st === 'needs') ?? pick((i) => !!i.block) ?? pick(isReady)
       ?? pick((i) => i.st === 'unsupported' || i.st === 'offline') ?? [...it].reverse().find((i) => i.st === 'done' || i.st === 'cleared')?.id ?? it[0]?.id ?? null;
   }
@@ -72,7 +71,7 @@
         live?.say(i.empty ? fmt(t.live.empty, { name: i.n }) : st === 'unsupported' ? fmt(t.live.unsupported, { name: i.n, ext: i.f }) : fmt(st === 'needs' ? t.live.needs : t.live.added, { name: i.n, size: x.say(i.i) }));
       } else if (p.st !== st) {
         if ((st === 'queued' || st === 'running') && !batchIds.has(i.id)) { if (!batchOpen) { batchIds.clear(); batchOpen = true; } batchIds.add(i.id); }
-        if (st === 'running') setTimeout(() => shown.add(i.id), T.tShow);
+        if (st === 'running') setTimeout(() => shown = [...shown, i.id], T.tShow);
         if (st === 'done') onDone(i, running);
         if (st === 'cancelled') live?.say(fmt(t.live.stopped, { name: i.n }));
         if (st === 'offline') live?.say(fmt(t.live[({ av: 'offline', image: 'offlineImage', doc: 'offlineDoc', pdf: 'offlinePdf' } as const)[i.eng ?? 'av']], { name: i.n, size: x.dl(q.sizes[i.eng ?? 'av']?.transfer) }));
@@ -89,7 +88,7 @@
   });
   function onDone(i: Item, running: number) {
     const hold = d(T.fill + T.done);
-    if (hold && !count) { completing.add(i.id); setTimeout(() => completing.delete(i.id), hold); }
+    if (hold && !count) { completing = [...completing, i.id]; setTimeout(() => (completing = completing.filter((n) => n !== i.id)), hold); }
     const now = Date.now(); doneTimes.push(now);
     while (doneTimes.length && now - doneTimes[0] > T.dwell) doneTimes.shift();
     if (doneTimes.length >= 2) count = true;
@@ -181,7 +180,7 @@
   {#if q.items.length}<h1 class="sr">{t.h1}</h1>{/if}
   <section class="panel stage" class:empty={!q.items.length} class:drop={dragging} id="stage" tabindex="-1" aria-label={t.a11y.stage}>
     <input bind:this={input} type="file" multiple hidden data-testid="pick" onchange={picked} />
-    <Stage {x} {sub} {count} completing={!!sub && completing.has(sub.id)} shown={!!sub && shown.has(sub.id)} {instant} {touch} acts={stageActs} />
+    <Stage {x} {sub} {count} completing={!!sub && completing.includes(sub.id)} shown={!!sub && shown.includes(sub.id)} {instant} {touch} acts={stageActs} />
   </section>
   <Log {x} {instant} subId={sub?.id ?? null} {count} {completing} {engOnStage} {delay} acts={logActs} />
   {@render children?.()}

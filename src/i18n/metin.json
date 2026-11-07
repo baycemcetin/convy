@@ -38,7 +38,6 @@
     "whereVal": "This device",
     "engVal": {
       "imageSaved": "Image engine · saved",
-      "docSaved": "Document engine · saved",
       "avFetching": "Audio & video engine · {pct}",
       "avNotSaved": "Audio & video engine · not saved",
       "avReady": "Audio & video engine · saved"
@@ -434,7 +433,6 @@
     "whereVal": "Bu cihaz",
     "engVal": {
       "imageSaved": "Görsel motoru · saklı",
-      "docSaved": "Belge motoru · saklı",
       "avFetching": "Ses ve video motoru · {pct}",
       "avNotSaved": "Ses ve video motoru · saklı değil",
       "avReady": "Ses ve video motoru · saklı"

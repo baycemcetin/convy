@@ -7,13 +7,16 @@ export const isReady = (it: Item) => (it.st === 'ready' || it.st === 'cancelled'
 export const isJob = (it: Item) => it.st === 'running' || it.st === 'queued';
 export const outName = (it: Item) => it.outN ?? oName(it.n, (it.to || '').toLowerCase());
 
+/** engine name in the readout: the PDF scene says "PDF engine", so does the readout */
+const engLabel = (t: F['t'], k: string) => (k === 'pdf' ? t.engName.pdf : t.panel.eng[k === 'image' ? 0 : 2][0]);
+
 /** readout "Engine" value: saved / not saved / downloading. Words come from approved copy (engVal, panel.eng) */
 export function engVal(x: F, it: Item | null) {
   if (!it?.eng) return null;
   const t = x.t;
-  if (q.engine && q.engine.key === it.eng) return it.eng === 'av' ? fmt(t.engVal.avFetching, { pct: x.pct(q.engine.p) }) : `${t.panel.eng[it.eng === 'image' ? 0 : 2][0]} · ${x.pct(q.engine.p)}`;
+  if (q.engine && q.engine.key === it.eng) return it.eng === 'av' ? fmt(t.engVal.avFetching, { pct: x.pct(q.engine.p) }) : `${engLabel(t, it.eng)} · ${x.pct(q.engine.p)}`;
   if (it.eng === 'image') return q.saved.image ? t.engVal.imageSaved : `${t.panel.eng[0][0]} · ${t.panel.eng[2][1]}`;
-  if (it.eng === 'doc' || it.eng === 'pdf') return q.saved[it.eng] ? t.engVal.docSaved : `${t.panel.eng[2][0]} · ${t.panel.eng[2][1]}`;
+  if (it.eng === 'doc' || it.eng === 'pdf') return `${engLabel(t, it.eng)} · ${q.saved[it.eng] ? t.panel.eng[0][1] : t.panel.eng[2][1]}`;
   return q.saved.av ? t.engVal.avReady : t.engVal.avNotSaved;
 }
 

@@ -2,10 +2,9 @@
   // The gauge (ekranlar.js stage()). One persistent action slot #sg-act (T1): it is never inside a {#key} or moved between {#if}
   // branches, so Convert → Stop → Save is a relabel of the same node and focus stays on it. Value layers ({#key k}) cross-fade
   // 80 out / 120 in; the outgoing layer is pinned out of flow (HAREKET §11.1). Keyboard-triggered swaps are instant.
-  import { fade } from 'svelte/transition';
   import { q, readyCount, canShareItem, type Item } from '../lib/queue.svelte';
   import { fmt, type F } from '../lib/fmt';
-  import { T, d, pin, easeTurn } from '../lib/motion';
+  import { T, d, pin, easeTurn, fade } from '../lib/motion';
   import { isReady, isJob, outName, engVal, viewOf, engWord } from '../lib/view';
   import Readout from './Readout.svelte';
   import Picker from './Picker.svelte';
