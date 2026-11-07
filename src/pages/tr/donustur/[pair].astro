@@ -1,0 +1,9 @@
+---
+import PairPage from '../../../components/PairPage.astro';
+import { loadPairs } from '../../../content/publish';
+export async function getStaticPaths() {
+  return (await loadPairs()).pubs.map((pub) => ({ params: { pair: pub.c.slug.tr }, props: { pub } }));
+}
+const { pub } = Astro.props;
+---
+<PairPage lang="tr" pub={pub} />

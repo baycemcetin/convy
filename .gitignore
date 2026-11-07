@@ -4,3 +4,5 @@ dist/
 public/engines/
 test-results/
 .DS_Store
+
+.draft-dist/

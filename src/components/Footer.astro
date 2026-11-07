@@ -1,6 +1,7 @@
 ---
 import { copy, type Lang } from '../i18n';
+import { footHref, DOC } from '../i18n/site';
 const { lang } = Astro.props as { lang: Lang };
-const t = copy(lang);
+const t = copy(lang), hrefs = footHref(lang);
 ---
-<footer class="foot"><div class="wrap"><nav aria-label={t.a11y.footer}>{t.foot.map((x) => <a href="#">{x}</a>)}</nav><a href="#">{t.made}</a></div></footer>
+<footer class="foot"><div class="wrap"><nav aria-label={t.a11y.footer}>{t.foot.map((x, i) => <a href={hrefs[i]}>{x}</a>)}</nav><a href={DOC.about[lang]}>{t.made}</a></div></footer>

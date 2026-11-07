@@ -1,0 +1,38 @@
+---
+// P8: real HTTP 404 (Cloudflare serves 404.html with the status, wrangler.toml `404-page`), noindex. Works without JS (index + converter links);
+// a small inline script reads the address and, if it looks like "<from>-to-<to>", lists the published pairs of that source and target.
+// Only published pairs go in (they are the only suggestions that exist). The script is hashed into the CSP by scripts/headers.mjs.
+import Content from '../layouts/Content.astro';
+import { loadPairs } from '../content/publish';
+import { CONVERSIONS, aliasesOf, fmtName, pairUrl } from '../content/conversions';
+import { HOME, INDEX, CHROME, both } from '../i18n/site';
+import type { Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = CHROME[lang].nf;
+const { pubs } = await loadPairs();
+const ids = [...new Set(CONVERSIONS.flatMap((x) => [x.from, x.to]))];
+const data = {
+  lang, pre: lang === 'en' ? '/convert/' : '/tr/donustur/', t: { pair: c.pair, from: c.from, to: c.to },
+  name: Object.fromEntries(ids.map((i) => [i, fmtName(i)])), alias: Object.fromEntries(ids.flatMap((i) => aliasesOf(i).map((a) => [a, i]))),
+  pairs: pubs.map((p) => [p.c.from, p.c.to, pairUrl(p.c, lang)]),
+};
+---
+<Content lang={lang} title={lang === 'en' ? 'Page not found | Convy' : 'Sayfa bulunamadı | Convy'} alt={both((l) => HOME[l])} noindex hreflang={false}>
+  <h1>{c.h1}</h1>
+  <p class="lead">{c.p}</p>
+  <section class="cx" id="nf" hidden><div class="b"><p id="nf-p"></p><div id="nf-l" class="idx"></div></div></section>
+  <section class="cx"><div class="b"><ul class="links"><li><a href={INDEX[lang]}>{c.all}</a></li><li><a href={HOME[lang]}>{c.home}</a></li></ul></div></section>
+  <script type="application/json" id="nf-data" set:html={JSON.stringify(data)} />
+  <script is:inline>
+(function(){var d=JSON.parse(document.getElementById('nf-data').textContent),en=d.lang==='en',
+m=location.pathname.match(en?/^\/convert\/([a-z0-9]+)-to-([a-z0-9]+)\/?$/:/^\/tr\/donustur\/([a-z0-9]+)-([a-z0-9]+)\/?$/);if(!m)return;
+var a=d.alias[m[1]]||m[1],b=d.alias[m[2]]||m[2];if(!d.name[a]||!d.name[b])return;
+var A=d.name[a],B=d.name[b],f=d.pairs.filter(function(p){return p[0]===a}),t=d.pairs.filter(function(p){return p[1]===b});
+document.getElementById('nf-p').textContent=d.t.pair.replace('{a}',A).replace('{b}',B);
+function group(title,ps,pick){if(!ps.length)return;var h=document.createElement('p'),u=document.createElement('ul');h.textContent=title;u.className='links';
+ps.forEach(function(p){var li=document.createElement('li'),k=document.createElement('a');k.href=p[2];k.textContent=d.name[p[pick]];li.appendChild(k);u.appendChild(li)});
+document.getElementById('nf-l').append(h,u)}
+group(d.t.from.replace('{a}',A),f,1);group(d.t.to.replace('{b}',B),t,0);document.getElementById('nf').hidden=false})()
+  </script>
+</Content>

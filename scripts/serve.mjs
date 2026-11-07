@@ -6,7 +6,7 @@ import { createReadStream, readFileSync, statSync } from 'node:fs';
 import { extname, join, normalize, resolve } from 'node:path';
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.png': 'image/png', '.ico': 'image/x-icon', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.webmanifest': 'application/manifest+json', '.txt': 'text/plain; charset=utf-8' };
-const root = resolve('dist');
+const root = resolve(process.env.DIST || 'dist');
 const rules = readFileSync(join(root, '_headers'), 'utf8').split(/\n(?=\/)/).map((b) => {
   const [pat, ...lines] = b.trim().split('\n');
   return { re: new RegExp('^' + pat.trim().replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$'), h: lines.map((l) => l.trim().split(/:\s(.*)/s).slice(0, 2)) };
@@ -21,7 +21,10 @@ createServer((req, res) => {
   let file = normalize(join(root, path));
   if (!file.startsWith(root)) return res.writeHead(403).end();
   let st;
-  try { st = statSync(file); if (st.isDirectory()) { file = join(file, 'index.html'); st = statSync(file); } } catch { return res.writeHead(404).end('not found'); }
+  try { st = statSync(file); if (st.isDirectory()) { file = join(file, 'index.html'); st = statSync(file); } } catch { // like Cloudflare `404-page`: nearest 404.html up the path, status 404
+    for (let d = path.replace(/[^/]*$/, ''); ; d = d.replace(/[^/]+\/$/, '')) { try { const b = readFileSync(join(root, d, '404.html')); return res.writeHead(404, { 'Content-Type': TYPES['.html'], 'Content-Length': b.length }).end(b); } catch { if (d === '/') break; } }
+    return res.writeHead(404).end('not found');
+  }
   const etag = `"${st.size.toString(16)}-${st.mtimeMs.toString(16)}"`;
   res.setHeader('ETag', etag);
   if (!res.hasHeader('Cache-Control')) res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate'); // Cloudflare default

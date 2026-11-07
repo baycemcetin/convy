@@ -1,0 +1,10 @@
+---
+import PairPage from '../../components/PairPage.astro';
+import { loadPairs } from '../../content/publish';
+// Only published pairs exist (publish.ts). Nothing listed here = no /convert/<pair>/ page at all.
+export async function getStaticPaths() {
+  return (await loadPairs()).pubs.map((pub) => ({ params: { pair: pub.c.slug.en }, props: { pub } }));
+}
+const { pub } = Astro.props;
+---
+<PairPage lang="en" pub={pub} />

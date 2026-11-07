@@ -84,7 +84,8 @@ export async function add(files: FileList | File[], before?: (items: Item[]) => 
   before?.(fresh);
   for (const it of fresh) { q.items.push(it); if (q.staged == null) q.staged = it.id; }
   // batch target: a new file of a kind already targeted in this batch inherits that target (one choice per kind)
-  for (const it of q.items) if (it.st === 'needs') { const same = q.items.find((x) => x !== it && x.k === it.k && x.to); if (same) setTarget(it.id, same.to!); }
+  const pre = document.documentElement.dataset.to; // pair page (<html data-to>): the page's own target is preselected when the file can go there
+  for (const it of q.items) if (it.st === 'needs') { const to = q.items.find((x) => x !== it && x.k === it.k && x.to)?.to ?? (pre && it.targets.includes(pre) ? pre : null); if (to) setTarget(it.id, to); }
 }
 
 /** Choose / change the target. Re-runs the pre-checks (estimate, quota) every time (Ek D). */

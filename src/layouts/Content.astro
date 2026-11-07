@@ -1,0 +1,16 @@
+---
+// Shell of the zero-JS content pages (P3-P8): Base + static bar + <main> + footer.
+import Base from './Base.astro';
+import SiteBar from '../components/SiteBar.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/content.css';
+import type { Lang } from '../i18n';
+interface Props { lang: Lang; title: string; description?: string; alt: Record<Lang, string>; noindex?: boolean; hreflang?: boolean }
+const { lang, title, description, alt, noindex, hreflang = true } = Astro.props;
+---
+<Base lang={lang} title={title} description={description} alt={hreflang ? alt : undefined} noindex={noindex}>
+  <slot name="head" slot="head" />
+  <SiteBar lang={lang} alt={alt[lang === 'en' ? 'tr' : 'en']} />
+  <main id="main" class="wrap doc" tabindex="-1"><slot /></main>
+  <Footer lang={lang} />
+</Base>

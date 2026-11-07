@@ -7,23 +7,29 @@ import '../styles/hifi.css';
 import '../styles/product.css';
 import sprite from '../assets/sprite.svg?raw';
 import { copy, type Lang } from '../i18n';
-interface Props { lang: Lang; title?: string; description?: string; }
-const { lang, title, description } = Astro.props;
+// alt: this page's path in each language (hreflang en/tr/x-default=en, both or none). noindex: robots meta, no canonical/hreflang.
+// to: target label (e.g. "JPG") the converter presets on a pair page; read by queue.add from <html data-to>.
+interface Props { lang: Lang; title?: string; description?: string; alt?: Record<Lang, string>; noindex?: boolean; to?: string; }
+const { lang, title, description, alt, noindex, to } = Astro.props;
 const t = copy(lang);
 const pageTitle = title ?? `Convy · ${t.h1}`; // T10: title follows the page language
-const alt = lang === 'en' ? '/tr/' : '/';
+const abs = (p: string) => new URL(p, Astro.site);
 ---
 <!doctype html>
-<html lang={lang} data-theme="dark">
+<html lang={lang} data-theme="dark" data-to={to}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{pageTitle}</title>
 <meta name="description" content={description ?? t.lead}>
-<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)}>
-<link rel="alternate" hreflang="en" href={new URL('/', Astro.site)}>
-<link rel="alternate" hreflang="tr" href={new URL('/tr/', Astro.site)}>
-<link rel="alternate" hreflang="x-default" href={new URL('/', Astro.site)}>
+{noindex ? <meta name="robots" content="noindex">
+  : <link rel="canonical" href={abs(Astro.url.pathname)}>}
+{!noindex && alt && <>
+<link rel="alternate" hreflang="en" href={abs(alt.en)}>
+<link rel="alternate" hreflang="tr" href={abs(alt.tr)}>
+<link rel="alternate" hreflang="x-default" href={abs(alt.en)}>
+</>}
+<slot name="head" />
 <link rel="preload" href="/fonts/convy-ui.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">

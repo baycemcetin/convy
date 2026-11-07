@@ -1,0 +1,19 @@
+---
+// Static top bar for the content pages (P3-P8). The tool pages use the island's own bar (App.svelte): same classes, same links.
+// "This device" panel is the island's; the static version is an open item (WAVE4.md).
+import { copy, type Lang } from '../i18n';
+import { HOME, navHref } from '../i18n/site';
+import wm from '../assets/convy-wordmark-kucuk.svg?raw';
+interface Props { lang: Lang; alt: string }
+const { lang, alt } = Astro.props;
+const t = copy(lang), hrefs = navHref(lang), other = lang === 'en' ? 'tr' : 'en';
+---
+<header class="bar"><div class="wrap">
+  <a class="wm" href={HOME[lang]} aria-label="Convy" set:html={wm} />
+  <nav class="top" aria-label={t.a11y.nav}>{t.nav.map((label, i) => <a href={hrefs[i]}>{label}</a>)}</nav>
+  <span class="sp"></span>
+  <div class="tools">
+    <a class="lang" href={alt} hreflang={other} lang={other}>{t.other}</a>
+    <details class="mnav"><summary aria-label={t.menu}><i></i></summary><nav aria-label={t.a11y.nav}>{t.nav.map((label, i) => <a href={hrefs[i]}>{label}</a>)}</nav></details>
+  </div>
+</div></header>

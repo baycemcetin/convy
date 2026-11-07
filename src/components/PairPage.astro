@@ -1,0 +1,54 @@
+---
+// P2: one pair. The tool island gets the page's H1 and intro as its hero copy and the pair's target preselected (<html data-to>); everything
+// below the tool is static HTML. Section order = SEO-SAYFALAR §3.2: summary, steps, pair note, format texts, limits, FAQ, related, breadcrumb.
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import App from '../components/App.svelte';
+import Footer from '../components/Footer.astro';
+import { ENGINE_NAME, loadPairs, relatedOf, type Pub } from '../content/publish';
+import { CATEGORIES, fmtName, kindOf, linkText, pairUrl, toLabel } from '../content/conversions';
+import { HOME, INDEX, CHROME, navHref, both, sub } from '../i18n/site';
+import { islandCopy } from '../i18n';
+import { breadcrumb } from '../lib/ld';
+import wm from '../assets/convy-wordmark-kucuk.svg?raw';
+import '../styles/content.css';
+import type { Lang } from '../i18n';
+interface Props { lang: Lang; pub: Pub }
+const { lang, pub } = Astro.props;
+const { c } = pub, ch = CHROME[lang], d = pub.entry[lang].data, tx = pub.text[lang];
+const rel = relatedOf(c, (await loadPairs()).pubs);
+const { Content: Note } = await render(pub.entry[lang]);
+const [FromText, ToText] = await Promise.all(pub.about[lang].map(async (x) => (await render(x)).Content));
+const cat = kindOf(c.from), catName = ch.cat[cat];
+const catWord = cat === 'pdf' ? 'PDF' : catName.toLocaleLowerCase(lang);
+const crumbs: [string, string][] = [[ch.convert, INDEX[lang]], [catName, `${INDEX[lang]}#${cat}`], [lang === 'en' ? tx.h1 : `${fmtName(c.from)} ${fmtName(c.to)}`, pairUrl(c, lang)]];
+const mb = pub.mb, eng = pub.facts.engine;
+const dlRow = eng === 'mediabunny-or-ffmpeg' ? (mb ? sub(ch.sum.fallback, { mb }) : ch.sum.noEngine) : mb ? sub(ch.sum.size, { mb }) : null;
+const relLinks = [...rel.same.map((x) => [x, sub(ch.rel.same, { a: fmtName(c.from) })]), ...rel.target.map((x) => [x, sub(ch.rel.target, { b: fmtName(c.to) })]), ...(rel.reverse ? [[rel.reverse, ch.rel.reverse]] : [])] as const;
+---
+<Base lang={lang} title={tx.title} description={tx.description} alt={both((l) => pairUrl(c, l))} to={toLabel(c)} noindex={pub.draft}>
+  <script type="application/ld+json" slot="head" set:html={breadcrumb([[ch.home, HOME[lang]], ...crumbs])} />
+  <App lang={lang} t={{ ...islandCopy(lang), h1: tx.h1, lead: d.intro }} hrefs={navHref(lang)} alt={pairUrl(c, lang === 'en' ? 'tr' : 'en')} client:idle>
+    <Fragment slot="wm" set:html={wm} />
+    {pub.draft && <p class="draftnote">{ch.draftNote}</p>}
+    <section class="cx"><h2>{ch.sum.engine}</h2><div class="b"><dl class="sum">
+      <div><dt>{ch.sum.engine}</dt><dd>{ENGINE_NAME[eng]}</dd></div>
+      {dlRow && <div><dt>{ch.sum.dl}</dt><dd>{dlRow}</dd></div>}
+      <div><dt>{ch.sum.off}</dt><dd>{ch.sum.offline}</dd></div>
+    </dl></div></section>
+    <section class="cx"><h2>{ch.h.how}</h2><div class="b"><ol>{d.steps.map((s) => <li>{s}</li>)}</ol></div></section>
+    <section class="cx"><h2>{ch.h.note}</h2><div class="b"><Note /></div></section>
+    <section class="cx"><h2>{sub(ch.h.about, { name: fmtName(c.from) })}</h2><div class="b"><FromText /></div></section>
+    <section class="cx"><h2>{sub(ch.h.about, { name: fmtName(c.to) })}</h2><div class="b"><ToText /></div></section>
+    <section class="cx"><h2>{ch.h.limits}</h2><div class="b"><ul>{d.limits.map((s) => <li>{s}</li>)}</ul></div></section>
+    <section class="cx"><h2>{ch.h.faq}</h2><div class="b">{d.faq.map((f) => <details><summary>{f.q}</summary><p>{f.a}</p></details>)}</div></section>
+    <section class="cx"><h2>{ch.h.related}</h2><div class="b"><ul class="links">
+      {relLinks.map(([x, why]) => <li><a href={pairUrl(x, lang)} title={why}>{linkText(x, lang)}</a></li>)}
+      <li><a href={`${INDEX[lang]}#${cat}`}>{sub(ch.rel.all, { k: catWord })}</a></li>
+    </ul></div></section>
+    <nav class="crumb cx" aria-label={ch.crumb}><div class="b"><ol>
+      <li><a href={INDEX[lang]}>{crumbs[0][0]}</a></li><li><a href={crumbs[1][1]}>{crumbs[1][0]}</a></li><li aria-current="page">{crumbs[2][0]}</li>
+    </ol></div></nav>
+  </App>
+  <Footer lang={lang} />
+</Base>

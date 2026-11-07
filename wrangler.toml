@@ -1,0 +1,10 @@
+# Cloudflare Workers Static Assets (MIMARI §11). `404-page`: a missing path answers with the nearest 404.html and status 404 (dist/404.html, dist/tr/404.html);
+# nothing is redirected to the home page (soft-404). `auto-trailing-slash` is the platform default, written out so it is not implicit: /about -> 307 -> /about/.
+# The Worker name is a placeholder until Cem creates the project in Cloudflare.
+name = "convy"
+compatibility_date = "2026-11-01"
+
+[assets]
+directory = "./dist"
+not_found_handling = "404-page"
+html_handling = "auto-trailing-slash"

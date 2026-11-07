@@ -6,7 +6,7 @@
   import { fmt, type F } from '../lib/fmt';
   import Icon from './Icon.svelte';
 
-  let { x, open = $bindable(false), chip }: { x: F; open: boolean; chip: () => HTMLElement | null } = $props();
+  let { x, open = $bindable(false), chip, alt }: { x: F; open: boolean; chip: () => HTMLElement | null; alt: string } = $props();
   const t = $derived(x.t);
   const P = $derived(t.panel);
   let panel: HTMLDivElement;
@@ -88,6 +88,6 @@
   <div class="dp-sec"><span class="lbl">{P.themeT}</span>
     <div class="seg" role="group" aria-label={P.themeT}>{#each P.theme as label, i}{@const v = (['system', 'dark', 'light'] as const)[i]}<button type="button" aria-pressed={pref === v} onclick={() => setTheme(v)}>{label}</button>{/each}</div>
     <span class="lbl" style="margin-top:4px">{P.langT}</span>
-    <div class="seg two" role="group" aria-label={P.langT}>{#each P.lang as label, i}{@const v = i ? 'tr' : 'en'}<button type="button" lang={v} aria-pressed={x.lang === v} onclick={() => { if (v === other) location.href = v === 'tr' ? '/tr/' : '/'; }}>{label}</button>{/each}</div>
+    <div class="seg two" role="group" aria-label={P.langT}>{#each P.lang as label, i}{@const v = i ? 'tr' : 'en'}<button type="button" lang={v} aria-pressed={x.lang === v} onclick={() => { if (v === other) location.href = alt; }}>{label}</button>{/each}</div>
   </div>
 </div>

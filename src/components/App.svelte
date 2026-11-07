@@ -14,7 +14,7 @@
   import DevicePanel from './DevicePanel.svelte';
   import Icon from './Icon.svelte';
 
-  let { lang, t: copyT, wm, children }: { lang: Lang; t: Copy; wm?: Snippet; children?: Snippet } = $props();
+  let { lang, t: copyT, hrefs, alt, wm, children }: { lang: Lang; t: Copy; hrefs: string[]; alt: string; wm?: Snippet; children?: Snippet } = $props();
   const x = formatter(lang, copyT);
   const t = x.t;
   let input: HTMLInputElement;
@@ -165,16 +165,16 @@
 
 <header class="bar"><div class="wrap">
   <a class="wm" href={lang === 'tr' ? '/tr/' : '/'} aria-label="Convy">{@render wm?.()}</a>
-  <nav id="nav" class:open={menuOpen} aria-label={t.a11y.nav}>{#each t.nav as label, i}<a href={i === 1 ? '#how-h' : '#'} onclick={() => (menuOpen = false)}>{label}</a>{/each}</nav>
+  <nav id="nav" class:open={menuOpen} aria-label={t.a11y.nav}>{#each t.nav as label, i}<a href={hrefs[i]} onclick={() => (menuOpen = false)}>{label}</a>{/each}</nav>
   <span class="sp"></span>
   <div class="tools">
     {#if !q.online}<span class="tag-off"><i></i><span class="t1">{t.offline}</span></span>{/if}
-    <a class="lang" href={other === 'tr' ? '/tr/' : '/'} hreflang={other} lang={other}>{t.other}</a>
+    <a class="lang" href={alt} hreflang={other} lang={other}>{t.other}</a>
     <button class="chip-dev" type="button" bind:this={chipEl} aria-haspopup="dialog" aria-expanded={panelOpen} aria-controls="dp" aria-label={t.dev} onclick={(e) => (panelOpen ? dp.close() : dp.show(e.detail === 0))}><Icon n="device" s16 /><span class="t">{t.dev}</span></button>
     <button class="menu-btn" type="button" aria-label={t.menu} aria-expanded={menuOpen} aria-controls="nav" onclick={() => (menuOpen = !menuOpen)}><i></i></button>
   </div>
 </div></header>
-<DevicePanel bind:this={dp} bind:open={panelOpen} {x} chip={() => chipEl} />
+<DevicePanel bind:this={dp} bind:open={panelOpen} {x} {alt} chip={() => chipEl} />
 
 <main id="main" class="wrap tool" tabindex="-1">
   {#if q.items.length}<h1 class="sr">{t.h1}</h1>{/if}

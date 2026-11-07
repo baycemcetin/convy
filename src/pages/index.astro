@@ -3,10 +3,13 @@ import Base from '../layouts/Base.astro';
 import App from '../components/App.svelte';
 import HowBand from '../components/HowBand.astro';
 import Footer from '../components/Footer.astro';
-import { islandCopy } from '../i18n';
+import { islandCopy, copy } from '../i18n';
+import { webApp } from '../lib/ld';
+import { navHref, HOME, both } from '../i18n/site';
 import wm from '../assets/convy-wordmark-kucuk.svg?raw';
 ---
-<Base lang="en">
-  <App lang="en" t={islandCopy("en")} client:load><Fragment slot="wm" set:html={wm} /><HowBand lang="en" /></App>
+<Base lang="en" alt={both((l) => HOME[l])}>
+  <script type="application/ld+json" slot="head" set:html={webApp("en", HOME.en, copy("en").lead)} />
+  <App lang="en" t={islandCopy("en")} hrefs={navHref("en")} alt={HOME.tr} client:load><Fragment slot="wm" set:html={wm} /><HowBand lang="en" /></App>
   <Footer lang="en" />
 </Base>

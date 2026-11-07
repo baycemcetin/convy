@@ -1,22 +1,25 @@
 // Post-build: writes dist/_headers (MIMARI §11) with a CSP that hashes every inline <script> found in dist HTML
 // (hash-all-dist, not one page). No COEP in v1 (Ek C); add it back here if the three-browser e2e condition fails.
-import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, statSync, renameSync, existsSync, rmSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
+const DIST = process.env.DIST || 'dist'; // DIST=.draft-dist for the draft validation build (tests/seo-build.mjs)
+// Astro writes only the root 404 as 404.html; Cloudflare `404-page` looks for 404.html up the path, so tr/404/index.html becomes tr/404.html
+if (existsSync(`${DIST}/tr/404/index.html`)) { renameSync(`${DIST}/tr/404/index.html`, `${DIST}/tr/404.html`); rmSync(`${DIST}/tr/404`, { recursive: true }); }
 const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
 const hashes = new Set(), styles = new Set();
 const h = (b) => `'sha256-${createHash('sha256').update(b).digest('base64')}'`;
-for (const f of walk('dist').filter((f) => f.endsWith('.html')))
+for (const f of walk(DIST).filter((f) => f.endsWith('.html')))
   for (const [, body] of readFileSync(f, 'utf8').matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g))
     if (body.trim()) hashes.add(h(body));
-for (const f of walk('dist').filter((f) => f.endsWith('.html')))
+for (const f of walk(DIST).filter((f) => f.endsWith('.html')))
   for (const [, body] of readFileSync(f, 'utf8').matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)) styles.add(h(body)); // Astro's island display:contents rule
 const csp = [
   "default-src 'self'", `script-src 'self' 'wasm-unsafe-eval' ${[...hashes].join(' ')}`.trim(), "worker-src 'self' blob:",
   "connect-src 'self' blob:", "img-src 'self' blob: data:", "media-src 'self' blob:", `style-src 'self' ${[...styles].join(' ')}`.trim(), "style-src-attr 'unsafe-inline'",
   "font-src 'self'", "object-src 'none'", "base-uri 'none'", "form-action 'none'", "frame-ancestors 'none'", // no upgrade-insecure-requests: everything is same-origin + HSTS, and WebKit upgrades http://127.0.0.1 in local e2e
 ].join('; ');
-writeFileSync('dist/_headers', `/*
+writeFileSync(`${DIST}/_headers`, `/*
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-origin
   Content-Security-Policy: ${csp}
@@ -30,3 +33,5 @@ writeFileSync('dist/_headers', `/*
   Cache-Control: public, max-age=31536000, immutable
 `);
 console.log(`dist/_headers: ${hashes.size} inline script, ${styles.size} inline style hash(es)`);
+// redirects.txt is the page-route form of _redirects (alias spellings x published pairs, src/pages/redirects.txt.ts)
+if (existsSync(`${DIST}/redirects.txt`)) { renameSync(`${DIST}/redirects.txt`, `${DIST}/_redirects`); console.log(`dist/_redirects: ${readFileSync(`${DIST}/_redirects`, 'utf8').trim().split('\n').length} rule(s)`); }

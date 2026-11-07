@@ -12,10 +12,10 @@ const headers = (extra = {}) => (server) => {
 export default defineConfig({
   site: 'https://useconvy.com',
   output: 'static',
-  trailingSlash: 'ignore',
+  trailingSlash: 'always',
   i18n: { defaultLocale: 'en', locales: ['en', 'tr'], routing: { prefixDefaultLocale: false } },
   integrations: [svelte()],
-  build: { inlineStylesheets: 'never' },
+  build: { format: 'directory', inlineStylesheets: 'never' },
   vite: {
     plugins: [{ name: 'convy-headers', configureServer: headers() }],
     optimizeDeps: { exclude: ['@ffmpeg/ffmpeg'] },
