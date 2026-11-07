@@ -1,24 +1,30 @@
 // Engine registry (MIMARI §3): picks the engine per job and runs it. Image → magick worker; audio/video → Mediabunny
 // worker when WebCodecs can decode+encode the tracks, otherwise ffmpeg ST (HEVC MOV, GIF, MP3, old containers, no WebCodecs).
-import { FFMPEG_MEMFS_MAX_OUT, PREVIEW_DOWNSCALE_MP } from './limits';
+import { FFMPEG_MEMFS_MAX_OUT, PREVIEW_DOWNSCALE_MP, JOB_TIMEOUT_MS } from './limits';
 import type { Format } from './formats';
 
 export interface RunResult { blob: Blob; w?: number | null; h?: number | null; duration?: number | null; engine: 'magick' | 'mediabunny' | 'ffmpeg' | 'pandoc' | 'pdfjs'; name?: string; }
 export interface RunHooks { engine?: (p: number) => void; progress?: (p: number | null) => void; }
-export class EngineError extends Error { constructor(public code: 'tooBig' | 'unsupported' | 'failed' | 'timeout', msg = code) { super(msg); } }
+export class EngineError extends Error { constructor(public code: 'tooBig' | 'unsupported' | 'failed' | 'timeout' | 'noText', msg = code) { super(msg); } }
 
 let seq = 0;
 function call(worker: Worker, msg: any, hooks: RunHooks, signal: AbortSignal, transfer: Transferable[] = []) {
   const id = ++seq;
   return new Promise<any>((res, rej) => {
+    const end = (settle: () => void) => { worker.removeEventListener('message', on); worker.removeEventListener('error', err); worker.removeEventListener('messageerror', err); settle(); };
     const on = ({ data }: MessageEvent) => {
       if (data.id !== id) return;
       if (data.type === 'engine') hooks.engine?.(data.p);
       else if (data.type === 'progress') hooks.progress?.(data.p);
-      else { worker.removeEventListener('message', on); data.type === 'done' ? res(data) : rej(new EngineError('failed', data.error)); }
+      else end(() => (data.type === 'done' ? res(data) : rej(new EngineError('failed', data.error))));
     };
+    // an error outside the worker's try (module failed to load, async wasm abort) would otherwise leave the job running forever
+    // (offline + chunk never fetched). The worker is dead after that, so drop it: the next job builds a fresh one
+    const err = (e: Event) => end(() => { drop(worker); rej(new EngineError('failed', (e as ErrorEvent).message || e.type)); });
     worker.addEventListener('message', on);
-    signal.addEventListener('abort', () => { worker.removeEventListener('message', on); rej(new DOMException('cancelled', 'AbortError')); }, { once: true });
+    worker.addEventListener('error', err);
+    worker.addEventListener('messageerror', err);
+    signal.addEventListener('abort', () => end(() => rej(new DOMException('cancelled', 'AbortError'))), { once: true });
     worker.postMessage({ id, ...msg }, transfer);
   });
 }
@@ -32,6 +38,14 @@ let pdf: Worker | null = null;
 const pdfW = () => (pdf ??= new Worker(new URL('./pdf.worker.ts', import.meta.url), { type: 'module' }));
 let media: Worker | null = null;
 const mediaW = () => (media ??= new Worker(new URL('./media.worker.ts', import.meta.url), { type: 'module' }));
+function drop(w: Worker) { w.terminate(); if (magick === w) magick = null; if (pandoc === w) pandoc = null; if (pdf === w) pdf = null; if (media === w) media = null; }
+
+// pandoc and pdf.js work synchronously inside their worker, so a hostile file can spin it forever
+// (40 KB of nested Markdown brackets kept pandoc busy > 2 min, review [11]): stop it on a wall clock
+function deadline<T>(p: Promise<T>, ms: number, kill: () => void) {
+  let t: ReturnType<typeof setTimeout>;
+  return Promise.race([p, new Promise<never>((_, rej) => { t = setTimeout(() => { kill(); rej(new EngineError('timeout')); }, ms); })]).finally(() => clearTimeout(t));
+}
 
 /** Cheap pre-check for audio/video: which engine will run and what we know about the input. */
 export async function probeAV(file: File, to: string) {
@@ -48,15 +62,16 @@ export async function run(file: File, from: Format, to: string, outName: string,
     return { blob: new Blob([r.out], { type: mime(to) }), w: r.w, h: r.h, engine: 'magick' };
   }
   if (from.kind === 'document') {
-    const w = pandocW();
-    signal.addEventListener('abort', () => { w.terminate(); pandoc = null; }, { once: true });
-    const r = await call(w, { file, from: from.id, to, title: outName.replace(/\.[^.]+$/, '') }, hooks, signal);
+    const w = pandocW(), kill = () => { w.terminate(); pandoc = null; };
+    signal.addEventListener('abort', kill, { once: true });
+    const r = await deadline(call(w, { file, from: from.id, to, title: outName.replace(/\.[^.]+$/, '') }, hooks, signal), JOB_TIMEOUT_MS(file.size), kill);
     return { blob: new Blob([r.out], { type: mime(to) }), engine: 'pandoc' };
   }
   if (from.kind === 'pdf') {
-    const w = pdfW();
-    signal.addEventListener('abort', () => { w.terminate(); pdf = null; }, { once: true });
-    const r = await call(w, { file, to }, hooks, signal);
+    const w = pdfW(), kill = () => { w.terminate(); pdf = null; };
+    signal.addEventListener('abort', kill, { once: true });
+    const r = await deadline(call(w, { file, to }, hooks, signal), JOB_TIMEOUT_MS(file.size), kill);
+    if (to === 'txt' && !new TextDecoder().decode(r.pages[0]).trim()) throw new EngineError('noText'); // scanned PDF: pages are pictures, there is no OCR
     if (r.pages.length === 1) return { blob: new Blob([r.pages[0]], { type: mime(to) }), w: r.w || null, h: r.h || null, engine: 'pdfjs' };
     // one image per page → a ZIP of pages (stored: PNG/JPG are already compressed)
     const { zipSync } = await import('fflate');
@@ -96,12 +111,13 @@ export const mime = (to: string) => MIME[to] || 'application/octet-stream';
  *  TIFF/JXL, audio/video only when canPlayType says yes, first 64 KB of MD/TXT as text. Everything else: no preview. */
 export type Preview = { kind: 'img' | 'audio' | 'video'; url: string } | { kind: 'text'; text: string } | null;
 const NATIVE_IMG = new Set(['png', 'jpg', 'webp', 'gif', 'bmp', 'ico', 'avif']);
-export async function preview(r: RunResult, to: string): Promise<Preview> {
+export async function preview(r: RunResult, to: string, signal: AbortSignal): Promise<Preview> {
   if (r.name) return null; // ZIP of pages
   const big = (r.w ?? 0) * (r.h ?? 0) > PREVIEW_DOWNSCALE_MP * 1e6;
-  if ((NATIVE_IMG.has(to) && !big) ) return { kind: 'img', url: URL.createObjectURL(r.blob) };
+  if (NATIVE_IMG.has(to) && !big) return { kind: 'img', url: URL.createObjectURL(r.blob) };
   if (NATIVE_IMG.has(to) || to === 'tiff' || to === 'jxl') {
-    const p = await call(magickW(), { file: r.blob, from: to, to: 'png', maxSide: 1600 }, {}, new AbortController().signal).catch(() => null);
+    // the job's signal: Stop/remove during this downscale terminates magick (run's abort hook); without it this call never settles and the image runner stalls
+    const p = await call(magickW(), { file: r.blob, from: to, to: 'png', maxSide: 1600 }, {}, signal).catch(() => null);
     return p ? { kind: 'img', url: URL.createObjectURL(new Blob([p.out], { type: 'image/png' })) } : null;
   }
   const av = r.blob.type.split('/')[0];

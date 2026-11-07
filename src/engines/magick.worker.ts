@@ -1,7 +1,8 @@
 // Image engine (magick-wasm) in its own module worker. Input is the user's File (structured clone, not copied);
 // the input format is always passed explicitly so ImageMagick never sniffs a coder (MIMARI §14).
-import { initializeImageMagick, ImageMagick, MagickFormat, MagickColor, AlphaAction } from '@imagemagick/magick-wasm';
+import { initializeImageMagick, ImageMagick, MagickFormat, MagickColor, AlphaAction, ResourceLimits } from '@imagemagick/magick-wasm';
 import { loadEngine } from './load-wasm';
+import { IMAGE_MAX_MP } from './limits';
 
 const FMT: Record<string, MagickFormat> = {
   jpg: MagickFormat.Jpeg, png: MagickFormat.Png, webp: MagickFormat.WebP, avif: MagickFormat.Avif, heic: MagickFormat.Heic,
@@ -14,7 +15,9 @@ const init = (id: number) => (ready ??= (async () => {
   const { wasm } = await loadEngine('image', (p) => self.postMessage({ id, type: 'engine', p }));
   // magick-wasm rejects blob: URLs; hand it a compiled module
   await initializeImageMagick(await WebAssembly.compileStreaming(new Response(wasm)));
-})());
+  // untrusted input: defaults allow 17 Gpx in RAM; disk 0 so over-limit images fail (CacheResourcesExhausted), not spill to MEMFS
+  ResourceLimits.area = BigInt(IMAGE_MAX_MP * 1e6); ResourceLimits.disk = 0n;
+})().catch((e) => { ready = null; throw e; })); // a failed download must not be cached: Try again fetches again
 
 self.onmessage = async ({ data: { id, file, from, to, quality = 85, maxSide } }) => {
   try {

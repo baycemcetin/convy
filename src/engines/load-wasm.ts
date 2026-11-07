@@ -10,7 +10,7 @@ const manifests: Partial<Record<EngineId, Promise<Manifest>>> = {};
 export const manifest = (id: EngineId) => (manifests[id] ??= fetch(base(id) + 'manifest.json').then((r) => {
   if (!r.ok) throw new Error(`manifest ${id}: HTTP ${r.status}`);
   return r.json();
-}));
+}).catch((e) => { delete manifests[id]; throw e; })); // a failed fetch must not stick for the session
 
 async function cachedFetch(url: string, onBytes: (n: number) => void): Promise<ArrayBuffer> {
   const cache = typeof caches !== 'undefined' ? await caches.open(CACHE).catch(() => null) : null;

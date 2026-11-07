@@ -12,7 +12,7 @@ export interface Item {
   n: string; f: string; k: string; to: string | null; i: number; o: number | null; approx: boolean;
   dim: string | null; w: number | null; h: number | null; dur: number | null;
   st: St; p: number | null; eng: EngineKey | null; out: Blob | null; pv: Preview; outN: string | null; // pv: result preview (Ek B); outN: output file name (a PDF's pages arrive as name.zip)
-  block: { need: number; free: number } | null; error: 'tooBig' | 'failed' | 'timeout' | null; saved: boolean;
+  block: { need: number; free: number } | null; error: 'tooBig' | 'failed' | 'timeout' | 'noText' | null; saved: boolean;
   targets: string[];
 }
 const MB = (b: number) => b / 1e6;
@@ -29,6 +29,12 @@ export const q = $state({
   online: typeof navigator === 'undefined' ? true : navigator.onLine,
 });
 
+// online/offline: the "Offline" tag follows the browser; an item parked as offline is ready again once the connection is back
+if (typeof window !== 'undefined') {
+  const net = () => { q.online = navigator.onLine; if (q.online) for (const it of q.items) if (it.st === 'offline') it.st = 'ready'; };
+  addEventListener('online', net); addEventListener('offline', net);
+}
+
 export const byIdItem = (id: number | null) => q.items.find((x) => x.id === id) || null;
 
 /** Manifest sizes + saved state + estimate(); call on mount and after engine downloads / removal. */
@@ -41,20 +47,23 @@ export async function refreshDevice() {
   const e = await navigator.storage?.estimate?.().catch(() => null);
   if (e) q.store = { usage: MB(e.usage || 0), quota: MB(e.quota || 0) };
 }
-export async function removeEngines() { await removeSavedEngines(); await refreshDevice(); }
+export async function removeEngines() { await removeSavedEngines(); await refreshDevice(); for (const it of q.items) if (it.block) await checkQuota(it); } // the freed room may lift a block
 
-export function add(files: FileList | File[]) {
-  for (const file of Array.from(files)) {
-    const fmt = detect(file);
-    const it: Item = {
+/** `before` sees the new items just ahead of the push (the island sets row stagger there: rows render in the same flush). */
+export async function add(files: FileList | File[], before?: (items: Item[]) => void) {
+  const list = Array.from(files); // the input is cleared right after the pick
+  const fmts = await Promise.all(list.map(detect));
+  const fresh = list.map((file, k) => {
+    const fmt = fmts[k];
+    return <Item>{
       id: nextId++, file, fmt, n: file.name, f: fmt?.label ?? (file.name.split('.').pop() || '?').toUpperCase(), k: fmt?.kind ?? 'unknown',
       to: null, i: MB(file.size), o: null, approx: false, dim: null, w: null, h: null, dur: null,
       st: fmt && targets(fmt).length ? 'needs' : 'unsupported', p: null, eng: fmt ? engineOf(fmt) : null, out: null, pv: null, outN: null,
       block: null, error: null, saved: false, targets: fmt ? targets(fmt).map((t) => byId(t)!.label) : [],
     };
-    q.items.push(it);
-    if (q.staged == null) q.staged = it.id;
-  }
+  });
+  before?.(fresh);
+  for (const it of fresh) { q.items.push(it); if (q.staged == null) q.staged = it.id; }
   // batch target: a new file of a kind already targeted in this batch inherits that target (one choice per kind)
   for (const it of q.items) if (it.st === 'needs') { const same = q.items.find((x) => x !== it && x.k === it.k && x.to); if (same) setTarget(it.id, same.to!); }
 }
@@ -65,6 +74,7 @@ export async function setTarget(id: number, label: string) {
   it.to = label; it.st = 'ready'; it.error = null; it.o = null; it.approx = false;
   const to = label.toLowerCase();
   if (it.k === 'audio' || it.k === 'video') {
+    import('../engines/ffmpeg').catch(() => {}); // warm the fallback wrapper: WebKit remembers a failed dynamic import until reload
     const pr = await probeAV(it.file, to);
     it.dur = pr.duration; if (pr.w) { it.w = pr.w; it.h = pr.h; }
     if (pr.duration) { it.o = MB(estimateOut(it.file.size, to, pr.duration)); it.approx = true; }
@@ -117,12 +127,13 @@ async function exec(it: Item) {
     if (r.w) { it.w = r.w; it.h = r.h!; it.dim = `${r.w} × ${r.h}`; }
     if (r.duration) it.dur = r.duration;
     it.outN = r.name ?? outName(it.n, to);
-    it.pv = await preview(r, to).catch(() => null);
+    it.pv = await preview(r, to, ac.signal).catch(() => null);
     it.st = 'done'; it.p = 1;
     if (!q.saved[ekey]) refreshDevice();
   } catch (e: any) {
     q.engine = null;
     if (e?.name === 'AbortError') { it.st = 'cancelled'; it.p = null; }
+    else if (!navigator.onLine && it.eng === 'av' && !q.saved.av) it.st = 'offline'; // copy exists for the video engine only (off.needs)
     else { it.st = 'failed'; it.error = e instanceof EngineError ? (e.code === 'unsupported' ? 'failed' : e.code) : 'failed'; console.warn('[convy]', it.n, e); }
   } finally { ctrls.delete(it.id); }
 }

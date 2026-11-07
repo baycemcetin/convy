@@ -62,13 +62,14 @@
     switch (view) {
       case 'needs': return convertSlot('sg-why');
       case 'ready': return f.st === 'running' || f.st === 'queued' ? stopSlot(f) : convertSlot();
-      case 'block': return anyReady ? convertSlot('sg-why') : convertSlot('q-notice');
+      case 'block': return anyReady ? convertSlot('sg-why') : removeSlot(f); // nothing can start: the way out is Remove (K: no dead "Convert 0 files")
       case 'engine': case 'running': return { ...stopSlot(f), dis: completing };
       case 'done': return { label: t.btn.save, cls: 'prim', aria: n > 1 ? fmt(t.a11y.save, { name: outName(f) }) : undefined, run: () => acts.save(f.id) };
       case 'failed': return { label: t.btn.tryAgain, cls: '', run: () => acts.retry(f.id) };
-      default: return anyReady ? convertSlot() : { label: t.btn.remove, cls: '', aria: fmt(t.a11y.remove, { name: f.n }), run: () => acts.remove(f.id) };
+      default: return anyReady ? convertSlot() : removeSlot(f);
     }
   });
+  const removeSlot = (f: Item): Slot => ({ label: t.btn.remove, cls: '', aria: fmt(t.a11y.remove, { name: f.n }), run: () => acts.remove(f.id) });
   function stopSlot(f: Item): Slot {
     return jobs > 1 ? { label: t.btn.stopThis, cls: '', aria: fmt(t.a11y.stopThis, { name: f.n }), run: () => acts.stop(f.id) } : { label: t.btn.stop, cls: '', aria: fmt(t.a11y.stop, { name: f.n }), run: () => acts.stop(f.id) };
   }
@@ -126,7 +127,7 @@
         <div class="sg-meter" in:tin out:tout onoutrostart={pin}><span role="progressbar" aria-label={fmt(t.stage.batch, { n })} aria-valuemin="0" aria-valuemax={n} aria-valuenow={cd.length} aria-valuetext={fmt(t.sr.count, { d: cd.length, n })}><span class="fig">{cd.length}<span class="u"> {fmt(t.stage.of, { n })}</span></span></span></div>
       {:else if sub && (view === 'failed' || view === 'unsupported' || view === 'offline')}
         <div class="sg-say" in:tin out:tout onoutrostart={pin}>
-          {#if view === 'failed'}<Icon n="error" cls="err" /><h2>{t.err.orig}</h2>
+          {#if view === 'failed'}<Icon n="error" cls="err" /><h2>{sub.error === 'noText' ? t.err.noText : t.err.orig}</h2>
           {:else if view === 'unsupported'}<Icon n={sub.k} cls="neu" /><h2>{fmt(t.unsup.h, { ext: sub.f })}</h2><p><a href="#formats">{t.unsup.a}</a></p>
           {:else}<Icon n="engine" cls="neu" /><h2 class="long">{fmt(t.off.needs, { size: x.dl(q.sizes.av?.transfer) })}</h2><p>{t.off.works}</p>{/if}
         </div>
@@ -153,7 +154,7 @@
         {:else if view === 'engine'}
           <span class="ebar" data-volt="engine" aria-hidden="true" style="--p:{engP}" in:tin out:tout onoutrostart={pin}><i></i></span>
         {:else if view === 'block' && sub}
-          <div class="notice bare" id="q-notice" in:tin out:tout onoutrostart={pin}><Icon n="storage" /><span class="h">{t.quota.h}</span><p class="data" style="color:var(--c-ink)"><span class="sg">{fmt(t.quota.canUse, { size: x.size(sub.block!.free) })}</span></p><p>{t.quota.p}</p><div class="acts"><button class="btn sm quiet" type="button" onclick={acts.removeEngines}>{t.quota.acts[1]}</button></div></div>
+          <div class="notice bare" id="q-notice" in:tin out:tout onoutrostart={pin}><Icon n="storage" /><span class="h">{t.quota.h}</span><p class="data" style="color:var(--c-ink)"><span class="sg">{fmt(t.quota.canUse, { size: x.size(sub.block!.free) })}</span></p><p>{t.quota.p}</p>{#if Object.values(q.saved).some(Boolean)}<div class="acts"><button class="btn sm quiet" type="button" onclick={acts.removeEngines}>{t.quota.acts[1]}</button></div>{/if}</div>
         {:else if view === 'done'}
           <span class="pill" data-volt="pill" in:tin out:tout onoutrostart={pin}><Icon n="done" s16 /><span aria-hidden="true">{t.sig}</span><span class="sr">{t.sr.onDevice}</span></span>
         {/if}

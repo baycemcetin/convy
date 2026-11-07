@@ -4,5 +4,7 @@ export const FFMPEG_MEMFS_MAX_OUT = (iOS ? 500 : 1000) * 1e6; // bytes; estimate
 export const MEDIABUNNY_TESTED_MAX = 2 * 1024 ** 3;           // above: warn, still allowed
 export const IMAGE_WARN_MP: number | null = null;             // empty until measured → no image warning
 export const PREVIEW_DOWNSCALE_MP = 12;
+// magick pixel-cache ceiling: above it the read fails in ms instead of allocating GBs (875 KB PNG bomb → 3.8 GB, review [11])
+export const IMAGE_MAX_MP = iOS ? 100 : 250;
 export const OPFS_OUT_MIN = 50e6;                             // outputs above this stream to OPFS, not RAM
-export const FFMPEG_TIMEOUT_MS = (inBytes: number) => 120_000 + inBytes / 1e6 * 2_000; // wall clock, then terminate()
+export const JOB_TIMEOUT_MS = (inBytes: number) => 120_000 + inBytes / 1e6 * 2_000; // wall clock, then terminate() (ffmpeg, pandoc, pdf.js)

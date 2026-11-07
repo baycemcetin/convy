@@ -119,7 +119,7 @@
     },
     "err": {
       "track": "The audio track in this file can’t be read.",
-      "orig": "Your original file is untouched.",
+      "orig": "Your original file is untouched.", "noText": "No selectable text in this PDF.",
       "acts": [
         "Convert without sound",
         "Choose another format"
@@ -319,7 +319,7 @@
       "na": "{name}: {from} to {to} isn’t available.",
       "progress": "{d} of {n} converted.",
       "failedN": "{f} files couldn’t convert: {names}.",
-      "removed": "{name} removed."
+      "removed": "{name} removed.", "stopped": "{name} stopped."
     },
     "written": "{w} written · ≈ {t}",
     "onGauge": "Shown above",
@@ -471,7 +471,7 @@
     },
     "err": {
       "track": "Bu dosyadaki ses izi okunamıyor.",
-      "orig": "Orijinal dosyan olduğu gibi duruyor.",
+      "orig": "Orijinal dosyan olduğu gibi duruyor.", "noText": "Bu PDF’te seçilebilir metin yok.",
       "acts": [
         "Ses olmadan dönüştür",
         "Başka format seç"
@@ -671,7 +671,7 @@
       "na": "{name}: {from} formatından {to} formatına dönüşüm yok.",
       "progress": "{n} dosyadan {d} tanesi dönüştü.",
       "failedN": "{f} dosya dönüştürülemedi: {names}.",
-      "removed": "{name} kaldırıldı."
+      "removed": "{name} kaldırıldı.", "stopped": "{name} durduruldu."
     },
     "written": "{w} yazıldı · ≈ {t}",
     "onGauge": "Yukarıda",

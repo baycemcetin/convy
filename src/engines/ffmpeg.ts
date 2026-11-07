@@ -2,7 +2,7 @@
 // input via WORKERFS (not copied into wasm memory), wall-clock timeout + terminate() (the promise can hang, R11).
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { loadEngine, ENGINES } from './load-wasm';
-import { FFMPEG_TIMEOUT_MS } from './limits';
+import { JOB_TIMEOUT_MS } from './limits';
 
 const ARGS: Record<string, string[]> = {
   mp4: ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart'],
@@ -26,7 +26,7 @@ export async function ffmpegConvert(file: File, to: string, outName: string, on:
     await ff.createDir('/in');
     await ff.mount('WORKERFS' as any, { files: [file] }, '/in');
     ff.on('progress', ({ progress }) => on.progress?.(Math.max(0, Math.min(1, progress))));
-    const timeout = new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), FFMPEG_TIMEOUT_MS(file.size)));
+    const timeout = new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), JOB_TIMEOUT_MS(file.size)));
     const code = await Promise.race([ff.exec(['-hide_banner', '-loglevel', 'error', '-i', `/in/${file.name}`, ...ARGS[to], '-y', outName]), timeout]);
     if (code !== 0) throw new Error(`ffmpeg exit ${code}`);
     return (await ff.readFile(outName)) as Uint8Array;

@@ -37,10 +37,16 @@ const OUT: Record<Kind, string[]> = {
 export const targets = (f: Format) => OUT[f.kind].filter((t) => t !== f.id || f.kind === 'video');
 export const engineOf = (f: Format): EngineKey => (f.kind === 'image' ? 'image' : f.kind === 'document' ? 'doc' : f.kind === 'pdf' ? 'pdf' : 'av');
 
-// Extension first (iOS hands real types; `accept` is omitted on purpose, Ek D), MIME as fallback.
-export function detect(file: File): Format | null {
+// Content first (magic bytes, ./sniff, loaded on the first file), so a renamed file is still read as what it is; extension then MIME for text formats that have no
+// signature (md, html, tex) and as the tie-break inside one container family. `accept` is omitted on purpose (Ek D).
+const loadSniff = () => import('./sniff').catch(() => null); // offline before the chunk was fetched → extension only
+if (typeof window !== 'undefined') setTimeout(loadSniff, 2000); // warm it so a later offline add still reads content
+export async function detect(file: File): Promise<Format | null> {
   const ext = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : '';
   const ins = FORMATS.filter((f) => !f.outOnly);
-  return ins.find((f) => f.ext.includes(ext)) || ins.find((f) => f.mime === file.type) || null;
+  const byExt = ins.find((f) => f.ext.includes(ext));
+  const seen = (await loadSniff())?.sniff(new Uint8Array(await file.slice(0, 128).arrayBuffer())) ?? [];
+  if (seen.length) return byId(byExt && seen.includes(byExt.id) ? byExt.id : seen[0])!;
+  return byExt || ins.find((f) => f.mime === file.type) || null;
 }
 export const outName = (name: string, to: string) => name.replace(/\.[^.]+$/, '') + '.' + to;

@@ -17,6 +17,7 @@ self.onmessage = async ({ data: { id, file, from, to, title } }) => {
     const inName = 'in.' + from, outName = 'out.' + to;
     const options: Record<string, unknown> = { from: READ[from], to: WRITE[to], 'input-files': [inName], 'output-file': outName, standalone: to === 'html' || to === 'epub' };
     if (to === 'epub') options.metadata = { title };
+    if (to === 'html') options.variables = { pagetitle: title }; // otherwise pandoc titles the page after our temp name: <title>in</title>
     const r = await pandoc.convert(options, null, { [inName]: file as Blob });
     const out: Blob | undefined = r.files?.[outName];
     if (!out) throw new Error('no output: ' + String(r.stderr || '').slice(0, 300));

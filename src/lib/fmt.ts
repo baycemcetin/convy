@@ -16,8 +16,9 @@ export function formatter(lang: Lang, t: Copy) {
   /** [a, u, unitFirst]: TR writes "%64" */
   const pctParts = (p: number) => { const s = pct(p); return lang === 'tr' ? (['%', s.slice(1), true] as const) : ([s.slice(0, -1), '%', false] as const); };
   const plural = (n: number, one: string, other: string) => fmt(new Intl.PluralRules(loc).select(n) === 'one' ? one : other, { n });
+  const kbSay = (k: number) => `${num(k, 0)} ${k === 1 ? t.sr.kb.replace(/s$/, '') : t.sr.kb}`; // "1 kilobyte"
   /** spoken size for the live region, never "MB" */
-  const say = (mb: number, whole = false) => mb < 1 ? `${num(Math.max(1, Math.round(mb * 1000)), 0)} ${t.sr.kb}` : mb >= 1000 ? `${num(mb / 1000, 1)} ${t.sr.gb}` : whole ? `${num(Math.ceil(mb), 0)} ${t.sr.mb}` : `${num(mb, mb >= 100 ? 0 : 1)} ${t.sr.mb}`;
+  const say = (mb: number, whole = false) => mb < 1 ? kbSay(Math.max(1, Math.round(mb * 1000))) : mb >= 1000 ? `${num(mb / 1000, 1)} ${t.sr.gb}` : whole ? `${num(Math.ceil(mb), 0)} ${t.sr.mb}` : `${num(mb, mb >= 100 ? 0 : 1)} ${t.sr.mb}`;
   /** engine download: manifest `transfer`, rounded UP once (TEYIT A1-6); unknown → "—" (R-2026-13) */
   const dl = (mb: number | null | undefined) => (mb == null ? '—' : num(Math.ceil(mb), 0) + ' MB');
   const dur = (s: number | null) => (s == null ? null : `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`);

@@ -1,6 +1,6 @@
 // T3 · one polite live region (#live in Base.astro), HAREKET §5.1. Written from event handlers (never rAF-bound, §4):
 // clear → next frame-ish tick → write; same-tick messages join; completions coalesce in a 1200 ms window (≥ 2 → one summary,
-// at most every 5 s, final summary at once); failures group in a 3 s window.
+// at most every 5 s, final summary at once); failures group in a 1200 ms window.
 import { T } from './motion';
 
 export function announcer() {
@@ -52,7 +52,7 @@ export function announcer() {
     if (!failT) failT = window.setTimeout(() => {
       failT = 0; const f = fails; fails = [];
       say(f.length === 1 ? one(f[0]) : many(f.length, f.join(', ')));
-    }, 3000);
+    }, T.dwell);
   }
   return { say, done, failed };
 }

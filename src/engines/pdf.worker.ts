@@ -22,6 +22,7 @@ self.onmessage = async ({ data: { id, file, to, scale = 2, quality = 0.9 } }) =>
     task = pdfjs.getDocument({
       data: new Uint8Array(await (file as Blob).arrayBuffer()), isEvalSupported: false, disableFontFace: true, useSystemFonts: false,
       useWorkerFetch: true, ownerDocument: offDoc, disableWorkerRendering: true,
+      verbosity: pdfjs.VerbosityLevel.ERRORS, // the in-worker parser is pdf.js' "fake worker", which warns on first use by design
       wasmUrl: base + 'wasm/', cMapUrl: base + 'cmaps/', cMapPacked: true, standardFontDataUrl: base + 'standard_fonts/', iccUrl: base + 'iccs/',
     });
     const doc = await task.promise;
@@ -40,7 +41,9 @@ self.onmessage = async ({ data: { id, file, to, scale = 2, quality = 0.9 } }) =>
     let w = 0, h = 0;
     for (let i = 1; i <= n; i++) {
       const page = await doc.getPage(i);
-      const vp = page.getViewport({ scale });
+      // cap the canvas at 4000 px a side (iOS canvas area limit is 4096²): poster-size pages would fail or exhaust memory
+      const one = page.getViewport({ scale: 1 });
+      const vp = page.getViewport({ scale: Math.min(scale, 4000 / Math.max(one.width, one.height)) });
       const canvas = new OffscreenCanvas(Math.ceil(vp.width), Math.ceil(vp.height));
       const ctx = canvas.getContext('2d')!;
       if (to === 'jpg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); }

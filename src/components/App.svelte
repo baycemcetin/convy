@@ -74,6 +74,8 @@
         if ((st === 'queued' || st === 'running') && !batchIds.has(i.id)) { if (!batchOpen) { batchIds.clear(); batchOpen = true; } batchIds.add(i.id); }
         if (st === 'running') setTimeout(() => shown.add(i.id), T.tShow);
         if (st === 'done') onDone(i, running);
+        if (st === 'cancelled') live?.say(fmt(t.live.stopped, { name: i.n }));
+        if (st === 'offline') live?.say(fmt(t.live.offline, { name: i.n, size: x.dl(q.sizes.av?.transfer) }));
         if (st === 'failed') live?.failed(i.n, (name) => fmt(t.live.failed, { name }), (f, names) => fmt(t.live.failedN, { f, names }));
       }
       if (block && !p?.block) live?.say(fmt(t.live.blocked, { name: i.n, size: x.say(i.i) }));
@@ -128,14 +130,17 @@
     pinned = id; stage(id);
     setTimeout(() => (instant = false), T.swapOut + T.swapIn);
   }
-  const stageActs = { choose, convert: doConvert, stop, stopAll, save, share, retry, remove: doRemove, pick, removeEngines };
-  const logActs = { add: choose, stopAll, saveZip, save, retry, remove: doRemove, stage: doStage, pick };
+  function doRetry(id: number) { retry(id); live?.say(t.live.start); }
+  async function doStopAll() {
+    stopAll(); await tick();
+    if (!document.activeElement || document.activeElement === document.body) document.getElementById('sg-act')?.focus(); // the header button is gone now
+  }
+  const stageActs = { choose, convert: doConvert, stop, stopAll: doStopAll, save, share, retry: doRetry, remove: doRemove, pick, removeEngines };
+  const logActs = { add: choose, stopAll: doStopAll, saveZip, save, retry: doRetry, remove: doRemove, stage: doStage, pick };
   const delays = new Map<number, number>();
   const delay = (id: number) => (delays.get(id) ?? 0) * T.stagger;
   function ingest(files: FileList | File[]) {
-    const start = q.items.length;
-    add(files);
-    q.items.slice(start).forEach((it, k) => delays.set(it.id, Math.min(k, 7))); // stagger only inside one drop
+    add(files, (fresh) => fresh.forEach((it, k) => delays.set(it.id, Math.min(k, 7)))); // stagger only inside one drop
   }
 
   onMount(() => {
