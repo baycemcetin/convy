@@ -82,7 +82,7 @@
 </script>
 
 {#snippet fig(a: string, u: string, pre = false)}<span class="fig">{#if pre}<span class="u">{a}</span>{u}{:else}{a}<span class="u">{u ? ' ' + u : ''}</span>{/if}</span>{/snippet}
-{#snippet pctFig(p: number)}{@const pp = x.pctParts(p)}{@render fig(pp[0], pp[1], pp[2])}{/snippet}
+{#snippet pctFig(p: number)}{@const pp = x.pctParts(p)}<span class="fig">{#if pp[2]}<span class="u">{pp[0]}</span>{pp[1]}{:else}{pp[0]}<span class="u">{pp[1]}</span>{/if}</span>{/snippet}<!-- "64%": no space before % (hi-fi pctFig) -->
 {#snippet inFig(mb: number)}{@const sp = x.sizeParts(mb)}{@render fig(sp[0], sp[1])}<span class="from">{t.stage.input}</span>{/snippet}
 {#snippet conv(f: Item)}{f.f} <Ar to={t.sr.to} /> {#if f.to}{f.to}{:else}<Dash sr={t.sr.pending} />{/if}{/snippet}
 {#snippet sizeIn()}{x.size(sub!.i)} <Ar to={t.sr.to} /> <Dash sr={t.sr.pending} />{/snippet}
