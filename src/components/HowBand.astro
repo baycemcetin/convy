@@ -1,0 +1,7 @@
+---
+// inside <main> (a11y P2-10); static, no island
+import { copy, type Lang } from '../i18n';
+const { lang } = Astro.props as { lang: Lang };
+const t = copy(lang);
+---
+<section class="howband" aria-labelledby="how-h"><h2 id="how-h">{t.how.t}</h2><div class="b"><p class="how-line">{t.how.steps.map((x) => <><span>{x}</span> </>)}</p><a href="#" class="how-a">{t.how.link}<span class="ar" aria-hidden="true">→</span></a></div></section>

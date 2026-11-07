@@ -1,0 +1,6 @@
+---
+import { copy, type Lang } from '../i18n';
+const { lang } = Astro.props as { lang: Lang };
+const t = copy(lang);
+---
+<footer class="foot"><div class="wrap"><nav aria-label={t.a11y.footer}>{t.foot.map((x) => <a href="#">{x}</a>)}</nav><a href="#">{t.made}</a></div></footer>

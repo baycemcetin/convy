@@ -85,7 +85,7 @@ async function checkQuota(it: Item) {
   it.block = need > free ? { need: MB(need), free: MB(free) } : null;
 }
 
-const ready = (it: Item) => it.st === 'ready' && !it.block;
+const ready = (it: Item) => (it.st === 'ready' || it.st === 'cancelled') && !it.block; // a stopped file is ready again
 export const readyCount = () => q.items.filter(ready).length;
 
 /** "Convert": every ready file becomes a job. One runner per engine (image / av) so a video never blocks photos. */

@@ -4,6 +4,7 @@ import '../styles/fonts.css';
 import '../styles/tokens-volt.css';
 import '../styles/type-scale.css';
 import '../styles/hifi.css';
+import '../styles/product.css';
 import sprite from '../assets/sprite.svg?raw';
 import { copy, type Lang } from '../i18n';
 interface Props { lang: Lang; title?: string; description?: string; }
@@ -36,7 +37,7 @@ const alt = lang === 'en' ? '/tr/' : '/';
 </head>
 <body>
 <Fragment set:html={sprite} />
-<a class="skip" href="#stage">{t.skip}</a>
+<a class="skip" href="#main">{t.skip}</a>
 <slot />
 <div id="live" class="sr" aria-live="polite"></div>
 </body>

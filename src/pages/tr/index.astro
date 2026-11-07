@@ -1,5 +1,12 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Converter from '../../components/Converter.svelte';
+import App from '../../components/App.svelte';
+import HowBand from '../../components/HowBand.astro';
+import Footer from '../../components/Footer.astro';
+import { islandCopy } from '../../i18n';
+import wm from '../../assets/convy-wordmark-kucuk.svg?raw';
 ---
-<Base lang="tr"><Converter lang="tr" client:load /></Base>
+<Base lang="tr">
+  <App lang="tr" t={islandCopy("tr")} client:load><Fragment slot="wm" set:html={wm} /><HowBand lang="tr" /></App>
+  <Footer lang="tr" />
+</Base>

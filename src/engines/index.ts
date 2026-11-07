@@ -1,6 +1,5 @@
 // Engine registry (MIMARI §3): picks the engine per job and runs it. Image → magick worker; audio/video → Mediabunny
 // worker when WebCodecs can decode+encode the tracks, otherwise ffmpeg ST (HEVC MOV, GIF, MP3, old containers, no WebCodecs).
-import { ffmpegConvert } from './ffmpeg';
 import { FFMPEG_MEMFS_MAX_OUT } from './limits';
 import type { Format } from './formats';
 
@@ -55,6 +54,7 @@ export async function run(file: File, from: Format, to: string, outName: string,
   const est = estimateOut(file.size, to, pr.duration);
   if (est > FFMPEG_MEMFS_MAX_OUT) throw new EngineError('tooBig');
   hooks.progress?.(0);
+  const { ffmpegConvert } = await import('./ffmpeg'); // fallback engine: keep @ffmpeg/ffmpeg out of the island chunk
   const out = await ffmpegConvert(file, to, outName, { engine: hooks.engine, progress: hooks.progress }, signal)
     .catch((e) => { throw e.name === 'AbortError' ? e : new EngineError(e.message === 'timeout' ? 'timeout' : 'failed', e.message); });
   return { blob: new Blob([out as BlobPart], { type: mime(to) }), w: pr.w, h: pr.h, duration: pr.duration, engine: 'ffmpeg' };

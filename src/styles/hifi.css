@@ -446,7 +446,7 @@ svg.arw.xl{ width:120px; }
   :root{ --fig-gap:var(--s5); --meter-h:max(var(--h1), 52px); }
   .pv.tile{ position:relative; width:100%; margin-top:var(--s4); }
   .sg-main:has(> .pv.tile) > .sg-name{ max-width:none; }
-  .sg-meter .from{ font-size:var(--text-md); margin-bottom:6px; }
+  .sg-meter .from{ font-size:var(--text-md); margin-bottom:6px; margin-left:calc(var(--s3) - var(--s4)); } /* gap is s4 here: keep the 12 px figure→label gap (was -4 px overlap) */
   .sg-say h2{ font-size:var(--text-lg); line-height:1.35; letter-spacing:-.02em; }
   .sg-say .ic{ width:24px; height:24px; margin-top:2px; }
   .sg-say p{ font-size:var(--text-base); }
