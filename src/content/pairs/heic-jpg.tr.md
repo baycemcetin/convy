@@ -1,27 +1,29 @@
 ---
-draft: true # ÖRNEK: şablon ve build kontrollerini doğrulamak için pair-facts'ten yazıldı. Copywriter bunu değiştirir; olduğu gibi yayına girmez.
-intro: "HEIC, iPhone'un varsayılan olarak kaydettiği biçim ve birçok program hâlâ açamıyor. HEIC dosyalarını seç, Convy bu cihazda JPG'ye çevirsin, sonra sonucu kaydet. Fotoğrafın içindeki kamera bilgileri de onunla birlikte gelir ve resim doğru yönde durur."
-metaHook: "fotoğraf kamera bilgilerini korur ve doğru yönde durur"
+draft: false
+intro: "iPhone, fotoğrafları varsayılan ayarda HEIC olarak kaydeder; birçok program ve web formu bu dosyayı hâlâ tanımaz. HEIC dosyalarını seç, Convy onları bu cihazda JPG'ye çevirsin. Kopyada kamera bilgileri ve GPS konumu yer almaz, renk profili korunur."
+metaHook: "konum ve kamera bilgisi silinir, renk profili kalır, fotoğraf dik açılır"
 steps:
   - "HEIC fotoğraflarını seç ya da sayfaya bırak."
-  - "Hedef olarak JPG zaten seçili geliyor."
-  - "Dönüştür'e bas, sonra JPG dosyalarını kaydet."
+  - "Hedefte JPG zaten seçili gelir."
+  - "Dönüştür'e bas, ardından JPG dosyalarını kaydet."
 limits:
-  - "250 megapikselin üstündeki görseller, iPhone ve iPad'de 100 megapikselin üstündekiler, cihazın belleğini tüketmesin diye reddedilir."
-  - "İlk dönüşümde görsel motoru bir kez iner, yaklaşık 5 MB, sonraki sefer için saklanır."
+  - "250 megapikselin üstündeki görseller reddedilir, iPhone ve iPad'de sınır 100 megapiksel; böylece cihazın belleği tükenmez."
+  - "İlk dönüşümde görsel motoru bir kez iner (yaklaşık 5 MB) ve sonraki seferler için bu cihazda saklanır."
 faq:
-  - q: "JPG tarihi ve konumu koruyor mu?"
-    a: "Evet. EXIF bloğu olduğu gibi JPG'ye taşınır; HEIC'te varsa kamera markası ve GPS konumu da dahil. Konumun başkalarıyla paylaşılmasını istemiyorsan dosyayı göndermeden önce bir metaveri aracıyla sil."
-  - q: "Dosya neden büyüyor?"
-    a: "HEIC fotoğrafı JPG'den daha sıkı sıkıştırır. Denememizde 39 KB'lık bir HEIC, kalite 85'te 51 KB'lık JPG oldu. Oran fotoğrafa göre değişir; bu tek bir örnek, kural değil."
-  - q: "Chrome, Firefox ve Safari'de sonuç aynı mı?"
-    a: "Örnek dosyamızda çıktı Chromium, Firefox ve WebKit'te bayt bayt aynıydı, çünkü üçünde de aynı görsel motoru çalışıyor. Başka fotoğraflar karşılaştırılmadı; bu, motoru anlatır, her dosyayı değil."
-factRefs: [lossy, metadata, path, limits.0, extra.0, extra.2]
+  - q: "Konum bilgisi JPG'de kalıyor mu?"
+    a: "Hayır. GPS konumu dahil EXIF bloğunun tamamı JPG'nin dışında kalır. Bunu konum taşıyan bir HEIC ile Chromium, Firefox ve WebKit'te ayrı ayrı denedik. İçeride kalan tek veri renk profilidir, çünkü renklerin nasıl görüneceğini o belirler."
+  - q: "JPG neden HEIC'ten büyük çıkıyor?"
+    a: "HEIC aynı görüntüyü daha az bayta sığdırır. Denememizde 1280 × 720 piksellik, 39 KB'lık bir HEIC, 85 kalitede 51 KB'lık bir JPG'ye dönüştü. Oran fotoğraftan fotoğrafa değişir; bunu bir örnek olarak oku, kural olarak değil."
+  - q: "JPG kalitesini yükseltebilir miyim?"
+    a: "Hayır, kalite 85'te sabit ve arayüzde bunun için bir ayar yok. Her pikselin çözüldüğü gibi kalmasını istiyorsan HEIC'i PNG'ye çevir: PNG kayıpsızdır, karşılığında dosya çok daha büyük olur."
+  - q: "Safari'de çevirirsem farklı bir dosya mı çıkar?"
+    a: "Örnek dosyamızda hayır: Chromium, Firefox ve WebKit aynı JPG'yi bayt bayt üretti, çünkü üçünde de aynı görsel motoru çalışıyor. Bu tek bir dosyada ölçüldü; motorun nasıl davrandığını anlatır, her fotoğrafın tek tek sınandığını değil."
+factRefs: [lossy, quality, metadata, path, extra.0, extra.1, extra.2, limits.0, download]
 ---
-JPG kayıplı bir biçimdir ve Convy onu 85 kalitesinde yazar. HEIC orijinale göre görünür ama yumuşak bir düşüştür ve geri alınmaz: pikselleri olduğu gibi tutmak istiyorsan HEIC'i sakla, kopyasını dönüştür.
+Fotoğrafın içindeki EXIF bloğu JPG'ye geçmez. Bunu Mac'te hazırlanmış, kamera markası, tarih ve GPS konumu taşıyan bir HEIC ile denedik: Chromium, Firefox ve WebKit'te çıkan JPG'de bunların hiçbiri yoktu. Korunan tek parça ICC renk profili. Display P3 ile çekilmiş bir fotoğrafın geniş renkleri bu sayede donuklaşmaz.
 
-Kamera bilgileri yolda düşmez. Bu bilgileri taşıyan bir HEIC'i dönüştürdüğümüzde marka, model ve GPS konumu JPG'de duruyordu; yani konum etiketli bir fotoğraf etiketli kalır. Dosyayı herkese açık bir yerde paylaşacaksan önce buna bak.
+Silmeden önce yön düzeltilir. Telefonlar pikselleri bazen yan kaydeder, nasıl çevrileceğini de ayrı bir etikette tutar. Convy pikselleri o etikete göre döndürür; etiket gittikten sonra da fotoğraf, etiketi okumayan görüntüleyicilerde bile dik açılır.
 
-Yön işi senin yerine yapılır. Convy pikselleri fotoğrafın çekildiği yöne çevirir ve yön etiketini normale sıfırlar; böylece etiketi görmezden gelen görüntüleyicilerde de resim dik durur.
+JPG kayıplı bir formattır ve Convy kaliteyi 85'te sabit tutar; arayüzde bunun için bir ayar yok. HEIC zaten sıkıştırılmış bir dosya, JPG bunun üstüne bir sıkıştırma turu daha ekler ve bu geri alınmaz. Özgün piksellere ileride ihtiyacın olabilirse HEIC'i de sakla.
 
-Bir örnekte 1280 × 720 piksellik 39 KB'lık HEIC, 51 KB'lık JPG çıktı. Gerçek telefon fotoğrafları çok daha büyüktür; iki dosyanın da birkaç megabayt olmasını bekle. Boyut farkı fotoğrafın içeriğine göre değişir.
+Denememizde 1280 × 720 piksellik, 39 KB'lık bir HEIC 51 KB'lık bir JPG oldu ve üç tarayıcıda da bayt bayt aynı dosya çıktı. Kendi fotoğrafların bu örnekten çok daha büyük olacak; telefon kamerası bunun birkaç katı piksel kaydeder.

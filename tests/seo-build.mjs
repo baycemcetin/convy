@@ -11,6 +11,12 @@ const run = (env, args) => execFileSync(args[0], args.slice(1), { env: { ...proc
 const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
 const pages = (d) => walk(d).filter((f) => f.endsWith('.html') && !f.includes('/engines/') && !f.includes('/.prerender/')).map((f) => ({ f, rel: f.slice(d.length), h: readFileSync(f, 'utf8') }));
 const tag = (h, re) => [...h.matchAll(re)].map((m) => m[1]);
+// pair state from the content folder (pairs/_hold is ignored by the build)
+const pairFiles = readdirSync('src/content/pairs').filter((f) => f.endsWith('.md'));
+const isDraft = (f) => /^draft:\s*true/m.test(readFileSync(join('src/content/pairs', f), 'utf8'));
+const pairIds = [...new Set(pairFiles.map((f) => f.replace(/\.(en|tr)\.md$/, '')))];
+const published = pairIds.filter((id) => ['en', 'tr'].every((l) => pairFiles.includes(`${id}.${l}.md`) && !isDraft(`${id}.${l}.md`)));
+const enSlug = (id) => id.replace('-', '-to-');
 const urlPath = (rel) => (rel === '/404.html' || rel === '/tr/404.html' ? rel : rel.replace(/index\.html$/, ''));
 
 // ---------- unit: the thin-content gate rejects thin pages
@@ -26,8 +32,9 @@ const urlPath = (rel) => (rel === '/404.html' || rel === '/tr/404.html' ? rel : 
 // ---------- production build
 console.log('building dist ...'); run({ CONVY_DRAFTS: '', CONVY_RELEASE: '' }, ['npm', 'run', 'build', '--silent']);
 const prod = pages('dist');
-ok(!existsSync('dist/convert') || readdirSync('dist/convert').join() === 'index.html', 'production: /convert/ holds only the index (no pair page without content)');
-ok(!existsSync('dist/tr/donustur') || readdirSync('dist/tr/donustur').join() === 'index.html', 'production: /tr/donustur/ holds only the index');
+const dirs = (d) => (existsSync(d) ? readdirSync(d).filter((f) => f !== 'index.html').sort() : []);
+ok(dirs('dist/convert').join() === published.map(enSlug).sort().join(), `production: /convert/ holds exactly the ${published.length} published pairs (no pair page without content)`);
+ok(dirs('dist/tr/donustur').join() === [...published].sort().join(), 'production: /tr/donustur/ holds exactly the published pairs');
 checkDir('dist', prod);
 const sm = readFileSync('dist/sitemap-0.xml', 'utf8'), locs = tag(sm, /<loc>([^<]+)<\/loc>/g);
 ok(locs.length >= 2 && locs.every((l) => l.startsWith('https://useconvy.com/') && l.endsWith('/')), `sitemap: ${locs.length} loc, https apex, trailing slash`);
@@ -44,18 +51,19 @@ run({ CONVY_DRAFTS: '1' }, ['npx', 'astro', 'build', '--outDir', '.draft-dist', 
 const dr = pages('.draft-dist');
 const en = dr.find((p) => p.rel === '/convert/heic-to-jpg/index.html'), tr = dr.find((p) => p.rel === '/tr/donustur/heic-jpg/index.html');
 ok(en && tr, 'draft build: sample pair exists in EN and TR');
-ok(dr.filter((p) => /^\/(tr\/donustur|convert)\/[^/]+\/index\.html$/.test(p.rel)).length === 2, 'draft build: exactly 1 pair (x2 languages) of 42 listed, though pair-facts exist for 18+: no content, no page');
+ok(dr.filter((p) => /^\/(tr\/donustur|convert)\/[^/]+\/index\.html$/.test(p.rel)).length === pairIds.length * 2, `draft build: ${pairIds.length} pairs with content (x2 languages) of 42 listed: no content, no page`);
 for (const [p, h1, lang] of [[en, 'HEIC to JPG', 'en'], [tr, 'HEIC JPG Dönüştürücü', 'tr']]) {
   ok(new RegExp(`<h1[^>]*>(<span[^>]*>)?${h1}`).test(p.h) || p.h.includes(h1), `${p.rel}: H1 "${h1}"`);
   ok(/data-to="JPG"/.test(p.h) && p.h.includes(`<html lang="${lang}"`), `${p.rel}: target preset + html lang`);
-  ok(/noindex/.test(p.h), `${p.rel}: draft pair is noindex`);
+  ok(/noindex/.test(p.h) === !published.includes('heic-jpg'), `${p.rel}: noindex only while draft`);
   const ld = tag(p.h, /<script type="application\/ld\+json">([^<]+)<\/script>/g).map((s) => JSON.parse(s));
   const bc = ld.find((x) => x['@type'] === 'BreadcrumbList');
   ok(bc && bc.itemListElement.length === 4 && bc.itemListElement.every((it, i) => it.position === i + 1 && it.name && it.item.startsWith('https://useconvy.com/')), `${p.rel}: BreadcrumbList 4 items, positions in order`);
   ok(!ld.some((x) => x['@type'] === 'WebApplication' || x['@type'] === 'FAQPage'), `${p.rel}: no WebApplication/FAQPage`);
   const title = tag(p.h, /<title>([^<]*)<\/title>/g)[0]; ok(title.length <= 60, `${p.rel}: title ${title.length} chars`);
 }
-ok(!locsOf('.draft-dist').some((l) => /heic/.test(l)), 'draft pair is not in the sitemap');
+ok(published.every((id) => locs.includes(`https://useconvy.com/convert/${enSlug(id)}/`) && locs.includes(`https://useconvy.com/tr/donustur/${id}/`)), 'published pairs are in the production sitemap');
+ok(!locsOf('.draft-dist').some((l) => pairIds.filter((id) => !published.includes(id)).some((id) => l.includes(`/${enSlug(id)}/`) || l.includes(`/donustur/${id}/`))), 'draft pairs are not in the sitemap');
 const rd = readFileSync('.draft-dist/_redirects', 'utf8');
 for (const r of ['/convert/heif-to-jpg /convert/heic-to-jpg/ 301', '/convert/heic-to-jpeg/ /convert/heic-to-jpg/ 301', '/convert/heif-to-jpeg /convert/heic-to-jpg/ 301', '/tr/donustur/heif-jpg/ /tr/donustur/heic-jpg/ 301']) ok(rd.includes(r), `_redirects has ${r.trim()}`);
 redirectsOk('.draft-dist');
@@ -71,9 +79,9 @@ try {
   await pg.locator('.stage .tpick').waitFor({ timeout: 10000 });
   ok(await pg.locator('.stage .tpick .chip input:checked + span').first().textContent() === 'JPG' && (await pg.locator('#sg-act').getAttribute('aria-disabled')) !== 'true', 'pair page: JPG is preselected after choosing a HEIC file, Convert enabled');
   ok((await pg.locator('a.lang').getAttribute('href')) === '/tr/donustur/heic-jpg/', 'language link goes to the same pair in TR');
-  const r = await pg.goto('http://127.0.0.1:4323/convert/heif-to-png/'); ok(r.status() === 404, 'unpublished pair URL answers 404');
-  const t = await pg.locator('#nf').innerText(); ok(/HEIC to PNG has no page/.test(t) && /JPG/.test(t), '404 suggests the published targets of HEIC');
-  const r2 = await pg.goto('http://127.0.0.1:4323/tr/donustur/heic-png/'); ok(r2.status() === 404 && /HEIC → PNG için ayrı bir sayfa yok/.test(await pg.locator('#nf').innerText()), 'TR 404 + suggestion');
+  const r = await pg.goto('http://127.0.0.1:4323/convert/avif-to-png/'); ok(r.status() === 404, 'unpublished pair URL answers 404');
+  const t = await pg.locator('#nf').innerText(); ok(/AVIF to PNG has no page/.test(t), '404 names the missing pair'); // aliases (heif-to-png) 301 in production via _redirects; the local server does not apply them
+  const r2 = await pg.goto('http://127.0.0.1:4323/tr/donustur/avif-jpg/'); ok(r2.status() === 404 && /AVIF → JPG için ayrı bir sayfa yok/.test(await pg.locator('#nf').innerText()), 'TR 404 + suggestion');
   const r3 = await pg.goto('http://127.0.0.1:4323/nothing/here/'); ok(r3.status() === 404 && (await pg.locator('#nf').isHidden()), 'plain 404 keeps the static links only');
 } finally { await b.close(); srv.kill(); }
 console.log(fails ? `${fails} FAILED` : 'all passed'); process.exit(fails ? 1 : 0);

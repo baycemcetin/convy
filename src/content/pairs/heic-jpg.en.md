@@ -1,27 +1,29 @@
 ---
-draft: true # SAMPLE for template and build-check validation, written from pair-facts. The copywriter replaces it; it never ships as is.
-intro: "HEIC is what an iPhone saves by default, and plenty of programs still cannot open it. Choose your HEIC files and Convy turns them into JPG on this device, then you save the result. The camera details inside the photo stay with it."
-metaHook: "the photo keeps its camera details and stands the right way up"
+draft: false
+intro: "HEIC is what an iPhone saves by default, and plenty of programs and web forms still cannot open it. Choose your HEIC photos and Convy turns them into JPG on this device. Camera details and the GPS location are left out of the copy; the color profile stays."
+metaHook: "location and camera data removed, color profile kept, upright in every viewer"
 steps:
   - "Choose your HEIC photos, or drop them on the page."
   - "JPG is already selected as the target."
   - "Press Convert, then save the JPG files."
 limits:
-  - "Images above 250 megapixels are refused, and above 100 megapixels on an iPhone or iPad, instead of running the device out of memory."
-  - "The first conversion downloads the image engine once, about 5 MB, and keeps it for next time."
+  - "Images above 250 megapixels are refused, or above 100 megapixels on an iPhone or iPad, rather than running the device out of memory."
+  - "The first conversion downloads the image engine once, about 5 MB, and keeps it on this device for next time."
 faq:
-  - q: "Does the JPG keep the date and the location?"
-    a: "Yes. The EXIF block travels into the JPG, including the camera make and the GPS position if the HEIC had one. If you do not want the location shared, remove it in a metadata tool before you send the file on."
-  - q: "Why does the file get bigger?"
-    a: "HEIC compresses photos more tightly than JPG does. In our test a 39 KB HEIC became a 51 KB JPG at quality 85. The exact ratio depends on the photo, so treat that pair as one example, not a rule."
-  - q: "Will a Chrome, Firefox and Safari conversion look the same?"
-    a: "The output was byte for byte identical in Chromium, Firefox and WebKit for our sample, because the same image engine runs in each of them. Different photos were not compared, so this describes the engine, not every file."
-factRefs: [lossy, metadata, path, limits.0, extra.0, extra.2]
+  - q: "Is the location removed from the JPG?"
+    a: "Yes. The whole EXIF block, GPS position included, is left out of the JPG. We checked this with an HEIC that carried a location, separately in Chromium, Firefox and WebKit. The color profile is the one piece of embedded data that stays, because it decides how the colors look."
+  - q: "Why is the JPG bigger than the HEIC?"
+    a: "HEIC fits the same picture into fewer bytes. In our test a 39 KB HEIC of 1280 × 720 pixels became a 51 KB JPG at quality 85. The ratio changes from photo to photo, so read that as one example, not a promise."
+  - q: "Can I choose a higher JPG quality?"
+    a: "No. Quality is fixed at 85 and the interface has no setting for it. If you need every pixel exactly as decoded, convert the HEIC to PNG instead: it is lossless, at the cost of a much larger file."
+  - q: "Will Chrome, Firefox and Safari give me the same file?"
+    a: "For our sample, yes: the JPG was byte for byte identical in Chromium, Firefox and WebKit, because the same image engine runs in each of them. That was measured on one file, so it describes how the engine behaves rather than a check of every photo."
+factRefs: [lossy, quality, metadata, path, extra.0, extra.1, extra.2, limits.0, download]
 ---
-JPG is a lossy format, and Convy writes it at quality 85. That is a visible but gentle step down from the HEIC original, and it cannot be undone: if you need the pixels untouched, keep the HEIC and convert a copy.
+JPG is lossy, and Convy writes it at quality 85, a fixed value with no setting in the interface. That is one more round of compression on top of what HEIC already discarded, and it cannot be undone. Keep the HEIC if you may want the original pixels later.
 
-The camera details do not get dropped on the way. Make, model and the GPS position were all still in the JPG when we converted an HEIC that carried them, so a photo that was tagged with a place stays tagged. If you plan to post the file publicly, check that before you do.
+The JPG does not carry the photo's EXIF block. We tested with an HEIC made on a Mac that held the camera make, a date and a GPS position; in Chromium, Firefox and WebKit the JPG came out without any of them. The ICC color profile stays, so a Display P3 photo keeps its wider colors instead of looking flat.
 
-Rotation is handled for you. Convy turns the pixels to the way the photo was held and resets the orientation tag to normal, so the picture is upright in every viewer, including the ones that ignore the tag.
+Rotation is written into the pixels before the EXIF block goes. Phones often store the pixels in one direction and keep a tag that says how to turn them. Convy turns them first, so the JPG stands upright even in viewers that never read the tag.
 
-One sample came out at 51 KB from a 39 KB HEIC of 1280 by 720 pixels. Real phone photos are much larger, so expect both files to be a few megabytes.
+In our sample, a 1280 × 720 HEIC of 39 KB became a 51 KB JPG, and the bytes were identical in all three browsers. Your own photos will be far larger than that sample, since a phone camera records several times as many pixels.
