@@ -59,18 +59,17 @@
   // ---- transitions of item state: live region, completing hold, t-show, count mode ----
   const prev = new Map<number, { st: string; block: boolean }>();
   let prevEngine: string | null = null;
-  const addedTpl = t.live.needs.split('. ')[0] + '.'; // "{name} added, {size}." (live.added is an example sentence, not a template)
   $effect(() => {
     const items = q.items.map((i) => ({ i, st: i.st, block: !!i.block }));
     const running = q.items.filter(isJob).length;
     for (const { i, st, block } of items) {
       const p = prev.get(i.id);
       if (!p) {
-        live?.say(st === 'unsupported' ? fmt(t.live.unsupported, { name: i.n, ext: i.f }) : fmt(st === 'needs' ? t.live.needs : addedTpl, { name: i.n, size: x.say(i.i) }));
+        live?.say(st === 'unsupported' ? fmt(t.live.unsupported, { name: i.n, ext: i.f }) : fmt(st === 'needs' ? t.live.needs : t.live.added, { name: i.n, size: x.say(i.i) }));
       } else if (p.st !== st) {
         if (st === 'running') setTimeout(() => shown.add(i.id), T.tShow);
         if (st === 'done') onDone(i, running);
-        if (st === 'failed') live?.failed(i.n, (name) => `${name}: ${t.st.failed}.`, (f, names) => fmt(t.live.failedN, { f, names }));
+        if (st === 'failed') live?.failed(i.n, (name) => fmt(t.live.failed, { name }), (f, names) => fmt(t.live.failedN, { f, names }));
       }
       if (block && !p?.block) live?.say(fmt(t.live.blocked, { name: i.n, size: x.say(i.i) }));
       prev.set(i.id, { st, block });
@@ -87,8 +86,14 @@
     while (doneTimes.length && now - doneTimes[0] > T.dwell) doneTimes.shift();
     if (doneTimes.length >= 2) count = true;
     const batch = q.items.filter((f) => f.st === 'done' || isJob(f) || f.st === 'failed');
-    const by = t.sr.to.trim();
-    live?.done(`${outName(i)}. ${t.st.done}. ${x.say(i.i)} ${by} ${x.say(i.o ?? 0)}.`.replace(' ,', ','), () => fmt(t.live.progress, { d: q.items.filter((f) => f.st === 'done').length, n: batch.length }), () => q.items.filter(isJob).length, running === 0);
+    // last job of an all-done batch → live.batch with summed sizes; otherwise "d of n converted" (HAREKET §5.1)
+    const summary = () => {
+      const dn = q.items.filter((f) => f.st === 'done');
+      return running === 0 && dn.length === batch.length
+        ? fmt(t.live.batch, { n: dn.length, in: x.say(dn.reduce((s, f) => s + f.i, 0)), out: x.say(dn.reduce((s, f) => s + (f.o ?? 0), 0)) })
+        : fmt(t.live.progress, { d: dn.length, n: batch.length });
+    };
+    live?.done(fmt(t.live.done, { name: outName(i), in: x.say(i.i), out: x.say(i.o ?? 0) }), summary, () => q.items.filter(isJob).length, running === 0);
   }
 
   // ---- actions ----

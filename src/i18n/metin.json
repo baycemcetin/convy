@@ -1,5 +1,5 @@
 {
-  "_not": "Convy hi-fi mikro metin (EN + TR). Tek kaynak: build.py bunu ekran.html'e gömer. Anahtarlar sabit; {yer_tutucu} değerleri çalışma anında hesaplanır, çevrilmez. Ses: STRATEJI §4 (net, titiz, ölçülü; sayı ver, koşulu söyle; 'upload/yükle' yok, ünlem yok). Yasak listesi: STRATEJI Ek.",
+  "_not": "Convy hi-fi mikro metin (EN + TR). Tek kaynak: build.py bunu ekran.html'e gömer. Anahtarlar sabit; {yer_tutucu} değerleri çalışma anında hesaplanır, çevrilmez. Ses: STRATEJI §4 (net, titiz, ölçülü; sayı ver, koşulu söyle; 'upload/yükle' yok, ünlem yok). Yasak listesi: STRATEJI Ek. Build tur 1: live.done/live.batch TR şablonundaki '{in}tan {out}a' ekleri fmt.say çıktısının her zaman 'kilobayt/megabayt/gigabayt' ile bittiğine dayanır; sr.kb/mb/gb değişirse bu iki şablon da değişir.",
   "en": {
     "nav": [
       "Formats",
@@ -70,6 +70,7 @@
     },
     "st": {
       "done": "Converted",
+      "saved": "Saved",
       "running": "Converting · {pct}",
       "waiting": "Waiting for engine",
       "queued": "Waiting for image engine",
@@ -303,12 +304,12 @@
       ]
     },
     "live": {
-      "added": "IMG_4021.heic added, 3.1 megabytes.",
+      "added": "{name} added, {size}.",
       "engine": "Video engine ready.",
       "start": "Converting.",
-      "done": "IMG_4021.jpg ready. 3.1 to 1.2 megabytes.",
-      "failed": "interview.mkv couldn’t convert: the audio track can’t be read.",
-      "batch": "3 files converted. 236 to 103 megabytes.",
+      "done": "{name} ready. {in} to {out}.",
+      "failed": "{name} couldn’t convert.",
+      "batch": "{n} files converted. {in} to {out}.",
       "needs": "{name} added, {size}. Choose a format.",
       "blocked": "{name} added, {size}. Not started: not enough room in this browser.",
       "warned": "{name} added, {size}. Ready, but not tested at this size.",
@@ -340,9 +341,11 @@
     "sr": {
       "pending": "not known yet",
       "to": "to",
+      "by": "by",
       "fileOf": "file {i} of {n}",
       "pct": "{pct} percent, converting",
       "count": "{d} of {n} converted",
+      "kb": "kilobytes",
       "mb": "megabytes",
       "gb": "gigabytes",
       "onDevice": "Converted on this device."
@@ -418,6 +421,7 @@
     },
     "st": {
       "done": "Dönüştü",
+      "saved": "Kaydedildi",
       "running": "Dönüşüyor · {pct}",
       "waiting": "Motor bekleniyor",
       "queued": "Görsel motoru bekleniyor",
@@ -651,12 +655,12 @@
       ]
     },
     "live": {
-      "added": "IMG_4021.heic eklendi, 3,1 megabayt.",
+      "added": "{name} eklendi, {size}.",
       "engine": "Video motoru hazır.",
       "start": "Dönüşüyor.",
-      "done": "IMG_4021.jpg hazır. 3,1’den 1,2 megabayta.",
-      "failed": "interview.mkv dönüştürülemedi: ses izi okunamıyor.",
-      "batch": "3 dosya dönüştürüldü. 236’dan 103 megabayta.",
+      "done": "{name} hazır. {in}tan {out}a.",
+      "failed": "{name} dönüştürülemedi.",
+      "batch": "{n} dosya dönüştü. {in}tan {out}a.",
       "needs": "{name} eklendi, {size}. Format seç.",
       "blocked": "{name} eklendi, {size}. Başlamadı: tarayıcıda yer yetmiyor.",
       "warned": "{name} eklendi, {size}. Hazır, ama bu boyutta test edilmedi.",
@@ -688,9 +692,11 @@
     "sr": {
       "pending": "henüz belli değil",
       "to": ", sonuç",
+      "by": "çarpı",
       "fileOf": "dosya {i}, toplam {n}",
       "pct": "yüzde {pct}, dönüşüyor",
       "count": "{n} dosyadan {d} tanesi dönüştü",
+      "kb": "kilobayt",
       "mb": "megabayt",
       "gb": "gigabayt",
       "onDevice": "Bu cihazda dönüştü."

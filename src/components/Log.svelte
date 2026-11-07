@@ -72,7 +72,7 @@
               {#if it.st === 'done' && it.w && it.h}<span class="sg"><Dim w={it.w} h={it.h} by={(t.sr as any).by} />{@render seg()}</span>{:else if it.st === 'done' && it.k === 'audio' && it.dur}<span class="sg">{x.dur(it.dur)}{@render seg()}</span>{/if}
               <span class="sg"><span class="stx">{#if run && !comp}{#if it.p == null}{t.st.runningNoPct}{:else}{t.st.running.split('{pct}')[0].replace(/\s*·\s*$/, '')}<span aria-hidden="true"> · {x.pct(it.p)}</span>{/if}
                 {:else if it.block}<Icon n="storage" s16 cls="neu" />{t.st.blocked}
-                {:else if it.st === 'done' || comp}<Icon n="done" s16 />{t.st.done}
+                {:else if it.st === 'done' || comp}<Icon n="done" s16 />{it.saved ? t.st.saved : t.st.done}
                 {:else if it.st === 'failed'}<Icon n="error" s16 cls="err" />{t.st.failed}
                 {:else}{stateWord(x, it)}{/if}</span></span>
             </span></span>
