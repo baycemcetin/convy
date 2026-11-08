@@ -9,5 +9,11 @@ const { lang } = Astro.props as { lang: Lang };
 const html = (await Astro.slots.render('default'))
   .replace('<!-- licenses -->', () => licenseTable(lang))
   .replace('<!-- formats -->', () => formatTable(lang));
+// One .cx section per h2 (heading left, text right from 1024 px): the same section template as the pair pages. Text before the first h2 = unlabeled intro.
+const sections = html.split(/(?=<h2[\s>])/).filter((s) => s.trim()).map((s) => {
+  if (!s.startsWith('<h2')) return `<div class="cx"><div class="b">${s}</div></div>`;
+  const k = s.indexOf('</h2>') + 5;
+  return `<section class="cx">${s.slice(0, k)}<div class="b">${s.slice(k)}</div></section>`;
+}).join('');
 ---
-<Fragment set:html={html} />
+<Fragment set:html={sections} />

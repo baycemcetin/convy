@@ -33,7 +33,7 @@ export const CHROME = {
     fcol: ['Convy', 'Trust'],
     fx: { t: 'What Convy converts', n: '{n} formats in {c} categories. {p} conversions have a page of their own.', all: 'All conversions', count: '{n} formats', from: 'From', to: 'To', pages: 'Conversions with their own page', rest: 'Any source here converts to any target here.', open: 'Open the converter' },
     nf: { h1: "This conversion isn't here", p: 'There is no page for this address.', pair: '{a} to {b} has no page of its own.', from: 'What {a} can become here', to: 'What can become {b}', all: 'All conversions', home: 'Open the converter' },
-    menu: 'Menu',
+    menu: 'Menu', toc: 'On this page',
   },
   tr: {
     home: 'Convy', convert: 'Dönüştür', crumb: 'Sayfa yolu',
@@ -45,7 +45,7 @@ export const CHROME = {
     fcol: ['Convy', 'Güven'],
     fx: { t: 'Convy neleri dönüştürür', n: '{c} kategoride {n} format. {p} dönüşümün kendi sayfası var.', all: 'Tüm dönüşümler', count: '{n} format', from: 'Kaynak', to: 'Hedef', pages: 'Kendi sayfası olan dönüşümler', rest: 'Buradaki her kaynak, buradaki her hedefe dönüşür.', open: 'Dönüştürücüyü aç' },
     nf: { h1: 'Bu dönüşüm burada yok', p: 'Bu adreste bir sayfa yok.', pair: '{a} → {b} için ayrı bir sayfa yok.', from: '{a} burada neye dönüşebilir', to: 'Burada neler {b} olabilir', all: 'Tüm dönüşümler', home: 'Dönüştürücüyü aç' },
-    menu: 'Menü',
+    menu: 'Menü', toc: 'Bu sayfada',
   },
 } as const;
 export const sub = (s: string, o: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (m, k) => (k in o ? String(o[k]) : m));

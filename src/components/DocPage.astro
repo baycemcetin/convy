@@ -10,10 +10,15 @@ import type { Lang } from '../i18n';
 interface Props { lang: Lang; page: DocKey }
 const { lang, page } = Astro.props;
 const e = (await loadDocs())[page][lang];
-const { Content: Body } = await render(e);
+const { Content: Body, headings } = await render(e);
+// hero table of contents (from 1024 px), only when there is something to jump between. Pages mix `## x` (in `headings`) and raw `<h2 id>` (not in it): walk the body in order.
+const md = headings.filter((h) => h.depth === 2);
+const toc = [...(e.body ?? '').matchAll(/^## .+$|^<h2 id="([^"]+)">(.+?)<\/h2>/gm)].map((m) => (m[1] ? { slug: m[1], text: m[2] } : md.shift()!)).filter(Boolean);
 ---
 <Content lang={lang} title={e.data.title} description={e.data.description} alt={both((l) => DOC[page][l])} noindex={e.data.draft}>
-  <header class="panel dhero"><h1>{e.data.h1}</h1></header>
+  <header class="panel dhero"><h1>{e.data.h1}</h1>
+    {toc.length > 1 && <nav class="dtoc" aria-label={CHROME[lang].toc}><p aria-hidden="true">{CHROME[lang].toc}</p><ol>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol></nav>}
+  </header>
   {e.data.draft && <p class="draftnote">{CHROME[lang].draftNote}</p>}
-  <div class="cx"><div class="b"><Fill lang={lang}><Body /></Fill></div></div>
+  <div class="dx"><Fill lang={lang}><Body /></Fill></div>
 </Content>

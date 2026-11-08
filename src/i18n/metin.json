@@ -202,7 +202,7 @@
       "About & licenses",
       "Source on GitHub"
     ],
-    "made": "Built by {logo} Zeze Workshop",
+    "made": "Built by {logo}",
     "panel": {
       "t": "This device",
       "where": "Files are converted in this browser, on this device.",
@@ -603,7 +603,7 @@
       "Hakkında ve lisanslar",
       "GitHub’da kaynak"
     ],
-    "made": "{logo} Zeze Workshop yaptı",
+    "made": "Yapım: {logo}",
     "panel": {
       "t": "Bu cihaz",
       "where": "Dosyalar bu tarayıcıda, bu cihazda dönüştürülür.",

@@ -303,7 +303,7 @@ svg.arw.xl{ width:120px; }
 .fv-b{ display:grid; gap:var(--s5); } /* proof sits above the credit line, pushed down from the statement by .fv-l's space-between */
 .fv-by{ display:inline-flex; align-items:center; gap:.4em; }
 .fv-zw{ display:inline-flex; } .fv-zw svg{ height:1.9em; width:auto; display:block; } /* the mark carries fine detail: reads at ~1.9em, centred on the x-height */
-.fv-meta{ display:flex; flex-wrap:wrap; align-items:center; gap:0 var(--s5); }
+.fv-meta{ display:flex; flex-wrap:wrap; align-items:center; gap:0 .35em; } /* one credit line: "© 2026 Convy. Built by [logo]" (Cem 2026-11-08) */
 .fv-r{ grid-column:7 / -1; display:grid; gap:var(--s5); align-content:start; position:relative; z-index:1; }
 .fv-cols{ display:flex; flex-wrap:wrap; gap:var(--s5) var(--s9); }
 .fv-cols ul, .fv-proof{ list-style:none; margin:0; padding:0; }
@@ -322,7 +322,9 @@ svg.arw.xl{ width:120px; }
 @keyframes fv-fill{ from{ stroke-dashoffset:100; } to{ stroke-dashoffset:0; } }
 .fv a:focus-visible{ outline:2px solid var(--c-on-accent); outline-offset:2px; border-radius:2px; }
 @media (hover:hover) and (pointer:fine){ .fv-cols a:hover, .fv-meta a:hover{ text-decoration:underline; } }
-@media (max-width:767px){ .foot{ margin-top:var(--s9); } .fv{ padding:var(--s6) var(--s5); min-height:0; row-gap:var(--s6); padding-bottom:calc(var(--s6) + 44vw); } .fv-l, .fv-r{ grid-column:1 / -1; } .fv-l{ gap:var(--s5); } .fv-wm svg{ height:40px; } .fv-arw{ width:78%; right:-8%; bottom:-5%; } .fv-r{ order:2; } }
+@media (max-width:767px){ .foot{ margin-top:var(--s9); } .fv{ padding:var(--s6) var(--s5); min-height:0; row-gap:var(--s6); padding-bottom:calc(var(--s6) + 44vw); } .fv-l, .fv-r{ grid-column:1 / -1; } .fv-l{ gap:var(--s5); } .fv-wm svg{ height:40px; } .fv-arw{ width:78%; right:-8%; bottom:-5%; } .fv-r{ order:2; }
+  /* proof + credit line close the footer on phones too: after the link columns, not between statement and links */
+  .fv-l{ display:contents; } .fv-l > *{ grid-column:1 / -1; position:relative; } .fv-wm{ justify-self:start; } .fv-b{ order:3; } }
 
 /* =========================================================
    DEVICE PANEL ("This device"): desktop popover, mobile sheet

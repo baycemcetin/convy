@@ -18,7 +18,7 @@ const links = t.foot.map((x, i) => [x, hrefs[i]] as const);
     <p class="fv-say">{t.h1}</p>
     <div class="fv-b">
       <ul class="fv-proof">{t.proof.map((p) => <li>{p}</li>)}</ul>
-      <p class="fv-meta"><span>© 2026 Convy</span><a class="fv-by" href={DOC.about[lang]}>{madeA}<span class="fv-zw" aria-hidden="true" set:html={zw} />{madeB}</a></p>
+      <p class="fv-meta">© 2026 Convy. <a class="fv-by" href={DOC.about[lang]}>{madeA}<span class="fv-zw" aria-hidden="true" set:html={zw} /><span class="sr">Zeze Workshop</span>{madeB}</a></p>
     </div>
   </div>
   <div class="fv-r">
