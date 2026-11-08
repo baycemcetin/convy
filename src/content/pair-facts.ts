@@ -67,17 +67,22 @@ const FF_TIMEOUT = f('ffmpeg path: stopped after 120 s + 2 s per input MB (wall 
 const MB_LIMIT = f('Mediabunny path: outputs above 50 MB stream to device storage (OPFS), not RAM; files above 2 GB get a warning, still allowed.', 'code', 'src/engines/limits.ts:4,9; src/engines/media.worker.ts:49');
 const MP3 = f('MP3 via LAME VBR -q:a 2 (≈190 kbps average); lossy.', 'code', 'src/engines/ffmpeg.ts:11; src/engines/index.ts:135');
 const AUDIO_PATH = f('Always ffmpeg, in every browser (audio output never uses WebCodecs).', 'code', 'src/engines/index.ts:114-115');
-const AV_META = f('Tags/metadata (ID3, title, cover art) handling not checked.', 'unverified', '-');
+const AVP = 'tests/av-pairs.mjs; DOC 06-qa/av-pairs-tur2/av-{chromium,firefox,webkit}.json';
+const AVP1 = 'DOC 06-qa/av-pairs/json/av-{chromium,firefox,webkit}.json (before the untagged-SD guard)';
+const MP3_META = f('Title, artist and album go into the MP3 as ID3 tags; cover art is not carried (-vn). The MP3 also gets an encoder tag (Lavf59.27.100) and, from MP4/M4A input, the container brand tags. Measured with tagged WAV and M4A input, same in Chromium, Firefox, WebKit.', 'measured', AVP + '; src/engines/ffmpeg.ts:11');
+const MP4_META_CLAIM = 'Title and artist are kept. Location (com.apple.quicktime.location.ISO6709) and camera make are dropped on both paths. Recording date: the Mediabunny path writes the conversion time instead of the source date; the ffmpeg path writes no date. Synthetic MOV fixtures, not a real iPhone file.';
+const MP4_META = f(MP4_META_CLAIM + ' Same in Chromium, Firefox, WebKit.', 'measured', AVP + ' (av-h264.mov, av-gps.mov, av-h264-720p.mov); ' + AVP1);
+const SD_GUARD = f('Untagged video below 720 lines always goes to ffmpeg, so players show the source colours (on the Mediabunny path such output was tagged BT.709 and shifted visibly, RGB PSNR ≈25 dB; now 36–44 dB). Tagged SD and 720p+ stay on Mediabunny where the browser can.', 'measured', 'src/engines/media.worker.ts (probe); ' + AVP + '; ' + AVP1);
 const MP3_MIN = (n: number) => f(`ffmpeg 1 GB estimate ≈ ${n} h of MP3 at 190 kbps (1e9×8/190e3 s).`, 'code', 'src/engines/index.ts:135-137 (arithmetic)');
 const mp3From = (from: string, extra: Fact[] = []): PairFacts => ({
   from, to: 'mp3', engine: 'ffmpeg', lossy: MP3, quality: f('Fixed: -q:a 2, no setting in the UI.', 'code', 'src/engines/ffmpeg.ts:11'),
-  metadata: AV_META, transparency: null, animation: null, limits: [FF_LIMIT, FF_TIMEOUT, MP3_MIN(11.7)], download: AV_DL, path: AUDIO_PATH, offline: OFFLINE, extra,
+  metadata: MP3_META, transparency: null, animation: null, limits: [FF_LIMIT, FF_TIMEOUT, MP3_MIN(11.7)], download: AV_DL, path: AUDIO_PATH, offline: OFFLINE, extra,
 });
 const H264 = f('MP4 output is H.264 + AAC. Mediabunny: bitrate QUALITY_MEDIUM; ffmpeg: libx264 veryfast CRF 23, AAC 160 kbps, faststart.', 'code', 'src/engines/media.worker.ts:10-11,53; src/engines/ffmpeg.ts:8');
 const TO_MP4_PATH = f('Mediabunny (WebCodecs) when the browser can decode the source tracks and encode H.264 + AAC at that size; otherwise ffmpeg. Decided per file by a probe.', 'code', 'src/engines/media.worker.ts:35-46; src/engines/index.ts:113-131');
-const mp4From = (from: string, extra: Fact[]): PairFacts => ({
+const mp4From = (from: string, extra: Fact[], metadata: Fact = MP4_META): PairFacts => ({
   from, to: 'mp4', engine: 'mediabunny-or-ffmpeg', lossy: f('Re-encoded (lossy); no stream copy.', 'code', 'src/engines/media.worker.ts:53; src/engines/ffmpeg.ts:8'),
-  quality: H264, metadata: AV_META, transparency: null, animation: null, limits: [MB_LIMIT, FF_LIMIT, FF_TIMEOUT], download: MB_DL, path: TO_MP4_PATH, offline: OFFLINE, extra,
+  quality: H264, metadata, transparency: null, animation: null, limits: [MB_LIMIT, FF_LIMIT, FF_TIMEOUT], download: MB_DL, path: TO_MP4_PATH, offline: OFFLINE, extra: [...extra, SD_GUARD],
 });
 
 // ---- PDF shared
@@ -105,8 +110,8 @@ export const PAIR_FACTS: PairFacts[] = [
   image('png', 'jpg', { metadata: PNG_META, path: f('Same output in Chromium, Firefox, WebKit (sample.png → 51 298 B JPG).', 'measured', 'test-results/final-e2e-*.json') }),
   image('jpg', 'png', { srcAlpha: false, extra: [f('Browser timing: 15 MP JPG → PNG 4.6–5.6 s, output 37.6 MB.', 'measured', 'test-results/t2/inputs-*.json (big15mp.jpg)')] }),
   mp3From('mp4', [f('Video track dropped (-vn); audio only.', 'code', 'src/engines/ffmpeg.ts:11'), f('Converted in Chromium, Firefox, WebKit (sample.mp4 → 18 868 B MP3, identical).', 'measured', 'test-results/final-e2e-*.json')]),
-  mp4From('mov', [f('HEVC (H.265) MOV from iPhone: goes to ffmpeg wherever WebCodecs cannot decode HEVC; whether ffmpeg 0.12.10 core decodes HEVC, and which browsers take which path, not tested (no MOV fixture).', 'unverified', 'MIMARI update note; no fixture in tests/fixtures'),
-    f('H.264 MOV path not tested in a browser (no MOV fixture).', 'unverified', '-')]),
+  mp4From('mov', [f('HEVC (H.265) MOV: the ffmpeg 0.12.10 core decodes it, 8 and 10 bit (output H.264 8 bit; 10 bit → 8 bit, RGB PSNR ≈33 dB). Playwright Chromium 156 and Firefox 157 have no WebCodecs HEVC decoder → ffmpeg; WebKit decodes HEVC with WebCodecs (Mediabunny path, 43.7 dB 8 bit / 31.4 dB 10 bit). Google Chrome with hardware HEVC, and real iPhone HEVC/HDR (HLG, Dolby Vision), not tested.', 'measured', AVP + ' (av-hevc.mov, av-hevc10.mov); ' + AVP1 + '; DOC 06-qa/av-pairs/json/caps.txt'),
+    f('H.264 MOV: Chromium and WebKit → Mediabunny (tagged SD, 720p), Firefox → ffmpeg (its WebCodecs has no AAC encoder); output H.264 + AAC, duration within 0.02 s. 1–2 s synthetic clips, not a real iPhone file.', 'measured', AVP + ' (av-h264*.mov); DOC 06-qa/av-pairs/json/caps.txt')]),
   pdfTo('jpg'),
   pdfTo('png'),
   { from: 'mp4', to: 'gif', engine: 'ffmpeg', lossy: f('GIF is 256 colours per frame (palettegen + paletteuse).', 'code', 'src/engines/ffmpeg.ts:10'),
@@ -114,12 +119,13 @@ export const PAIR_FACTS: PairFacts[] = [
     metadata: null, transparency: null, animation: f('The whole clip becomes an animated GIF; sound is dropped (-an).', 'code', 'src/engines/ffmpeg.ts:10'),
     limits: [FF_LIMIT, FF_TIMEOUT, f('ffmpeg 1 GB estimate ≈ 44 min at the 3000 kbps GIF estimate.', 'code', 'src/engines/index.ts:135-137 (arithmetic)')],
     download: AV_DL, path: f('Always ffmpeg, every browser (GIF is not a Mediabunny output). Same bytes in Chromium, Firefox, WebKit (sample.mp4 → 875 487 B).', 'measured', 'src/engines/media.worker.ts:6-9,41; test-results/final-e2e-*.json'),
-    offline: OFFLINE, extra: [] },
-  mp4From('webm', [f('Firefox: whether it can encode H.264/AAC via WebCodecs decides the path; not tested (no WebM fixture).', 'unverified', '-')]),
+    offline: OFFLINE, extra: [f('Sample: 640×360 MP4 → 480×270 GIF, no audio, duration +0.01 s, same in Chromium, Firefox, WebKit.', 'measured', AVP + ' (sample.mp4)')] },
+  mp4From('webm', [f('VP9 and VP8 WebM: Firefox → ffmpeg (its WebCodecs has no AAC encoder); Chromium and WebKit → Mediabunny when the video is tagged or 720p+. Output H.264 + AAC, duration −0.001/+0.018 s, same in Chromium, Firefox, WebKit.', 'measured', AVP + ' (av-vp9.webm, av-vp8.webm); DOC 06-qa/av-pairs/json/caps.txt')],
+    f('Same conversion step as MOV → MP4, measured only with MOV input (the WebM fixtures carry no tags): ' + MP4_META_CLAIM, 'code', AVP + ' (MOV); src/engines/media.worker.ts:47-55; src/engines/ffmpeg.ts:8')),
   image('avif', 'jpg', { metadata: f('EXIF incl. GPS removed through AVIF input.', 'measured', SELF + ' (EXIF removed through webp/avif input)') }),
   image('avif', 'png', { metadata: f('EXIF incl. GPS removed through AVIF input.', 'measured', SELF) }),
-  mp3From('wav', [f('Converted in Chromium, Firefox, WebKit (sample.wav → 6 755 B MP3, identical).', 'measured', 'test-results/final-e2e-*.json')]),
-  mp3From('m4a', [f('M4A/AAC input not tested in a browser (no M4A fixture); FLAC → M4A is tested the other way.', 'unverified', 'tests/e2e.mjs:7-9')]),
+  mp3From('wav', [f('Converted in Chromium, Firefox, WebKit (sample.wav → 6 755 B MP3, identical, duration unchanged).', 'measured', 'test-results/final-e2e-*.json; ' + AVP)]),
+  mp3From('m4a', [f('M4A (AAC) input converted in Chromium, Firefox, WebKit: same 10 845 B MP3, duration +0.02 s.', 'measured', AVP + ' (av-tagged.m4a)')]),
   image('png', 'webp', { metadata: PNG_META }),
   toPdf('jpg', {
     lossy: f('No quality loss: the JPEG data go into the PDF as they are (DCTDecode), not re-encoded; the scan bytes in the PDF are identical to the source.', 'measured', PW + ' jpegPdf; ' + SELF + '; ' + IMGPDF),

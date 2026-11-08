@@ -51,6 +51,15 @@ const small = ImageMagick.read(fx('photo12mp.jpg'), F.Jpeg, (i) => { i.resize(40
 const exifJpg = withExif(small);
 const anim = (fmt) => { const c = MagickImageCollection.create(); for (const k of ['red', 'green', 'blue']) { const i = MagickImage.create(); i.read(new MagickColor(k), 32, 32); c.push(i); } const o = c.write(FMT[fmt], (d) => d.slice()); c.dispose(); return o; };
 const halfRed = (() => { const i = MagickImage.create(); i.read(new MagickColor(255, 0, 0, 128), 32, 32); const o = i.write(F.Png, (d) => d.slice()); i.dispose(); return o; })();
+// PNG carrying metadata: eXIf (the TIFF block of exifJpg: Make=TestCam, Orientation 6, GPS), XMP in iTXt, tEXt Comment
+const { crc32 } = await import('node:zlib');
+const chunk = (type, data) => { const b = Buffer.alloc(12 + data.length); b.writeUInt32BE(data.length); b.write(type, 4, 'latin1'); Buffer.from(data).copy(b, 8); b.writeUInt32BE(crc32(b.subarray(4, 8 + data.length)), 8 + data.length); return b; };
+const metaPng = (() => {
+  const png = Buffer.from(ImageMagick.read(small, F.Jpeg, (i) => i.write(F.Png, (d) => d.slice()))), ihdrEnd = 8 + 25;
+  const xmp = '<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description xmlns:exif="http://ns.adobe.com/exif/1.0/" xmlns:dc="http://purl.org/dc/elements/1.1/" exif:GPSLatitude="41,0N"><dc:title>Secret caption</dc:title></rdf:Description></rdf:RDF></x:xmpmeta>';
+  return Buffer.concat([png.subarray(0, ihdrEnd), chunk('eXIf', exifJpg.subarray(12, 12 + 124)), chunk('iTXt', Buffer.from('XML:com.adobe.xmp\0\0\0\0\0' + xmp, 'latin1')),
+    chunk('tEXt', Buffer.from('Comment\0SecretComment', 'latin1')), png.subarray(ihdrEnd)]);
+})();
 const ok = [];
 const check = async (name, fn) => { await fn(); ok.push(name); };
 
@@ -87,6 +96,15 @@ await check('png/heic/webp(alpha) → pdf: Flate (lossless), alpha as SMask, met
   const { inflateSync } = await import('node:zlib'); const raw = ImageMagick.read(fx('sample.png'), F.Png, (i) => { i.autoOrient(); i.depth = 8; return i.write(F.Rgb, (d) => d.slice()); });
   const at = Buffer.from(png).indexOf('stream\n', Buffer.from(png).indexOf('/Subtype/Image')) + 7, len = +/\/Length (\d+)>>\nstream\n$/.exec(Buffer.from(png.subarray(0, at)).toString('latin1'))[1];
   assert.ok(Buffer.from(inflateSync(png.subarray(at, at + len))).equals(Buffer.from(raw)), 'pixels identical');
+});
+await check('PNG with eXIf, XMP, tEXt comment → JPG/WebP (and every image target): metadata removed, orientation applied', () => {
+  assert.deepEqual(leaks(metaPng), ['TestCam', 'Secret caption', 'SecretComment', 'GPSLatitude'], 'positive control: markers in the PNG');
+  const src = info(metaPng, 'png'); assert.equal(src.make, 'TestCam', 'positive control: magick reads eXIf'); assert.ok(src.gps, 'positive control: gps read');
+  for (const to of ['jpg', 'webp', 'avif', 'gif', 'bmp', 'tiff', 'ico', 'jxl']) {
+    const o = convert(metaPng, 'png', to), r = info(o, to), k = 'png->' + to;
+    assert.deepEqual(leaks(o), [], k + ' leaks'); assert.equal(r.gps, null, k + ' gps'); assert.equal(r.make, null, k + ' make'); assert.ok(r.h > r.w, k + ' rotated');
+  }
+  assert.deepEqual(leaks(toPdf(metaPng, 'png')), [], 'png->pdf leaks');
 });
 await check('transparency → white in JPG, kept in PNG/WebP', () => {
   const j = info(convert(halfRed, 'png', 'jpg'), 'jpg'); assert.equal(j.alpha, false); assert.ok(j.px[1] > 100 && j.px[2] > 100, 'blended with white ' + j.px);

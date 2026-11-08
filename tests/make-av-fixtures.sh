@@ -3,6 +3,7 @@
 set -e; cd "$(dirname "$0")/fixtures"
 Q=(-hide_banner -loglevel error -y); V=(-f lavfi -i testsrc=duration=2:size=320x240:rate=24); A=(-f lavfi -i sine=frequency=440:duration=2:sample_rate=44100)
 ffmpeg "${Q[@]}" "${V[@]}" "${A[@]}" -c:v libx264 -pix_fmt yuv420p -preset veryfast -c:a aac -b:a 96k -metadata title="Convy MOV H264" -metadata artist="Convy QA" -movflags use_metadata_tags av-h264.mov
+ffmpeg "${Q[@]}" "${V[@]}" "${A[@]}" -c:v libx264 -pix_fmt yuv420p -preset veryfast -x264-params colorprim=smpte170m:transfer=smpte170m:colormatrix=smpte170m -c:a aac -b:a 96k av-h264-sd-tagged.mov
 ffmpeg "${Q[@]}" -f lavfi -i testsrc=duration=1:size=1280x720:rate=24 -f lavfi -i sine=frequency=440:duration=1 -c:v libx264 -pix_fmt yuv420p -preset veryfast -crf 28 -c:a aac -b:a 64k av-h264-720p.mov
 ffmpeg "${Q[@]}" "${V[@]}" "${A[@]}" -c:v libx265 -tag:v hvc1 -pix_fmt yuv420p -preset veryfast -x265-params log-level=error -c:a aac -b:a 96k av-hevc.mov
 ffmpeg "${Q[@]}" "${V[@]}" "${A[@]}" -c:v libx265 -tag:v hvc1 -pix_fmt yuv420p10le -preset veryfast -x265-params log-level=error -c:a aac -b:a 96k av-hevc10.mov

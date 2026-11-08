@@ -10,7 +10,7 @@ const name = process.argv[2] || 'chromium', OUT = process.env.OUT || 'test-resul
 const cases = [
   ['sample.mp4', 'MP3', null, 'mp3'], ['sample.wav', 'MP3', null, 'mp3'], ['av-tagged.wav', 'MP3', null, 'mp3'], ['av-tagged.m4a', 'MP3', null, 'mp3'],
   ['sample.mp4', 'GIF', 'gif', null],
-  ['av-h264.mov', 'MP4', 'h264', 'aac'], ['av-gps.mov', 'MP4', 'h264', 'aac'], ['av-h264-720p.mov', 'MP4', 'h264', 'aac'], ['av-hevc.mov', 'MP4', 'h264', 'aac'], ['av-hevc10.mov', 'MP4', 'h264', 'aac'],
+  ['av-h264.mov', 'MP4', 'h264', 'aac'], ['av-gps.mov', 'MP4', 'h264', 'aac'], ['av-h264-720p.mov', 'MP4', 'h264', 'aac'], ['av-h264-sd-tagged.mov', 'MP4', 'h264', 'aac'], ['av-hevc.mov', 'MP4', 'h264', 'aac'], ['av-hevc10.mov', 'MP4', 'h264', 'aac'],
   ['av-vp9.webm', 'MP4', 'h264', 'aac'], ['av-vp8.webm', 'MP4', 'h264', 'aac'],
 ].filter((c) => !process.env.ONLY || c.slice(0, 2).join(' ').includes(process.env.ONLY));
 const probe = (f) => JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_streams', '-show_format', '-of', 'json', f]));
@@ -36,7 +36,8 @@ for (const [file, to, ev, ea] of cases) {
         const m = spawnSync('ffmpeg', ['-hide_banner', '-i', f, '-i', `tests/fixtures/${file}`, '-lavfi', `[0:v]scale=320:240:in_color_matrix=${mx(ov)}:flags=bicubic,format=rgb24[a];[1:v]scale=320:240:in_color_matrix=${mx(iv)}:flags=bicubic,format=rgb24[b];[a][b]psnr`, '-f', 'null', '-'], { encoding: 'utf8' }).stderr;
         r.psnr = Number(/average:([\d.]+)/.exec(m)?.[1]); r.color = r.psnr >= 30; r.outColor = { space: ov.color_space || null, range: ov.color_range || null, profile: ov.profile };
       }
-      r.ok = !!vs.length === !!ev && (!ev || vs[0].codec_name === ev) && !!as.length === !!ea && (!ea || as[0].codec_name === ea) && Math.abs(r.out.dDur) <= 0.1;
+      if (to === 'MP4' && r.path === 'mediabunny' && !inp.streams.find((x) => x.codec_type === 'video').color_space && inp.streams.find((x) => x.codec_type === 'video').height < 720) r.untaggedSdOnMediabunny = true; // colour-shift guard, media.worker.ts probe
+      r.ok = !!vs.length === !!ev && (!ev || vs[0].codec_name === ev) && !!as.length === !!ea && (!ea || as[0].codec_name === ea) && Math.abs(r.out.dDur) <= 0.1 && !r.untaggedSdOnMediabunny && r.color !== false;
     } else r.ok = false;
   } catch (e) { r.exc = String(e).slice(0, 200); r.ok = false; }
   r.errs = p.errs; res.push(r);
@@ -44,3 +45,4 @@ for (const [file, to, ev, ea] of cases) {
   await ctx.close();
 }
 writeFileSync(`${OUT}/av-${name}.json`, JSON.stringify(res, null, 1)); await b.close();
+process.exit(res.every((r) => r.ok) ? 0 : 1);

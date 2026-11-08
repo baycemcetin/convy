@@ -40,6 +40,9 @@ const ops: Record<string, (a: any, id: number) => Promise<any>> = {
     // Firefox: WebCodecs VP9 is ~4x slower than ffmpeg VP8 (spike, MIMARI §8 / R12) → WebM goes to ffmpeg there
     if (!FORMAT[to] || (to === 'webm' && / Firefox\//.test(navigator.userAgent))) return { ok: false, ...info };
     const wantVideo = to !== 'm4a' && !!v;
+    // Untagged video below 720 lines: Mediabunny fills the missing tags with BT.709 (Chromium's default) and writes them into the
+    // output, but players read untagged SD as BT.601 → visible colour shift (06-qa/av-pairs RAPOR §4). ffmpeg writes no tag.
+    if (wantVideo && !(await v!.getColorSpace()).matrix && (await v!.getCodedHeight()) < 720) return { ok: false, ...info };
     const ok = (!wantVideo || ((await v!.canDecode()) && (await mb.canEncodeVideo(VCODEC[to], { width: v!.displayWidth, height: v!.displayHeight }))))
       && (!a || ((await a.canDecode()) && (await mb.canEncodeAudio(ACODEC[to]))));
     return { ok: ok && (wantVideo || !!a), ...info };
