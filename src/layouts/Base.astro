@@ -7,6 +7,7 @@ import '../styles/hifi.css';
 import '../styles/product.css';
 import sprite from '../assets/sprite.svg?raw';
 import { copy, type Lang } from '../i18n';
+// Open Graph / Twitter card on indexable pages (OG image A "Volt ok", Cem 2026-11-08; public/og/convy-{lang}.png, 1200×630).
 // alt: this page's path in each language (hreflang en/tr/x-default=en, both or none). noindex: robots meta, no canonical/hreflang.
 // to: target label (e.g. "JPG") the converter presets on a pair page; read by queue.add from <html data-to>.
 interface Props { lang: Lang; title?: string; description?: string; alt?: Record<Lang, string>; noindex?: boolean; to?: string; }
@@ -28,6 +29,20 @@ const abs = (p: string) => new URL(p, Astro.site);
 <link rel="alternate" hreflang="en" href={abs(alt.en)}>
 <link rel="alternate" hreflang="tr" href={abs(alt.tr)}>
 <link rel="alternate" hreflang="x-default" href={abs(alt.en)}>
+</>}
+{!noindex && <>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Convy">
+<meta property="og:title" content={pageTitle}>
+<meta property="og:description" content={description ?? t.lead}>
+<meta property="og:url" content={abs(Astro.url.pathname)}>
+<meta property="og:locale" content={lang === 'en' ? 'en_US' : 'tr_TR'}>
+<meta property="og:locale:alternate" content={lang === 'en' ? 'tr_TR' : 'en_US'}>
+<meta property="og:image" content={abs(`/og/convy-${lang}.png`)}>
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content={t.h1}>
+<meta name="twitter:card" content="summary_large_image">
 </>}
 <slot name="head" />
 <link rel="preload" href="/fonts/convy-ui.woff2" as="font" type="font/woff2" crossorigin>
