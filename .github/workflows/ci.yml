@@ -104,5 +104,28 @@ jobs:
             preview.log
           if-no-files-found: ignore
 
-  # deploy: intentionally absent. Cloudflare Workers (DECISIONS 2026-11-08) is set up outside CI until Cem's account settings land;
-  # add a `deploy` job here (needs: [build, e2e], main only, environment: production) after approval.
+  # Cloudflare Workers Static Assets (DECISIONS 2026-11-08). main only, after build + all e2e pass; the tested dist is what ships.
+  # Secrets CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID are entered by Cem in GitHub (never in the repo).
+  deploy:
+    needs: [build, e2e]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist
+      - name: wrangler deploy
+        run: npx --yes wrangler@4.152.0 deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: "false"
