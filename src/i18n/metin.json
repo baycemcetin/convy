@@ -7,6 +7,10 @@
       "FAQ"
     ],
     "dev": "This device",
+    "themeBtn": [
+      "Light theme",
+      "Dark theme"
+    ],
     "offline": "Offline",
     "menu": "Menu",
     "other": "TR",
@@ -19,7 +23,7 @@
     "proof": [
       "No ads",
       "No account",
-      "No uploads",
+      "Files stay on your device",
       "Open source (GPL-3.0)"
     ],
     "lbl": {
@@ -225,12 +229,6 @@
       "removeAll": "Remove saved engines",
       "frees": "frees {size}",
       "keep": "Safari may remove saved engines after 7 days without a visit. Any browser may remove them when storage runs low.",
-      "themeT": "Theme",
-      "theme": [
-        "System",
-        "Dark",
-        "Light"
-      ],
       "langT": "Language",
       "lang": [
         "English",
@@ -409,6 +407,10 @@
       "SSS"
     ],
     "dev": "Bu cihaz",
+    "themeBtn": [
+      "Açık tema",
+      "Koyu tema"
+    ],
     "offline": "Çevrimdışı",
     "menu": "Menü",
     "other": "EN",
@@ -421,7 +423,7 @@
     "proof": [
       "Reklam yok",
       "Hesap yok",
-      "Yükleme yok",
+      "Dosyalar cihazında kalır",
       "Açık kaynak (GPL-3.0)"
     ],
     "lbl": {
@@ -627,12 +629,6 @@
       "removeAll": "Saklanan motorları sil",
       "frees": "{size} yer açar",
       "keep": "Safari, 7 gün ziyaret etmezsen saklanan motorları silebilir. Depolama azalınca her tarayıcı silebilir.",
-      "themeT": "Tema",
-      "theme": [
-        "Sistem",
-        "Koyu",
-        "Açık"
-      ],
       "langT": "Dil",
       "lang": [
         "English",

@@ -13,7 +13,7 @@ const e = (await loadDocs())[page][lang];
 const { Content: Body } = await render(e);
 ---
 <Content lang={lang} title={e.data.title} description={e.data.description} alt={both((l) => DOC[page][l])} noindex={e.data.draft}>
-  <h1>{e.data.h1}</h1>
+  <header class="panel dhero"><h1>{e.data.h1}</h1></header>
   {e.data.draft && <p class="draftnote">{CHROME[lang].draftNote}</p>}
   <div class="cx"><div class="b"><Fill lang={lang}><Body /></Fill></div></div>
 </Content>

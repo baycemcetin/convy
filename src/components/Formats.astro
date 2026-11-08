@@ -1,0 +1,32 @@
+---
+// Home: what Convy converts. One card per category with published pairs (only published pairs exist as pages), each pair a link,
+// plus the category and full index links. Static, inside <main> like HowBand. `index`: the P3 hub uses the cards alone, card id = category
+// (the #image … anchors pair pages link to), no category link back to itself.
+import { loadPairs } from '../content/publish';
+import { CATEGORIES, fmtName, kindOf, linkText, pairUrl } from '../content/conversions';
+import { INDEX, CHROME, sub } from '../i18n/site';
+import type { Lang } from '../i18n';
+import '../styles/content.css'; // .links chips
+const { lang, index = false } = Astro.props as { lang: Lang; index?: boolean };
+const c = CHROME[lang];
+const { pubs } = await loadPairs();
+const cats = CATEGORIES.map((k) => {
+  const ps = pubs.filter((p) => kindOf(p.c.from) === k);
+  const fmts = [...new Set(ps.flatMap((p) => [p.c.from, p.c.to]))].map(fmtName);
+  return { k, ps, fmts, word: k === 'pdf' ? 'PDF' : c.cat[k].toLocaleLowerCase(lang) };
+}).filter((x) => x.ps.length);
+---
+<section class:list={["fx", { "fx-idx": index }]} aria-labelledby={index ? undefined : "fx-h"}>
+  {!index && <h2 id="fx-h">{c.fx.t}</h2>}
+  {!index && <div class="fx-top"><p class="fx-line">{sub(c.fx.n, { n: String(pubs.length) })}</p><a class="btn" href={INDEX[lang]}>{c.fx.all}<span class="ar" aria-hidden="true">→</span></a></div>}
+  <div class="fx-grid">
+    {cats.map(({ k, ps, fmts, word }) => (
+      <article class="panel fx-card" id={index ? k : undefined} aria-labelledby={`fx-${k}`}>
+        <div class="fx-hd"><h3 id={`fx-${k}`}>{c.cat[k]}</h3><span class="lbl">{sub(c.fx.count, { n: String(ps.length) })}</span></div>
+        <p class="fx-fmts">{fmts.join(' · ')}</p>
+        <ul class="links">{ps.map((p) => <li><a href={pairUrl(p.c, lang)}>{linkText(p.c, lang)}</a></li>)}</ul>
+        {!index && <a class="fx-all" href={`${INDEX[lang]}#${k}`}>{sub(c.rel.all, { k: word })}<span class="ar" aria-hidden="true">→</span></a>}
+      </article>
+    ))}
+  </div>
+</section>

@@ -3,7 +3,8 @@
 // No "This device" panel here: it belongs to the tool pages only (DECISIONS 2026-11-08; checked in tests/seo-build.mjs).
 import { copy, type Lang } from '../i18n';
 import { HOME, navHref } from '../i18n/site';
-import wm from '../assets/convy-wordmark-kucuk.svg?raw';
+import ThemeBtn from './ThemeBtn.svelte';
+import wm from '../assets/convy-wordmark.svg?raw';
 interface Props { lang: Lang; alt: string }
 const { lang, alt } = Astro.props;
 const t = copy(lang), hrefs = navHref(lang), other = lang === 'en' ? 'tr' : 'en';
@@ -14,6 +15,7 @@ const t = copy(lang), hrefs = navHref(lang), other = lang === 'en' ? 'tr' : 'en'
   <span class="sp"></span>
   <div class="tools">
     <a class="lang" href={alt} hreflang={other} lang={other}>{t.other}</a>
+    <ThemeBtn label={t.themeBtn} />
     <details class="mnav"><summary aria-label={t.menu}><i></i></summary><nav aria-label={t.a11y.nav}>{t.nav.map((label, i) => <a href={hrefs[i]}>{label}</a>)}</nav></details>
   </div>
 </div></header>

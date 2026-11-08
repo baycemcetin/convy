@@ -1,6 +1,10 @@
 /* Content pages (P2 below the tool, P3-P8). Zero JS; tokens from tokens-volt / type-scale; no hover outside (hover:hover) and (pointer:fine) (R-2026-23). */
-.doc{ padding-top:var(--s8); padding-bottom:var(--s6); }
-.doc > h1{ font:var(--w-medium) var(--h1)/var(--lh-h1) var(--font-ui); letter-spacing:var(--tracking-heading); }
+.doc{ padding-top:var(--s6); padding-bottom:var(--s6); }
+/* hero frame = the converter gauge on the home page (.panel, --r-panel 40 px, same padding steps) */
+.dhero + .cx{ margin-top:var(--s7); border-top:0; padding-top:0; }
+.dhero{ padding:var(--s7); min-height:280px; display:flex; flex-direction:column; justify-content:flex-end; }
+@media (max-width:767px){ .doc{ padding-top:var(--s4); } .dhero{ padding:var(--s6) var(--s5); min-height:0; } }
+.doc .dhero h1{ font:var(--w-medium) var(--h1)/var(--lh-h1) var(--font-ui); letter-spacing:var(--tracking-heading); }
 .doc .lead{ margin-top:var(--s4); font:var(--w-regular) var(--lead)/1.4 var(--font-ui); letter-spacing:var(--tracking-lead); max-width:var(--measure-lead); color:var(--c-ink-2); }
 .cx{ margin-top:var(--s9); border-top:1px solid var(--c-line); padding-top:var(--s6); display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); column-gap:var(--col-gap); row-gap:var(--s4); }
 .cx > h2{ grid-column:1 / -1; font:500 var(--text-xs)/1.35 var(--font-ui); letter-spacing:var(--tracking-label); text-transform:uppercase; color:var(--c-ink-3); font-feature-settings:"case" 1; }
@@ -10,7 +14,7 @@
 .cx details{ border-top:1px solid var(--c-line); padding:var(--s3) 0; } .cx details:last-child{ border-bottom:1px solid var(--c-line); }
 .cx summary{ cursor:pointer; font-weight:500; min-height:var(--tap); display:flex; align-items:center; }
 .cx details p{ margin-top:var(--s2); }
-@media (min-width:768px){ .cx > h2{ grid-column:1 / span 4; padding-top:.55em; } .cx > .b{ grid-column:5 / -1; } }
+@media (min-width:768px){ .cx > h2{ grid-column:1 / span 4; padding-top:.55em; } .cx > h2 + .b{ grid-column:5 / -1; } }
 .crumb ol{ list-style:none; display:flex; flex-wrap:wrap; gap:var(--s1) var(--s2); padding:0; margin:0; color:var(--c-ink-3); font-size:var(--text-sm); }
 .crumb li{ display:flex; align-items:center; min-height:var(--tap); }
 .crumb li + li::before{ content:"›"; margin-right:var(--s2); }
@@ -30,3 +34,21 @@
 .bar .mnav nav a{ display:flex; align-items:center; min-height:var(--tap); }
 @media (min-width:768px){ .bar .mnav{ display:none; } }
 @media (max-width:767px){ .bar > .wrap > nav.top{ display:none; } }
+/* home: what Convy converts (Formats.astro). Label column + statement like .howband, then category cards in large frames (--r-panel) */
+.fx{ margin-top:var(--s10); display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); column-gap:var(--col-gap); row-gap:var(--s5); border-top:1px solid var(--c-line); padding-top:var(--s6); }
+.fx > h2{ grid-column:1 / -1; font:500 var(--text-xs)/1.35 var(--font-ui); letter-spacing:var(--tracking-label); text-transform:uppercase; color:var(--c-ink-3); font-feature-settings:"case" 1; margin:0; }
+.fx-top{ grid-column:1 / -1; display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:var(--s4) var(--s6); }
+.fx-line{ font:var(--w-medium) var(--h2)/var(--lh-h2) var(--font-ui); letter-spacing:var(--tracking-heading); max-width:22ch; text-wrap:balance; }
+.fx-top .btn{ text-decoration:none; gap:.5em; }
+.fx-grid{ grid-column:1 / -1; display:grid; gap:var(--col-gap); grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr)); }
+.fx-card{ padding:var(--s7); display:flex; flex-direction:column; gap:var(--s4); min-width:0; }
+.fx-hd{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s4); }
+.fx-hd h3{ margin:0; font:var(--w-medium) var(--h3)/var(--lh-h3) var(--font-ui); letter-spacing:var(--tracking-heading); }
+.fx-fmts{ color:var(--c-ink-2); font-feature-settings:var(--data-features); }
+.fx-card .links{ margin:0; }
+.fx-all{ margin-top:auto; padding-top:var(--s2); display:inline-flex; align-items:center; gap:.4em; min-height:var(--tap); font-weight:500; color:var(--c-ink); align-self:flex-start; }
+.fx-all .ar, .fx-top .ar{ color:var(--c-ink-3); text-decoration:none; }
+@media (min-width:768px){ .fx > h2{ grid-column:1 / span 4; } }
+@media (max-width:767px){ .fx{ margin-top:var(--s9); } .fx-card{ padding:var(--s6) var(--s5); } }
+.fx-idx{ border-top:0; padding-top:0; margin-top:var(--s5); }
+.fx-card[id]{ scroll-margin-top:var(--s5); }

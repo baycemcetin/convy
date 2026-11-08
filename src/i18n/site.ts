@@ -5,8 +5,8 @@ export const HOME: Record<Lang, string> = { en: '/', tr: '/tr/' };
 export const INDEX: Record<Lang, string> = { en: '/convert/', tr: '/tr/donustur/' };
 /** P1 title + meta description (SEO-SAYFALAR §3.4, SEO-owned; title ≤ 60, meta ≤ 155) */
 export const HOME_META: Record<Lang, { title: string; description: string }> = {
-  en: { title: 'Convy · File converter that runs on your device', description: 'Convert images, audio, video and documents in your browser. No account, no ads, no uploads. Open source (GPL-3.0).' },
-  tr: { title: 'Convy · Cihazında çalışan dosya dönüştürücü', description: 'Görsel, ses, video ve belgeleri tarayıcında dönüştür. Hesap yok, reklam yok, yükleme yok. Açık kaynak (GPL-3.0).' },
+  en: { title: 'Convy · File converter that runs on your device', description: 'Convert images, audio, video and documents in your browser. No account, no ads. Files stay on your device. Open source (GPL-3.0).' },
+  tr: { title: 'Convy · Cihazında çalışan dosya dönüştürücü', description: 'Görsel, ses, video ve belgeleri tarayıcında dönüştür. Hesap yok, reklam yok. Dosyalar cihazında kalır. Açık kaynak (GPL-3.0).' },
 };
 export const DOC = {
   index: INDEX, how: { en: '/how-it-works/', tr: '/tr/nasil-calisir/' }, faq: { en: '/faq/', tr: '/tr/sss/' },
@@ -30,6 +30,8 @@ export const CHROME = {
     sum: { engine: 'Engine', dl: 'Download', off: 'Offline', size: 'About {mb} MB, saved for next time', offline: 'Works offline once the engine is saved and the page stays open', noEngine: 'Runs inside the page, no separate engine download', fallback: 'Usually runs inside the page; about {mb} MB more if it needs the fallback engine' },
     rel: { same: 'More from {a}', target: 'More to {b}', reverse: 'The other way', near: 'Also on Convy', all: 'All {k} conversions' },
     draftNote: 'Draft content. Not for production.',
+    fcol: ['Convy', 'Trust'],
+    fx: { t: 'What Convy converts', n: '{n} conversions, each with its own page.', all: 'All conversions', count: '{n} conversions' },
     nf: { h1: "This conversion isn't here", p: 'There is no page for this address.', pair: '{a} to {b} has no page of its own.', from: 'What {a} can become here', to: 'What can become {b}', all: 'All conversions', home: 'Open the converter' },
     menu: 'Menu',
   },
@@ -40,6 +42,8 @@ export const CHROME = {
     sum: { engine: 'Motor', dl: 'İndirme', off: 'Çevrimdışı', size: 'Yaklaşık {mb} MB, sonraki sefer için saklanır', offline: 'Motor saklandıktan sonra, sayfa açıkken çevrimdışı çalışır', noEngine: 'Sayfanın içinde çalışır, ayrı motor indirmesi yok', fallback: 'Çoğunlukla sayfanın içinde çalışır; yedek motor gerekirse yaklaşık {mb} MB daha iner' },
     rel: { same: 'Başka {a} dönüşümleri', target: 'Sonucu {b} olan diğerleri', reverse: 'Ters yönde', near: "Convy'de bu da var", all: 'Tüm {k} dönüşümleri' },
     draftNote: 'Taslak içerik. Üretime girmez.',
+    fcol: ['Convy', 'Güven'],
+    fx: { t: 'Convy neleri dönüştürür', n: '{n} dönüşüm, her birinin kendi sayfası var.', all: 'Tüm dönüşümler', count: '{n} dönüşüm' },
     nf: { h1: 'Bu dönüşüm burada yok', p: 'Bu adreste bir sayfa yok.', pair: '{a} → {b} için ayrı bir sayfa yok.', from: '{a} burada neye dönüşebilir', to: 'Burada neler {b} olabilir', all: 'Tüm dönüşümler', home: 'Dönüştürücüyü aç' },
     menu: 'Menü',
   },

@@ -13,6 +13,7 @@
   import Log from './Log.svelte';
   import type DevicePanel from './DevicePanel.svelte';
   import Icon from './Icon.svelte';
+  import ThemeBtn from './ThemeBtn.svelte';
 
   let { lang, t: copyT, hrefs, alt, wm, children }: { lang: Lang; t: Copy; hrefs: string[]; alt: string; wm?: Snippet; children?: Snippet } = $props();
   const x = formatter(lang, copyT);
@@ -174,6 +175,7 @@
   <div class="tools">
     {#if !q.online}<span class="tag-off"><i></i><span class="t1">{t.offline}</span></span>{/if}
     <a class="lang" href={alt} hreflang={other} lang={other}>{t.other}</a>
+    <ThemeBtn label={t.themeBtn} />
     <button class="chip-dev" type="button" bind:this={chipEl} aria-haspopup="dialog" aria-expanded={panelOpen} aria-controls="dp" aria-label={t.dev} onclick={async (e) => { if (panelOpen) return dp.close(); const k = e.detail === 0; await dpLoad(); await tick(); dp.show(k); }}><Icon n="device" s16 /><span class="t">{t.dev}</span></button>
     <button class="menu-btn" type="button" aria-label={t.menu} aria-expanded={menuOpen} aria-controls="nav" onclick={() => (menuOpen = !menuOpen)}><i></i></button>
   </div>
