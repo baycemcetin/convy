@@ -79,9 +79,9 @@ try {
   await pg.locator('.stage .tpick').waitFor({ timeout: 10000 });
   ok(await pg.locator('.stage .tpick .chip input:checked + span').first().textContent() === 'JPG' && (await pg.locator('#sg-act').getAttribute('aria-disabled')) !== 'true', 'pair page: JPG is preselected after choosing a HEIC file, Convert enabled');
   ok((await pg.locator('a.lang').getAttribute('href')) === '/tr/donustur/heic-jpg/', 'language link goes to the same pair in TR');
-  const r = await pg.goto('http://127.0.0.1:4323/convert/avif-to-png/'); ok(r.status() === 404, 'unpublished pair URL answers 404');
-  const t = await pg.locator('#nf').innerText(); ok(/AVIF to PNG has no page/.test(t), '404 names the missing pair'); // aliases (heif-to-png) 301 in production via _redirects; the local server does not apply them
-  const r2 = await pg.goto('http://127.0.0.1:4323/tr/donustur/avif-jpg/'); ok(r2.status() === 404 && /AVIF → JPG için ayrı bir sayfa yok/.test(await pg.locator('#nf').innerText()), 'TR 404 + suggestion');
+  const r = await pg.goto('http://127.0.0.1:4323/convert/tiff-to-png/'); ok(r.status() === 404, 'unpublished pair URL answers 404');
+  const t = await pg.locator('#nf').innerText(); ok(/TIFF to PNG has no page/.test(t), '404 names the missing pair'); // aliases (heif-to-png) 301 in production via _redirects; the local server does not apply them
+  const r2 = await pg.goto('http://127.0.0.1:4323/tr/donustur/tiff-jpg/'); ok(r2.status() === 404 && /TIFF → JPG için ayrı bir sayfa yok/.test(await pg.locator('#nf').innerText()), 'TR 404 + suggestion');
   const r3 = await pg.goto('http://127.0.0.1:4323/nothing/here/'); ok(r3.status() === 404 && (await pg.locator('#nf').isHidden()), 'plain 404 keeps the static links only');
 } finally { await b.close(); srv.kill(); }
 console.log(fails ? `${fails} FAILED` : 'all passed'); process.exit(fails ? 1 : 0);

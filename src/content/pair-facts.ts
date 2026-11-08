@@ -33,7 +33,7 @@ const ICC = f('The ICC colour profile is kept (Display P3 fixture: profile prese
 const ALPHA_WHITE = f('Transparent areas become white (JPG has no transparency).', 'measured', MW + ':31; ' + SELF + ' (transparency → white)');
 const ALPHA_KEEP = f('Transparency is kept.', 'measured', SELF + ' (kept in PNG/WebP)');
 const NO_ALPHA_SRC = null;
-const PNG_META = f('Metadata in a PNG source (eXIf, XMP) goes through the same removal step; not tested with a PNG that carries it.', 'code', MW + ':13-18,38');
+const PNG_META = f('Metadata in a PNG source (eXIf, XMP, text comments) is removed, orientation applied.', 'measured', 'tests/pair-facts.mjs (PNG with eXIf + iTXt XMP + tEXt; positive and negative control)');
 const FIRST_FRAME = f('Animated input: only the first frame is converted.', 'measured', MW + ':27 (ImageMagick.read = one image); ' + SELF);
 const Q85 = (fmt: string) => f(`${fmt} quality 85 (fixed, no setting in the UI).`, 'code', MW + ':22,32');
 const LOSSLESS_PNG = f('PNG is lossless: no further quality loss; the file is usually much larger (12 MP JPG 1.2 MB → PNG 11.8 MB).', 'measured', 'scratch run 2026-11-07, photo12mp.jpg (see 05-build/PAIR-FACTS.md)');
@@ -128,11 +128,11 @@ export const PAIR_FACTS: PairFacts[] = [
   mp3From('m4a', [f('M4A (AAC) input converted in Chromium, Firefox, WebKit: same 10 845 B MP3, duration +0.02 s.', 'measured', AVP + ' (av-tagged.m4a)')]),
   image('png', 'webp', { metadata: PNG_META }),
   toPdf('jpg', {
+    download: f('No engine download for ordinary JPEGs; 12-bit, lossless or arithmetic-coded JPEGs fetch the image engine (≤5.4 MB).', 'measured', IMGPDF + ' (fresh context: 0 magick*.wasm requests, 3 browsers)'),
     lossy: f('No quality loss: the JPEG data go into the PDF as they are (DCTDecode), not re-encoded; the scan bytes in the PDF are identical to the source.', 'measured', PW + ' jpegPdf; ' + SELF + '; ' + IMGPDF),
     metadata: f('EXIF (incl. GPS), XMP, IPTC, comments and the MPF/extra images after the first image are cut from the embedded JPEG without re-encoding; the ICC profile goes in as the PDF colour space (ICCBased).', 'measured', PW + ' jpegPdf; ' + SELF + '; ' + IMGPDF + ' (tests/fixtures/meta.jpg)'),
     limits: [f('JPEGs that are 12-bit, lossless or arithmetic-coded are not embedded directly; they go through the image engine and in losslessly (Flate) instead.', 'code', PW + ' jpegPdf (SOF check)')],
     extra: [f('EXIF orientation is applied through the page matrix, without re-encoding: orientation 6 → portrait page, rendered upright.', 'measured', PW + ':10-12; ' + IMGPDF),
-      f('The image engine (≤5.4 MB) is still downloaded before the first conversion, although the JPEG path does not use it.', 'code', MW + ':31-35'),
       f('Output ≈ input size: meta.jpg 1 339 B → PDF 1 651 B.', 'measured', IMGPDF)],
   }),
   toPdf('png', {

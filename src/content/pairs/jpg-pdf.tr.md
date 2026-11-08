@@ -1,5 +1,5 @@
 ---
-draft: true # İçerik bitti (Parti 1a). Yalnız ilgili bağlantı alt sınırı (3) henüz sağlanamadığı için taslak: önce png-pdf, pdf-jpg ya da jpg-webp yayına girmeli.
+draft: false
 intro: "Bir kurum ya da çevrimiçi form PDF istediğinde elinde çoğu zaman JPG olarak kaydedilmiş bir fotoğraf ya da tarama vardır. JPG dosyalarını seç, Convy bu cihazda her birini tek sayfalık bir PDF'ye koysun. JPEG verisi dokunulmadan girer, kalite kaybı olmaz."
 metaHook: "JPEG verisi olduğu gibi girer, her fotoğraf bir sayfa, kalite kaybı yok"
 steps:
@@ -9,7 +9,7 @@ steps:
 limits:
   - "Bir JPG'den tek sayfalık bir PDF çıkar; birden çok fotoğraf tek belgede birleştirilmez."
   - "12 bitlik, kayıpsız ya da aritmetik kodlu JPEG'ler olduğu gibi kopyalanmaz; görsel motorundan geçip kayıpsız olarak saklanır."
-  - "İlk dönüşümde görsel motoru iner (yaklaşık 5 MB), standart bir JPG onu kullanmasa da; sonraki seferler için saklanır."
+  - "Standart bir JPG için motor indirilmez. Yalnızca yukarıdaki seyrek türler önce görsel motorunu indirir (yaklaşık 5 MB); sonraki seferler için saklanır."
 faq:
   - q: "Fotoğraf PDF'nin içinde kalite kaybeder mi?"
     a: "Kaybetmez. JPEG verisi çözülüp yeniden sıkıştırılmadan gömülür; PDF'deki görüntü baytları kaynakla birebir aynıdır. İstisna seyrek JPEG türleri: 12 bitlik, kayıpsız ya da aritmetik kodlu dosyalar görsel motorundan geçer ve kayıpsız olarak saklanır."
@@ -19,7 +19,7 @@ faq:
     a: "Sayfa boyu bir kâğıt ölçüsüne göre değil, piksellerden 150 dpi ile hesaplanır. 12 megapiksellik bir fotoğraf yaklaşık 69 × 52 cm'lik bir sayfa verir. Yazdırma penceresinde sayfaya sığdır seçeneğini işaretlersen A4 ya da Letter kâğıdı doldurur."
   - q: "GPS konumu siliniyor mu?"
     a: "Siliniyor. GPS konumunu içeren EXIF, XMP, IPTC ve yorumlar, görüntü verisine dokunulmadan gömülü JPEG'den kesilir; bunu Chromium, Firefox ve WebKit'te kontrol ettik. ICC renk profili, PDF'nin renk uzayı olarak korunur."
-factRefs: [lossy, quality, metadata, path, limits.0, extra.0, extra.1, extra.2]
+factRefs: [lossy, quality, metadata, path, download, limits.0, extra.0, extra.1]
 ---
 PDF'nin içine giren şey JPG'nin kendisidir. Convy dosyayı yeniden sıkıştırmaz, JPEG verisini olduğu gibi kopyalar; PDF'deki görüntü baytlarını kaynakla karşılaştırdığımızda birebir aynıydı. Bu yüzden PDF aşağı yukarı JPG kadar tutar: 1 339 baytlık bir test görseli 1 651 baytlık bir PDF oldu, aradaki fark PDF'nin kendi yapısı.
 

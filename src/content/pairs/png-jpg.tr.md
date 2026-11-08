@@ -15,7 +15,7 @@ faq:
   - q: "Ekran görüntüsündeki yazılar net kalır mı?"
     a: "Büyük ölçüde, ama kusursuz değil. JPG kayıplıdır ve Convy onu 85 kalitede yazar, yükseltmek için bir ayar yok. Küçük harf ya da ince çizgi gibi keskin kenarlarda hafif lekelenme olabilir. Dikkatle okunacak ekran görüntülerinde PNG'yi tutmak daha iyi olur."
   - q: "Dönüşüm PNG'deki gizli verileri siler mi?"
-    a: "Kod buna göre yazıldı: PNG'deki eXIf ya da XMP gibi metaveri, diğer görsellerdeki silme adımından geçer. Ancak bu yol, gerçekten böyle veri taşıyan bir PNG ile sınanmadı. Senin için önemliyse çıkan JPG'yi bir metaveri görüntüleyicisiyle kontrol et."
+    a: "Evet. PNG'deki eXIf, XMP ya da metin yorumu gibi metaveri silinir, yön etiketi önce uygulanır. Bunu, GPS konumu da dahil üçünü birden taşıyan bir PNG ile sınadık."
   - q: "JPG ne kadar küçük olur?"
     a: "Görsele bağlı. 96 KB'lık örnek PNG'miz 51 KB'lık bir JPG oldu, yarıdan biraz fazlası; sonuç Chromium, Firefox ve WebKit'te aynıydı. Hepsine geçmeden önce tek bir dosyayı çevirip boyutları karşılaştır."
 factRefs: [lossy, quality, transparency, metadata, path, extra.1, limits.0]
@@ -24,6 +24,6 @@ PNG'nin saydam yerlerinin arkasına bir renk gelmesi gerekir, çünkü JPG şeff
 
 İkinci değişiklik kayıp. PNG pikselleri birebir saklar; 85 kalitedeki JPG ise biraz ayrıntıdan vazgeçip dosyayı küçültür. Fotoğraflarda bu pek fark edilmez. Düz renklerde, ince çizgilerde ve küçük yazılarda kenarlarda hafif lekeler olarak belirir; yazı dolu bir ekran görüntüsü özgününden biraz daha yumuşak görünebilir.
 
-PNG de metaveri taşıyabilir, eXIf ve XMP parçalarında. Bunlar diğer görsellerdeki silme adımından geçer, ama böyle veri taşıyan bir PNG ile sınanmadı. ICC renk profili korunur.
+PNG de metaveri taşıyabilir, eXIf ve XMP parçalarında. Diğer görsellerde olduğu gibi silinirler; bunu böyle veri taşıyan bir PNG ile sınadık. ICC renk profili korunur.
 
 Sonuç tarayıcıya göre değişmez. 96 453 baytlık örnek PNG'miz Chromium, Firefox ve WebKit'te aynı 51 298 baytlık JPG'yi verdi.
