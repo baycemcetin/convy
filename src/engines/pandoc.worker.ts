@@ -5,8 +5,13 @@ import { createPandocInstance } from '../../node_modules/pandoc-wasm/src/core.js
 import { loadEngine } from './load-wasm';
 
 // our format id → pandoc reader / writer
-const READ: Record<string, string> = { docx: 'docx', odt: 'odt', md: 'markdown', html: 'html', epub: 'epub', rtf: 'rtf', tex: 'latex' };
-const WRITE: Record<string, string> = { docx: 'docx', odt: 'odt', md: 'markdown', html: 'html5', epub: 'epub3', txt: 'plain' };
+// Dilim 1: every reader/writer below is in this build (query input-formats / output-formats, pandoc 3.10)
+const READ: Record<string, string> = { docx: 'docx', odt: 'odt', md: 'markdown', html: 'html', epub: 'epub', rtf: 'rtf', tex: 'latex',
+  rst: 'rst', docbook: 'docbook', ipynb: 'ipynb', typst: 'typst', opml: 'opml', org: 'org', fb2: 'fb2', jats: 'jats', man: 'man', asciidoc: 'asciidoc', csv: 'csv', tsv: 'tsv' };
+const WRITE: Record<string, string> = { docx: 'docx', odt: 'odt', md: 'markdown', html: 'html5', epub: 'epub3', txt: 'plain',
+  rst: 'rst', docbook: 'docbook5', ipynb: 'ipynb', typst: 'typst', opml: 'opml', org: 'org', fb2: 'fb2', jats: 'jats', man: 'man', asciidoc: 'asciidoc' };
+// complete documents, not fragments: XML with its root element (OPML without it is a bare <outline>), man with its .TH header
+const STANDALONE = new Set(['html', 'epub', 'docbook', 'jats', 'man', 'opml']);
 
 // EPUB chapters arrive as <section id="c1.xhtml">/empty anchors: markdown prints them as `[]{#c1.xhtml}` and `::: {#c1.xhtml}`. Dropping span/div attributes (and raw HTML, which would print them as tags) removes the residue; the text stays.
 const EPUB_NOISE = '-bracketed_spans-fenced_divs-native_spans-native_divs-raw_html';
@@ -24,7 +29,7 @@ self.onmessage = async ({ data: { id, file, from, to, title } }) => {
     const pandoc = await ready.catch((e) => { ready = null; throw e; });
     self.postMessage({ id, type: 'progress', p: null });
     const inName = 'in.' + from, outName = 'out.' + to;
-    const options: Record<string, unknown> = { from: READ[from], to: to === 'md' && from === 'epub' ? WRITE.md + EPUB_NOISE : WRITE[to], 'input-files': [inName], 'output-file': outName, standalone: to === 'html' || to === 'epub' };
+    const options: Record<string, unknown> = { from: READ[from], to: to === 'md' && from === 'epub' ? WRITE.md + EPUB_NOISE : WRITE[to], 'input-files': [inName], 'output-file': outName, standalone: STANDALONE.has(to) };
     if (to === 'epub') options.metadata = { title };
     if (to === 'html') options.variables = { pagetitle: title }; // otherwise pandoc titles the page after our temp name: <title>in</title>
     // embedded pictures (DOCX/ODT/EPUB) would otherwise be dropped: HTML gets them as data URIs (one file; this build has no

@@ -35,3 +35,10 @@ svg.arw path.fill{ transition:stroke-dashoffset var(--d-data) var(--ease-data); 
 
 /* MD / TXT result preview: the first 64 KB as plain text (textContent only, never HTML) */
 .pv pre.txt{ position:absolute; inset:0; margin:0; padding:var(--s3); overflow:hidden; white-space:pre-wrap; overflow-wrap:anywhere; font:500 var(--text-xs)/1.5 var(--font-ui); font-feature-settings:var(--data-features); color:var(--c-ink-2); }
+
+/* theme toggle in the bar (next to language): icon + name follow <html data-theme>; click handled by the head script */
+.theme-btn{ width:var(--tap); height:var(--tap); display:grid; place-items:center; border:0; background:transparent; color:var(--c-ink-2); border-radius:var(--r-ctl); cursor:pointer; }
+.theme-btn svg{ grid-area:1 / 1; }
+[data-theme="light"] .th-sun, [data-theme="dark"] .th-moon{ display:none !important; }
+.theme-btn:focus-visible{ outline:2px solid var(--c-focus); outline-offset:2px; }
+@media (hover:hover) and (pointer:fine){ .theme-btn:hover{ color:var(--c-ink); background:var(--c-raised); } }

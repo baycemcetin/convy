@@ -24,7 +24,8 @@ export const easeTurn = bezier(0, 0.55, 0.45, 1);
 
 /** outgoing swap layer leaves the flow where it stands, so the incoming layer never stacks under it (HAREKET §11.1) */
 export function pin(e: Event) {
-  const n = e.currentTarget as HTMLElement;
+  const n = e.currentTarget as HTMLElement, o = getComputedStyle(n).opacity;
+  for (const a of n.getAnimations()) a.cancel(); n.style.opacity = o; // an unfinished intro would keep raising the leaving layer: fade out from here (motion Y3)
   if (getComputedStyle(n).position === 'absolute') return;
   Object.assign(n.style, { position: 'absolute', top: n.offsetTop + 'px', left: n.offsetLeft + 'px', width: n.offsetWidth + 'px', margin: '0', pointerEvents: 'none' });
 }
@@ -38,5 +39,7 @@ export const flip = (_n: Element, { from, to }: { from: DOMRect; to: DOMRect }, 
 
 type Tr = { duration: number; delay?: number; easing?: (t: number) => number; y?: number };
 /** svelte/transition fade and fly (y only) without unit parsing; elements here carry no transform of their own */
-export const fade = (n: Element, p: Tr) => { const o = +getComputedStyle(n).opacity; return { delay: p.delay, duration: p.duration, easing: p.easing, css: (t: number) => `opacity:${t * o}` }; };
+// fade reads the opacity on the first keyframe, not when the outro is scheduled: by then pin (outrostart) has frozen an unfinished intro.
+// A delayed intro whose layer is already leaving (Svelte marks it inert) stays at 0 instead of rising under the outro (motion Y3).
+export const fade = (n: Element, p: Tr) => { let o: number; return { delay: p.delay, duration: p.duration, easing: p.easing, css: (t: number) => `opacity:${p.delay && (n as HTMLElement).inert ? 0 : t * (o ??= +getComputedStyle(n).opacity)}` }; };
 export const fly = (n: Element, p: Tr) => { const o = +getComputedStyle(n).opacity; return { delay: p.delay, duration: p.duration, easing: p.easing, css: (t: number, u: number) => `transform:translateY(${u * p.y!}px);opacity:${t * o}` }; };

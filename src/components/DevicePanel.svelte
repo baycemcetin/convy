@@ -14,9 +14,7 @@
   let scrim: HTMLDivElement;
   let modal = $state(false);
   let sw = $state(false), busy = $state(false); // sw: a service worker controls this page = the shell is cached (scripts/sw.mjs installs all-or-nothing)
-  let pref = $state<'system' | 'dark' | 'light'>('system');
   const mq = typeof window === 'undefined' ? null : matchMedia('(max-width:767px)');
-  const dark = typeof window === 'undefined' ? null : matchMedia('(prefers-color-scheme: light)');
 
   // inert background = everything on the page except the panel and its scrim (the panel lives inside the island)
   const bg = () => [...document.querySelectorAll('body > *:not(astro-island):not(#live):not(svg), astro-island > *')].filter((el) => el !== panel && el !== scrim) as HTMLElement[];
@@ -37,23 +35,9 @@
     mq?.addEventListener('change', sync);
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && open) close(); };
     document.addEventListener('keydown', onKey);
-    try { const p = localStorage.getItem('convy-theme'); if (p === 'dark' || p === 'light') pref = p; } catch {}
-    const follow = () => { if (pref === 'system') apply(); };
-    dark?.addEventListener('change', follow);
-    return () => { mq?.removeEventListener('change', sync); document.removeEventListener('keydown', onKey); dark?.removeEventListener('change', follow); };
+    return () => { mq?.removeEventListener('change', sync); document.removeEventListener('keydown', onKey); };
   });
 
-  // theme: instant; one frame of data-motion="off" so button colour transitions don't ripple (HAREKET §3.8)
-  function apply() {
-    const r = document.documentElement;
-    r.dataset.motion = 'off';
-    r.dataset.theme = pref === 'system' ? (dark?.matches ? 'light' : 'dark') : pref;
-    requestAnimationFrame(() => requestAnimationFrame(() => { delete r.dataset.motion; }));
-  }
-  function setTheme(v: typeof pref) {
-    pref = v; apply();
-    try { if (v === 'system') localStorage.removeItem('convy-theme'); else localStorage.setItem('convy-theme', v); } catch {}
-  }
 
   const keys = ['image', 'av', 'doc'] as const;
   const icons = ['image', 'video', 'document'];
@@ -92,9 +76,7 @@
     </div>
     <span class="small" style="color:var(--c-ink-3)" hidden={!anySaved}>{P.removeNote} {P.keep}</span>
   </div>
-  <div class="dp-sec"><span class="lbl">{P.themeT}</span>
-    <div class="seg" role="group" aria-label={P.themeT}>{#each P.theme as label, i}{@const v = (['system', 'dark', 'light'] as const)[i]}<button type="button" aria-pressed={pref === v} onclick={() => setTheme(v)}>{label}</button>{/each}</div>
-    <span class="lbl" style="margin-top:4px">{P.langT}</span>
+  <div class="dp-sec"><span class="lbl">{P.langT}</span>
     <div class="seg two" role="group" aria-label={P.langT}>{#each P.lang as label, i}{@const v = i ? 'tr' : 'en'}<button type="button" lang={v} aria-pressed={x.lang === v} onclick={() => { if (v === other) location.href = alt; }}>{label}</button>{/each}</div>
   </div>
 </div>

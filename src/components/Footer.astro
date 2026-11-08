@@ -1,7 +1,30 @@
 ---
+// Footer = option C "Volt ok" (Cem 2026-11-08, 04-design/footer-secenekler): one Volt surface, ink content only (light-theme Volt rule),
+// arrowed wordmark, the home statement, links in two columns, the logo arrow at the bottom right: it fills as the footer scrolls into view
+// (CSS scroll-driven, no JS); without scroll timelines or under reduced motion it is simply full.
 import { copy, type Lang } from '../i18n';
-import { footHref, DOC } from '../i18n/site';
+import { footHref, DOC, HOME, CHROME } from '../i18n/site';
+import { OK_D, ORTA_D } from '../lib/arrow';
+import wm from '../assets/convy-wordmark.svg?raw';
+import zw from '../assets/zeze-workshop-logo.svg?raw';
 const { lang } = Astro.props as { lang: Lang };
-const t = copy(lang), hrefs = footHref(lang);
+const t = copy(lang), hrefs = footHref(lang), col = CHROME[lang].fcol;
+const [madeA, madeB] = t.made.split('{logo}');
+const links = t.foot.map((x, i) => [x, hrefs[i]] as const);
 ---
-<footer class="foot"><div class="wrap"><nav aria-label={t.a11y.footer}>{t.foot.map((x, i) => <a href={hrefs[i]}>{x}</a>)}</nav><a href={DOC.about[lang]}>{t.made}</a></div></footer>
+<footer class="foot"><div class="wrap"><div class="fv">
+  <div class="fv-l">
+    <a class="fv-wm" href={HOME[lang]} aria-label="Convy" set:html={wm} />
+    <p class="fv-say">{t.h1}</p>
+    <div class="fv-b">
+      <ul class="fv-proof">{t.proof.map((p) => <li>{p}</li>)}</ul>
+      <p class="fv-meta">© 2026 Convy. <a class="fv-by" href={DOC.about[lang]}>{madeA}<span class="fv-zw" aria-hidden="true" set:html={zw} /><span class="sr">Zeze Workshop</span>{madeB}</a></p>
+    </div>
+  </div>
+  <div class="fv-r">
+    <nav class="fv-cols" aria-label={t.a11y.footer}>
+      {[links.slice(0, 3), links.slice(3)].map((g, i) => <div><span class="fv-lbl">{col[i]}</span><ul>{g.map(([x, h]) => <li><a href={h}>{x}</a></li>)}</ul></div>)}
+    </nav>
+  </div>
+  <svg class="fv-arw" viewBox="36.74 7.44 56.03 30.78" aria-hidden="true"><defs><clipPath id="fv-ok"><path d={OK_D} /></clipPath></defs><path class="tr" d={OK_D} /><path class="fill" d={ORTA_D} pathLength="100" fill="none" stroke-width="32" stroke-dasharray="100" clip-path="url(#fv-ok)" /></svg>
+</div></div></footer>

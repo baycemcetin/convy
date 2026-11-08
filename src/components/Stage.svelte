@@ -23,6 +23,8 @@
   const n = $derived(items.length);
   const view = $derived(sub ? viewOf(sub, completing, shown) : null);
   const k = $derived(count ? 'count' : sub ? `${sub.id}:${view}` : 'empty');
+  // the picker stays the same node from needs to ready, so the chosen radio keeps focus (a11y Y1)
+  const fk = $derived(sub && !count && (view === 'needs' || (view === 'ready' && !isJob(sub))) ? 'p' + sub.id : k);
   const pos = $derived(n > 1 && sub && !count ? [items.indexOf(sub) + 1, n] : null);
   const ready = $derived(readyCount());
   const jobs = $derived(items.filter(isJob).length);
@@ -109,7 +111,9 @@
     <div><span class="lbl">{t.kick}</span><h1>{#each t.h1.split(/(?<=\.)\s+/) as ln, i}{i ? ' ' : ''}<span class="ln">{ln}</span>{/each}</h1><p class="lead">{t.lead}</p></div>
     <div class="go-wrap"><div class="go"><button class="btn volt" type="button" data-volt="button" data-testid="choose" onclick={acts.choose}>{t.choose}</button><span class="s fine">{t.dropAny}</span></div><ul class="proof">{#each t.proof as p}<li>{p}</li>{/each}</ul></div>
   </div>
-  <div class="sg-side"><Readout {t} /></div>
+  <!-- pair page: engine (saved or not, live) and the pair are known before a file is chosen; size and result wait for it (E6) -->
+  {#snippet pairFmt()}{t.pair!.from} <Ar to={t.sr.to} /> {t.pair!.to}{/snippet}
+  <div class="sg-side"><Readout {t} engine={t.pair && engVal(x, t.pair as unknown as Item)} format={t.pair && pairFmt} /></div>
 {:else}
   <div class="sg-main">
     <div class="sg-head"><span class="lbl">{label}</span>{#if pos}<span class="pos"><span aria-hidden="true">{pos[0]} / {pos[1]}</span><span class="sr">{fmt(t.sr.fileOf, { i: pos[0], n: pos[1] })}</span></span>{/if}<span class="sp"></span></div>
@@ -158,15 +162,15 @@
     {/key}
 
     <div class="sg-foot">
-      {#key k}
+      {#key fk}
         {#if count}
           <span class="ruler" style="--n:{n}" aria-hidden="true" in:tin out:tout onoutrostart={pin}>{#each items as f (f.id)}<i class={f.st === 'done' ? 'd' : f.st === 'running' ? 'r' : ''}></i>{/each}</span>
         {:else if sub && (view === 'needs' || (view === 'ready' && !isJob(sub)))}
-          <div in:tin out:tout onoutrostart={pin}><Picker it={sub} legend={kindIsBatch ? t.batch.target : t.pick.legend} more={t.pick.more} onpick={(l) => acts.pick(sub!, l)} /></div>
+          <div in:tin out:tout onoutrostart={pin}><Picker it={sub} legend={kindIsBatch ? t.batch.target : t.pick.legend} more={t.pick.more} kinds={t.panel.kinds} onpick={(l) => acts.pick(sub!, l)} /></div>
         {:else if view === 'engine'}
           <span class="ebar" data-volt="engine" aria-hidden="true" style="--p:{engP}" in:tin out:tout onoutrostart={pin}><i></i></span>
         {:else if view === 'block' && sub}
-          <div class="blk" in:tin out:tout onoutrostart={pin}><Picker it={sub} legend={t.pick.legend} more={t.pick.more} onpick={(l) => acts.pick(sub!, l)} /></div>
+          <div class="blk" in:tin out:tout onoutrostart={pin}><Picker it={sub} legend={t.pick.legend} more={t.pick.more} kinds={t.panel.kinds} onpick={(l) => acts.pick(sub!, l)} /></div>
           <div class="notice bare" id="q-notice" in:tin out:tout onoutrostart={pin}><Icon n="storage" /><span class="h">{t.quota.h}</span><p class="data" style="color:var(--c-ink)"><span class="sg">{fmt(t.quota.canUse, { size: x.size(sub.block!.free) })}</span></p><p>{t.quota.p}</p>{#if Object.values(q.saved).some(Boolean)}<div class="acts"><button class="btn sm quiet" type="button" onclick={acts.removeEngines}>{t.quota.acts[1]}</button></div>{/if}</div>
         {:else if view === 'cleared'}
           <span class="stx cl" in:tin out:tout onoutrostart={pin}><Icon n="storage" s16 cls="neu" />{t.st.cleared}</span>

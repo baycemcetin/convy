@@ -26,14 +26,16 @@ self.addEventListener('install', (e) => e.waitUntil(caches.open(V).then((c) => c
 self.addEventListener('activate', (e) => e.waitUntil((async () => {
   for (const k of await caches.keys()) if (k.startsWith('convy-shell-') && k !== V) await caches.delete(k);
   if (await caches.has('convy-engines-v1')) { const c = await caches.open('convy-engines-v1'); for (const r of await c.keys()) if (!E.includes(new URL(r.url).pathname.split('/')[2])) await c.delete(r); }
-  await self.registration.navigationPreload?.enable();
+  // no navigation preload: Firefox fails the navigation when the preload hits a network error, and the cache fallback never runs (QA 2026-11-08 E3).
+  // disable() also clears it on registrations from builds that enabled it.
+  await self.registration.navigationPreload?.disable();
   await self.clients.claim();
 })()));
 self.addEventListener('fetch', (e) => {
   const r = e.request, u = new URL(r.url);
   if (r.method !== 'GET' || u.origin !== location.origin) return;
-  if (r.mode === 'navigate') // preload is on for every navigation in scope, so every navigation must take it (SEO pages included)
-    e.respondWith(Promise.resolve(e.preloadResponse).then((p) => p || fetch(r)).catch((err) => (P.includes(u.pathname) ? caches.match(u.pathname, { cacheName: V }) : Promise.reject(err))));
+  if (r.mode === 'navigate')
+    e.respondWith(fetch(r).catch((err) => (P.includes(u.pathname) ? caches.match(u.pathname, { cacheName: V }) : Promise.reject(err))));
   else if (all.has(u.pathname)) e.respondWith(caches.match(u.pathname, { cacheName: V }).then((c) => c || fetch(r)));
   // engine JS loaded by URL (pdf.js modules, ffmpeg-core.js) comes from load-wasm's cache when saved; WebKit offline has no HTTP-cache fallback.
   // wasm parts are left alone: load-wasm reads them from the cache itself, and big downloads stay out of the worker.

@@ -19,8 +19,7 @@ const data = {
 };
 ---
 <Content lang={lang} title={lang === 'en' ? 'Page not found | Convy' : 'Sayfa bulunamadı | Convy'} alt={both((l) => HOME[l])} noindex hreflang={false}>
-  <h1>{c.h1}</h1>
-  <p class="lead">{c.p}</p>
+  <header class="panel dhero"><h1>{c.h1}</h1><p class="lead">{c.p}</p></header>
   <section class="cx" id="nf" hidden><div class="b"><p id="nf-p"></p><div id="nf-l" class="idx"></div></div></section>
   <section class="cx"><div class="b"><ul class="links"><li><a href={INDEX[lang]}>{c.all}</a></li><li><a href={HOME[lang]}>{c.home}</a></li></ul></div></section>
   <script type="application/json" id="nf-data" set:html={JSON.stringify(data)} />

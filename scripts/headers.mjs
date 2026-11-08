@@ -10,8 +10,8 @@ const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirect
 const hashes = new Set(), styles = new Set();
 const h = (b) => `'sha256-${createHash('sha256').update(b).digest('base64')}'`;
 for (const f of walk(DIST).filter((f) => f.endsWith('.html')))
-  for (const [, body] of readFileSync(f, 'utf8').matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g))
-    if (body.trim()) hashes.add(h(body));
+  for (const [, attrs, body] of readFileSync(f, 'utf8').matchAll(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/g))
+    if (body.trim() && !/\btype=["']?application\/(ld\+)?json/i.test(attrs)) hashes.add(h(body)); // JSON / JSON-LD data blocks never execute: no hash
 for (const f of walk(DIST).filter((f) => f.endsWith('.html')))
   for (const [, body] of readFileSync(f, 'utf8').matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)) styles.add(h(body)); // Astro's island display:contents rule
 const csp = [
@@ -32,6 +32,9 @@ writeFileSync(`${DIST}/_headers`, `/*
 /engines/*
   Cache-Control: public, max-age=31536000, immutable
 `);
+// Cloudflare _headers: 2 000 characters per line (developers.cloudflare.com/workers/static-assets/headers/); over it the rule may drop silently
+const long = readFileSync(`${DIST}/_headers`, 'utf8').split('\n').filter((l) => l.length > 2000);
+if (long.length) { console.error(`dist/_headers: ${long.length} line(s) over 2000 chars (${long.map((l) => l.length).join(', ')}): Cloudflare would drop them`); process.exit(1); }
 console.log(`dist/_headers: ${hashes.size} inline script, ${styles.size} inline style hash(es)`);
 // redirects.txt is the page-route form of _redirects (alias spellings x published pairs, src/pages/redirects.txt.ts)
 if (existsSync(`${DIST}/redirects.txt`)) { renameSync(`${DIST}/redirects.txt`, `${DIST}/_redirects`); console.log(`dist/_redirects: ${readFileSync(`${DIST}/_redirects`, 'utf8').trim().split('\n').length} rule(s)`); }

@@ -8,7 +8,7 @@ Each answer gives its condition. The details behind them are on [How it works](/
 
 ## What can Convy convert?
 
-Images (PNG, JPG, WebP, AVIF, HEIC, GIF, BMP, TIFF, ICO, JPEG XL and flattened PSD), audio (MP3, WAV, M4A, OGG, FLAC and others), video (MP4, MOV, WebM, MKV, AVI, plus video to GIF or MP3), documents through Pandoc (DOCX, ODT, EPUB, Markdown, HTML, with plain text as an output) and PDF pages into images or text. Images can also become PDFs. Conversions with a page of their own are listed on [All conversions](/convert/).
+Images, audio, video, documents and PDF pages. The common cases: images from HEIC, WebP, AVIF, PNG, JPG, SVG or PSD to JPG, PNG, WebP or PDF; audio between MP3, WAV, M4A, AAC and FLAC; video from MOV, MKV, AVI or WebM to MP4, or to a GIF or an MP3; documents between DOCX, Markdown, HTML, EPUB and ODT; PDF pages to PNG, JPG or text. Older and specialist formats are covered too, from TGA and EXR to WMA, MXF and LaTeX. Every format, by type, is in the [format table](/how-it-works/#formats); conversions with a page of their own are on [All conversions](/convert/).
 
 ## Is there a file size limit?
 
@@ -24,7 +24,7 @@ The engine for that kind of file downloads once: about 5 MB for images, 10 MB fo
 
 ## Does it work offline?
 
-Yes, once the engine you need is saved. The converter page is stored in this browser after your first visit, so it opens without a connection too; other pages need one. To prepare, save all engines from the This device panel on the converter; it shows the download size first.
+Yes, once the engine you need is saved. After your first visit, this browser stores the converter page, so it opens without a connection too; other Convy pages need one. To prepare, save all engines from the This device panel on the converter. It shows the download size first, and its Offline line says what is ready.
 
 ## Does it work on iPhone and in Safari?
 
@@ -46,6 +46,6 @@ Convy recognizes a file by its contents, not by the letters after the dot. A HEI
 
 Convy is free, has no ads and asks for no account. It is open source under GPL-3.0; see [About](/about/#licenses) for every engine and its license.
 
-## How is Convy different from VERT?
+## How is Convy different from other browser converters?
 
-VERT is another open-source converter that runs engines like ffmpeg and ImageMagick in the browser through WebAssembly, and so does Convy. The differences: Convy is written from scratch under GPL-3.0, with no code taken from VERT. Convy converts video only in the browser; a video job either runs on this device or isn't offered. And Convy is designed to show you what loads, how the job is going and what you got.
+Other open-source converters also run engines like ffmpeg and ImageMagick in the browser through WebAssembly, and so does Convy. The differences: Convy is written from scratch under GPL-3.0, with no code taken from another project. Convy converts video only in the browser; a video job either runs on this device or isn't offered. And Convy is designed to show you what loads, how the job is going and what you got.

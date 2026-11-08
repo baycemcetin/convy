@@ -1,0 +1,5 @@
+// Logo arrow outline (KIMLIK §4), shared by the progress arrow (Arrow.svelte) and the footer mark (Footer.astro).
+export const OK_D = 'M38.4 25.58Q39.52 22.39 41.84 20.08Q44.46 17.45 48.17 16.37Q51.75 15.32 55.85 15.85Q59.95 16.38 63.93 18.4Q68.05 20.5 71.45 23.9Q72.45 24.89 73.3 25.92L66.75 32.47Q66.47 32.75 66.59 33.13Q66.71 33.51 67.1 33.58L91.98 38.2Q92.32 38.26 92.57 38.02Q92.82 37.77 92.75 37.43L88.14 12.55Q88.06 12.16 87.68 12.04Q87.3 11.93 87.02 12.21L80.97 18.25L80.8 18.08Q76.4 13.68 71.07 10.97Q65.91 8.35 60.61 7.66Q55.3 6.98 50.65 8.34Q45.84 9.74 42.44 13.14Q38.89 16.7 37.52 21.78Q36.2 26.69 37.11 32.27Q37.14 32.44 37.3 32.42Q37.47 32.4 37.46 32.23Q37.32 28.67 38.4 25.58Z';
+// Centre line the fill strokes along (pathLength 100, clipped to OK_D): starts just under the tail tip (y 32.42), ends just past the head tip
+// (92.75 37.43); stroke 32 reaches the head's corners. Measured: 0 % paints 0.01 % of the shape, 100 % paints 99.99 %.
+export const ORTA_D = 'M38 32.5L37.94 27.75C37.84 22.8 39.32 19.42 42.14 16.61C50.32 8.44 65.53 10.4 76.13 20.99L92.57 38.08';

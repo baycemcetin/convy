@@ -4,7 +4,7 @@
   import { q, type Item } from '../lib/queue.svelte';
   import { ENGINES } from '../engines/load-wasm';
   import { fmt, type F } from '../lib/fmt';
-  import { T, d, easeTurn, flip, fly, fade } from '../lib/motion';
+  import { T, d, easeTurn, flip, fly, fade, pin } from '../lib/motion';
   import { isJob, isReady, outName, stateWord, engWord } from '../lib/view';
   import Icon from './Icon.svelte';
   import Fname from './Fname.svelte';
@@ -13,7 +13,7 @@
   import Dim from './Dim.svelte';
 
   type Acts = { add: () => void; stopAll: () => void; saveZip: () => void; save: (id: number) => void; reconvert: (id: number) => void; retry: (id: number) => void; remove: (id: number, e?: MouseEvent) => void; stage: (id: number, e: MouseEvent) => void; pick: (it: Item, label: string) => void };
-  let { x, instant, subId, count, completing, engOnStage, delay, acts }: { x: F; instant: boolean; subId: number | null; count: boolean; completing: number[]; engOnStage: boolean; delay: (id: number) => number; acts: Acts } = $props();
+  let { x, instant, subId, count, completing, engOnStage, delay, acts }: { x: F; instant: boolean; subId: number | null; count: boolean; completing: number[]; engOnStage: boolean; delay: (id: number) => number | undefined; acts: Acts } = $props();
   const t = $derived(x.t);
   const items = $derived(q.items);
   const n = $derived(items.length);
@@ -30,7 +30,8 @@ const why = $derived([left ? t.batch.zipOnly : '', cleared ? x.plural(cleared, t
   type R = { key: string; it?: Item };
   const rows = $derived<R[]>(items.flatMap((it) => (it.id === engBefore ? [{ key: 'eng' }, { key: 'r' + it.id, it }] : [{ key: 'r' + it.id, it }])));
   const zipSize = $derived(done.reduce((a, f) => a + (f.o ?? 0), 0));
-  const inT = (node: Element, o: { id: number }) => fly(node, { y: 8, duration: d(T.enter), delay: d(delay(o.id)), easing: easeTurn });
+  // global: rows created with the list section (0 → N, 1 → 2) enter too; only rows of the latest drop move (+ the engine row, id -1)
+  const inT = (node: Element, o: { id: number }) => { const k = delay(o.id); return fly(node, { y: 8, duration: k == null && o.id >= 0 ? 0 : d(T.enter), delay: d((k ?? 0) * T.stagger), easing: easeTurn }); };
 </script>
 
 {#snippet rm(it: Item)}<button class="btn sm quiet ico rm" type="button" data-testid="rm" title={t.btn.remove} aria-label={fmt(t.a11y.remove, { name: it.n })} onclick={(e) => acts.remove(it.id, e)}><Icon n="close" s16 /></button>{/snippet}
@@ -58,7 +59,7 @@ const why = $derived([left ? t.batch.zipOnly : '', cleared ? x.plural(cleared, t
       {@const fin = !!it && (it.st === 'done' || it.st === 'cleared')}
       {@const ep = eng?.p ?? 0}
       <div class={it ? `row ${it.st}${staged ? ' staged' : ''} pick` : 'eng'} data-testid={it ? 'item' : undefined} data-st={it?.st} data-saved={it?.saved ? '' : undefined}
-        in:inT={{ id: it?.id ?? -1 }} out:fade={{ duration: instant ? 0 : d(T.exit) }} animate:flip={{ duration: instant ? 0 : d(200), easing: easeTurn }}>
+        in:inT|global={{ id: it?.id ?? -1 }} out:fade={{ duration: instant ? 0 : d(T.exit) }} onoutrostart={pin} animate:flip={{ duration: instant ? 0 : d(200), easing: easeTurn }}>
         {#if !it}
           <Icon n="engine" /><span class="t">{fmt(t.engLine, { engine: engWord(t, eng?.key), size: x.dl(eng ? q.sizes[eng.key]?.transfer : null) })}</span>
           {#if arrows + 1 > 3}<span class="ebar neutral" style="--p:{ep}"><i></i></span>{:else}<span class="ebar" data-volt="engine" style="--p:{ep}"><i></i></span>{/if}

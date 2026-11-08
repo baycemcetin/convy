@@ -18,7 +18,7 @@ faq:
   - q: "Does the length change?"
     a: "Not in our test: the sample WAV and its MP3 had the same duration in all three browsers. Our test files were short. With long recordings the MP3 encoder's padding could add a fraction of a second, which we have not measured."
   - q: "Can I convert without an internet connection?"
-    a: "Once the audio and video engine has been downloaded and saved, conversions work offline. This page isn't stored for offline use, but the Convy home page is: open it without a connection and convert there."
+    a: "Yes, once the audio and video engine is saved on this device. Conversions keep working offline while this page stays open. If you close it, open the Convy home page instead: unlike this page, it is stored in your browser after your first visit and opens without a connection."
 factRefs: [lossy, quality, metadata, path, download, offline, limits.0, limits.1, limits.2, extra.0]
 ---
 WAV keeps every sample; MP3 discards what the ear is least likely to notice. This step is where the loss happens, and it happens once. Convy encodes with LAME at variable bit rate, quality setting 2, which lands around 190 kbps on average: simple passages get fewer bits, busy ones more. The setting is fixed, and the interface has no quality control.

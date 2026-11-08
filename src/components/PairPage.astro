@@ -9,8 +9,9 @@ import { ENGINE_NAME, loadPairs, relatedOf, type Pub } from '../content/publish'
 import { CATEGORIES, fmtName, kindOf, linkText, pairUrl, toLabel } from '../content/conversions';
 import { HOME, INDEX, CHROME, navHref, both, sub } from '../i18n/site';
 import { islandCopy } from '../i18n';
+import { byId, engineOf } from '../engines/formats';
 import { breadcrumb } from '../lib/ld';
-import wm from '../assets/convy-wordmark-kucuk.svg?raw';
+import wm from '../assets/convy-wordmark.svg?raw';
 import '../styles/content.css';
 import type { Lang } from '../i18n';
 interface Props { lang: Lang; pub: Pub }
@@ -28,7 +29,7 @@ const relLinks = [...rel.same.map((x) => [x, sub(ch.rel.same, { a: fmtName(c.fro
 ---
 <Base lang={lang} title={tx.title} description={tx.description} alt={both((l) => pairUrl(c, l))} to={toLabel(c)} noindex={pub.draft}>
   <script type="application/ld+json" slot="head" set:html={breadcrumb([[ch.home, HOME[lang]], ...crumbs])} />
-  <App lang={lang} t={{ ...islandCopy(lang), h1: tx.h1, lead: d.intro }} hrefs={navHref(lang)} alt={pairUrl(c, lang === 'en' ? 'tr' : 'en')} client:idle>
+  <App lang={lang} t={{ ...islandCopy(lang), h1: tx.h1, lead: d.intro, pair: { from: byId(c.from)!.label, to: toLabel(c), eng: engineOf(byId(c.from)!) } }} hrefs={navHref(lang)} alt={pairUrl(c, lang === 'en' ? 'tr' : 'en')} client:idle>
     <Fragment slot="wm" set:html={wm} />
     {pub.draft && <p class="draftnote">{ch.draftNote}</p>}
     <section class="cx"><h2>{ch.sum.engine}</h2><div class="b"><dl class="sum">

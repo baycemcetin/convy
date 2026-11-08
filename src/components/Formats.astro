@@ -1,0 +1,36 @@
+---
+// Home: what Convy converts. One card per category, built from the converter's own format lists (format-table.ts → engines/formats*.ts), so it
+// can't drift from what the island accepts. Only published pairs have pages, so only they are links; every other combination is covered by one
+// sentence plus a link to the converter (no thin pages, no hand-written list). Static, inside <main> like HowBand. `index`: the P3 hub uses the
+// cards alone, card id = category (the #image … anchors pair pages link to), no category link back to itself.
+import { loadPairs } from '../content/publish';
+import { CATEGORIES, kindOf, linkText, pairUrl } from '../content/conversions';
+import { catIds, name } from '../lib/format-table';
+import { INDEX, HOME, CHROME, sub } from '../i18n/site';
+import type { Lang } from '../i18n';
+import '../styles/content.css'; // .links chips
+const { lang, index = false } = Astro.props as { lang: Lang; index?: boolean };
+const c = CHROME[lang];
+const { pubs } = await loadPairs();
+const cats = CATEGORIES.map((k) => {
+  const { from, to } = catIds(k);
+  const ps = pubs.filter((p) => kindOf(p.c.from) === k);
+  return { k, ps, from: from.map((id) => name(id, lang)).join(' · '), to: to.map((id) => name(id, lang)).join(' · '), n: new Set([...from, ...to]).size, word: k === 'pdf' ? 'PDF' : c.cat[k].toLocaleLowerCase(lang) };
+});
+const total = new Set(CATEGORIES.flatMap((k) => { const { from, to } = catIds(k); return [...from, ...to]; })).size;
+---
+<section class:list={["fx", { "fx-idx": index }]} aria-labelledby={index ? undefined : "fx-h"}>
+  {!index && <h2 id="fx-h">{c.fx.t}</h2>}
+  {!index && <div class="fx-top"><p class="fx-line">{sub(c.fx.n, { n: total, c: cats.length, p: pubs.length })}</p><a class="btn" href={INDEX[lang]}>{c.fx.all}<span class="ar" aria-hidden="true">→</span></a></div>}
+  <div class="fx-grid">
+    {cats.map(({ k, ps, from, to, n, word }) => (
+      <article class="panel fx-card" id={index ? k : undefined} aria-labelledby={`fx-${k}`}>
+        <div class="fx-hd"><h3 id={`fx-${k}`}>{c.cat[k]}</h3><span class="lbl">{sub(c.fx.count, { n })}</span></div>
+        <dl class="fx-io"><div><dt class="lbl">{c.fx.from}</dt><dd>{from}</dd></div><div><dt class="lbl">{c.fx.to}</dt><dd>{to}</dd></div></dl>
+        {ps.length > 0 && <><p class="lbl fx-pl">{c.fx.pages}</p><ul class="links">{ps.map((p) => <li><a href={pairUrl(p.c, lang)}>{linkText(p.c, lang)}</a></li>)}</ul></>}
+        <p class="fx-rest">{c.fx.rest} <a href={HOME[lang]}>{c.fx.open}</a></p>
+        {!index && <a class="fx-all" href={`${INDEX[lang]}#${k}`}>{sub(c.rel.all, { k: word })}<span class="ar" aria-hidden="true">→</span></a>}
+      </article>
+    ))}
+  </div>
+</section>

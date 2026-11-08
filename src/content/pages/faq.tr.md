@@ -8,7 +8,7 @@ Her cevap koşuluyla birlikte. Ayrıntılar [Nasıl çalışır](/tr/nasil-calis
 
 ## Convy neleri dönüştürebilir?
 
-Görsel (PNG, JPG, WebP, AVIF, HEIC, GIF, BMP, TIFF, ICO, JPEG XL ve düzleştirilmiş PSD), ses (MP3, WAV, M4A, OGG, FLAC ve diğerleri), video (MP4, MOV, WebM, MKV, AVI; ayrıca videodan GIF ya da MP3), Pandoc ile belge (DOCX, ODT, EPUB, Markdown, HTML; düz metin yalnızca çıktı olarak) ve PDF sayfalarından görsel ya da metin. Görseller PDF'ye de dönüşebilir. Kendi sayfası olan dönüşümler [Tüm dönüşümler](/tr/donustur/) sayfasında.
+Görsel, ses, video, belge ve PDF sayfaları. En sık karşılaşılanlar: HEIC, WebP, AVIF, PNG, JPG, SVG ya da PSD'den JPG, PNG, WebP veya PDF'ye görsel; MP3, WAV, M4A, AAC ve FLAC arasında ses; MOV, MKV, AVI ya da WebM'den MP4'e, GIF'e veya MP3'e video; DOCX, Markdown, HTML, EPUB ve ODT arasında belge; PDF sayfalarından PNG, JPG ya da metin. Eski ve uzmanlık formatları da var: TGA ve EXR'den WMA, MXF ve LaTeX'e kadar. Türüne göre tüm formatlar [format tablosunda](/tr/nasil-calisir/#formats); kendi sayfası olan dönüşümler [Tüm dönüşümler](/tr/donustur/) sayfasında.
 
 ## Dosya boyutu sınırı var mı?
 
@@ -24,7 +24,7 @@ O dosya türünün motoru bir kez iner: görsel için yaklaşık 5 MB, ses ve vi
 
 ## Çevrimdışı çalışır mı?
 
-Gereken motor saklıysa evet. Dönüştürücü sayfası ilk ziyaretten sonra bu tarayıcıya saklanır, bu yüzden bağlantı olmadan da açılır; diğer sayfalar bağlantı ister. Hazırlanmak için dönüştürücüdeki Bu cihaz panelinden tüm motorları sakla; panel önce indirme boyutunu gösterir.
+Gereken motor saklıysa evet. İlk ziyaretten sonra dönüştürücü sayfası bu tarayıcıda saklanır, bu yüzden bağlantı olmadan da açılır; diğer Convy sayfaları için bağlantı gerekir. Hazırlanmak için dönüştürücüdeki Bu cihaz panelinden tüm motorları sakla. Panel önce indirme boyutunu gösterir; Çevrimdışı satırı da neyin hazır olduğunu söyler.
 
 ## iPhone'da ve Safari'de çalışır mı?
 
@@ -46,6 +46,6 @@ Convy dosyayı noktadan sonraki harflere göre değil, içeriğine göre tanır.
 
 Convy ücretsizdir, reklam göstermez ve hesap istemez. GPL-3.0 ile açık kaynaktır; her motor ve lisansı için [Hakkında](/tr/hakkinda/#lisanslar) sayfasına bak.
 
-## Convy'nin VERT'ten farkı ne?
+## Convy'nin diğer tarayıcı dönüştürücülerinden farkı ne?
 
-VERT de ffmpeg ve ImageMagick gibi motorları WebAssembly ile tarayıcıda çalıştıran açık kaynak bir dönüştürücü; Convy de öyle. Farklar şunlar: Convy sıfırdan, GPL-3.0 ile yazıldı ve VERT'ten kod almaz. Convy videoyu yalnızca tarayıcıda dönüştürür; bir video işi ya bu cihazda yapılır ya da hiç sunulmaz. Ve Convy, neyin indiğini, işin nasıl gittiğini ve elinde ne olduğunu göstermek üzere tasarlandı.
+WebAssembly ile ffmpeg ve ImageMagick gibi motorları tarayıcıda çalıştıran başka açık kaynak dönüştürücüler de var; Convy de öyle. Farklar şunlar: Convy sıfırdan, GPL-3.0 ile yazıldı ve başka bir projeden kod almaz. Convy videoyu yalnızca tarayıcıda dönüştürür; bir video işi ya bu cihazda yapılır ya da hiç sunulmaz. Ve Convy, neyin indiğini, işin nasıl gittiğini ve elinde ne olduğunu göstermek üzere tasarlandı.
