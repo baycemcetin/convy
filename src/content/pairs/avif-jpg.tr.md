@@ -1,6 +1,6 @@
 ---
 draft: false
-intro: "AVIF küçük dosya demek, ama birçok fotoğraf uygulaması, düzenleyici ve site onu hâlâ açmıyor. AVIF görsellerini seç, Convy onları bir yere yüklemeden JPG'ye çevirsin; JPG'yi neredeyse her uygulama ve form kabul eder. Saydam alanlar beyaz olur, GPS konumu dahil EXIF silinir."
+intro: "AVIF küçük dosya demek, ama birçok fotoğraf uygulaması, düzenleyici ve site onu hâlâ açmıyor. AVIF görsellerini seç, Convy onları bu cihazda JPG'ye çevirsin; JPG'yi neredeyse her uygulama ve form kabul eder. Saydam alanlar beyaz olur, GPS konumu dahil EXIF silinir."
 metaHook: "AVIF açmayan uygulama ve siteler için; saydam alanlar beyaza döner"
 steps:
   - "AVIF görsellerini seç ya da sayfaya bırak."

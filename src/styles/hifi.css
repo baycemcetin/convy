@@ -481,6 +481,8 @@ svg.arw.xl{ width:120px; }
      WHERE (the one known value) spans the full row. 1440 unchanged */
   .stage.empty .readout{ column-gap:var(--s4); }
   .stage.empty .readout > div{ grid-template-columns:64px minmax(0,1fr); }
+  /* Y2 (review 2026-11-08): any known value (pair pages pre-fill ENGINE/FORMAT) spans the full row like WHERE, so it stays on one line */
+  .stage.empty .readout > div:has(> dd:not(.unk)){ grid-column:1 / -1; }
   .sg-side .pv{ min-height:0; aspect-ratio:4/3; }
   .log{ margin-top:var(--s6); }
   .log-hd .acts{ width:100%; } .log-hd .acts .btn{ flex:1; }
