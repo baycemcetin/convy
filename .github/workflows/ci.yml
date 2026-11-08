@@ -32,6 +32,20 @@ jobs:
       - run: npm run build
       - name: Island first-load budget (<= 38 000 B brotli)
         run: npm run size
+      # seo-build renders pages in chromium (same cache key as the e2e chromium job).
+      - id: pw
+        run: echo "v=$(node -p "require('playwright-core/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pwcache
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ steps.pw.outputs.v }}-chromium
+      - name: Install chromium
+        if: steps.pwcache.outputs.cache-hit != 'true'
+        run: npx playwright-core install --with-deps chromium
+      - name: Install system deps only (chromium from cache)
+        if: steps.pwcache.outputs.cache-hit == 'true'
+        run: npx playwright-core install-deps chromium
       - run: node tests/seo-build.mjs
       - run: node tests/pair-facts.mjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
