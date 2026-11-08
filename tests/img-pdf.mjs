@@ -15,6 +15,7 @@ const leaks = (b) => SECRETS.filter((s) => b.includes(s));
 const FMT = { JPG: F.Jpeg, PNG: F.Png, WEBP: F.WebP, TIFF: F.Tiff };
 const browser = await launch(name);
 const page = await open(await browser.newContext({ acceptDownloads: true }));
+const magickReqs = []; page.context().on('request', (r) => /\/engines\/magick[^?]*\.wasm/.test(r.url()) && magickReqs.push(r.url())); // fresh context: no engine cached
 
 // render page 1 with pdf.js from the site's engine path; colour samples at 25 % and 75 % height (centre column)
 const render = (buf) => page.evaluate(async (bytes) => {
@@ -31,6 +32,7 @@ const red = (p) => p[0] > 180 && p[2] < 90, blue = (p) => p[2] > 180 && p[0] < 9
 const res = [];
 const cases = [
   ['meta.jpg', 'PDF', async (b, r) => {
+    assert.deepEqual(magickReqs, [], 'jpg → pdf (first case) downloads no image engine');
     const meta = fx('meta.jpg'), sos = meta.indexOf(Buffer.from([0xff, 0xda]));
     assert.ok(b.includes(meta.subarray(sos, meta.lastIndexOf(Buffer.from([0xff, 0xd9])) + 2)), 'JPEG scan embedded byte for byte');
     assert.ok(b.includes('/DCTDecode') && b.includes('/ICCBased')); assert.deepEqual(leaks(b), []);
