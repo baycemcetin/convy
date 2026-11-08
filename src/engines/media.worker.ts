@@ -38,7 +38,8 @@ const ops: Record<string, (a: any, id: number) => Promise<any>> = {
     const duration = await input.computeDuration().catch(() => null);
     const info = { duration, w: v?.displayWidth ?? null, h: v?.displayHeight ?? null };
     // Firefox: WebCodecs VP9 is ~4x slower than ffmpeg VP8 (spike, MIMARI §8 / R12) → WebM goes to ffmpeg there
-    if (!FORMAT[to] || (to === 'webm' && / Firefox\//.test(navigator.userAgent))) return { ok: false, ...info };
+    // audio in or audio out always goes through ffmpeg ST (MIMARI §16): WebKit's AudioDecoder claims FLAC and then fails (wave 3 e2e)
+    if (!FORMAT[to] || to === 'm4a' || !v || (to === 'webm' && / Firefox\//.test(navigator.userAgent))) return { ok: false, ...info };
     const wantVideo = to !== 'm4a' && !!v;
     // Untagged video below 720 lines: Mediabunny fills the missing tags with BT.709 (Chromium's default) and writes them into the
     // output, but players read untagged SD as BT.601 → visible colour shift (06-qa/av-pairs RAPOR §4). ffmpeg writes no tag.

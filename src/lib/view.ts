@@ -22,10 +22,8 @@ export function engVal(x: F, it: Item | null) {
 
 /** the row / stage state word (stateText in bilesen.js) */
 export function stateWord(x: F, it: Item) {
-  const t = x.t;
-  if (it.block) return t.st.blocked;
+  const t = x.t; // block / warn / done / failed words are drawn by Log before it falls back here
   if (it.st === 'queued') return it.eng === 'image' ? t.st.queued : t.st.waiting;
-  if (it.warn && (it.st === 'ready' || it.st === 'cancelled')) return t.st.warned;
   if (it.st === 'cancelled') return t.st.ready;
   return (t.st as Record<string, string>)[it.st] ?? '';
 }

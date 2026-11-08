@@ -3,10 +3,9 @@
   // the way to add more (K2). Rows enter with fly 8 px + stagger, leave with fade + flip (HAREKET §3.4, §6.1).
   import { q, type Item } from '../lib/queue.svelte';
   import { ENGINES } from '../engines/load-wasm';
-  import { MEDIABUNNY_TESTED_MAX } from '../engines/limits';
   import { fmt, type F } from '../lib/fmt';
   import { T, d, easeTurn, flip, fly, fade } from '../lib/motion';
-  import { isJob, outName, stateWord, engWord } from '../lib/view';
+  import { isJob, isReady, outName, stateWord, engWord } from '../lib/view';
   import Icon from './Icon.svelte';
   import Fname from './Fname.svelte';
   import Arrow from './Arrow.svelte';
@@ -74,8 +73,7 @@ const why = $derived([left ? t.batch.zipOnly : '', cleared ? x.plural(cleared, t
               {#if !it.empty}<span class="sg">{#if fin}{x.size(it.i)} <Ar to={t.sr.to} /> {x.size(it.o)}{:else if it.o != null && it.approx}{x.size(it.i)} <Ar to={t.sr.to} /> <span aria-hidden="true">≈ </span><span class="sr">{t.sr.approx} </span>{x.size(it.o)}{:else}{x.size(it.i)}{/if}{@render seg()}</span>{/if}
               {#if fin && it.w && it.h}<span class="sg"><Dim w={it.w} h={it.h} by={t.sr.by} />{@render seg()}</span>{:else if fin && it.k === 'audio' && it.dur}<span class="sg">{x.dur(it.dur)}{@render seg()}</span>{/if}
               <span class="sg"><span class="stx">{#if run && !comp}{#if it.p == null}{t.st.runningNoPct}{:else}{t.st.running.split('{pct}')[0].replace(/\s*·\s*$/, '')}<span aria-hidden="true"> · {x.pct(it.p)}</span>{/if}
-                {:else if it.block}<Icon n="storage" s16 cls="neu" />{t.st.blocked}
-                {:else if it.warn && (it.st === 'ready' || it.st === 'cancelled')}<Icon n="storage" s16 cls="neu" />{t.st.warned}
+                {:else if it.block || (it.warn && isReady(it))}<Icon n="storage" s16 cls="neu" />{it.block ? t.st.blocked : t.st.warned}
                 {:else if it.st === 'cleared'}<Icon n="storage" s16 cls="neu" />{t.st.cleared}
                 {:else if it.st === 'done' || comp}<Icon n="done" s16 />{it.saved ? t.st.saved : t.st.done}
                 {:else if it.empty}{t.st.empty}
@@ -91,7 +89,6 @@ const why = $derived([left ? t.batch.zipOnly : '', cleared ? x.plural(cleared, t
             {:else if it.st === 'failed' && !staged}<button class="btn sm" type="button" aria-describedby="nm-{it.id}" onclick={() => acts.retry(it.id)}>{t.btn.tryAgain}</button>{@render rm(it)}
             {:else if it.block && !staged}<button class="btn sm" type="button" aria-label={fmt(t.a11y.remove, { name: it.n })} onclick={() => acts.remove(it.id)}>{t.btn.remove}</button>{/if}
           </span>
-          {#if it.warn && (it.st === 'ready' || it.st === 'cancelled') && !staged}<div class="more"><div class="notice" data-testid="mem"><Icon n="storage" /><span class="h">{fmt(t.mem.h, { size: x.size(MEDIABUNNY_TESTED_MAX / 1e6) })}</span><p>{t.mem.p}</p></div></div>{/if}
           {#if it.st === 'unsupported' && !it.empty && !staged}<span class="more"><span class="msg">{fmt(t.unsup.h, { ext: it.f })} <a href="#formats">{t.unsup.a}</a></span></span>{/if}
 
         {/if}

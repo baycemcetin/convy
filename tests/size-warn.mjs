@@ -1,5 +1,5 @@
 // MB_LIMIT fact (src/content/pair-facts.ts): a video above MEDIABUNNY_TESTED_MAX on the Mediabunny path gets the 'warned'
-// state (row word + mem notice + live region) and can still be converted (Convert is enabled). The ffmpeg path (audio out) gets no warning.
+// state (row and stage word + live region) and can still be converted (Convert is enabled). The ffmpeg path (audio out) gets no warning.
 // The 2.2 GB file is av-h264-720p.mov followed by references to one 1 MB blob: no 2 GB allocation, Mediabunny probes the real header.
 // Usage: node tests/size-warn.mjs [chromium|firefox|webkit]   (`npm run preview` must be running on :4321)
 import { readFileSync } from 'node:fs';
@@ -42,14 +42,16 @@ if (res.mediabunny) {
   res.stage = !/not tested at this size/i.test(await page.locator('.stage').textContent()); res.live = true;
 }
 res.convertEnabled = await page.evaluate(() => document.getElementById('sg-act')?.getAttribute('aria-disabled') !== 'true');
-// stage a second file (it inherits MP4): the big file's row now sits in the log with the mem notice
+// stage a second file (it inherits MP4): the big file's row now sits in the log with the warned word
 await pick(1, 'small.mov');
 await page.locator('[data-testid=item]', { hasText: 'small.mov' }).locator('.nm-b').click();
-res.rowNotice = await page.locator('[data-testid=item]', { hasText: 'big.mov' }).locator('[data-testid=mem]').textContent({ timeout: res.mediabunny ? 10000 : 1000 }).catch(() => null);
+const bigRow = page.locator('[data-testid=item]', { hasText: 'big.mov' });
+await bigRow.locator('.stx').waitFor({ timeout: 10000 });
+res.rowWord = await bigRow.locator('.stx').textContent();
 // same big file → MP3 (ffmpeg path: audio out): no warning
 await page.locator('[data-testid=item]', { hasText: 'big.mov' }).locator('select').selectOption('MP3').catch(() => {});
 await page.waitForTimeout(1500);
-res.mp3Notice = await page.locator('[data-testid=item]', { hasText: 'big.mov' }).locator('[data-testid=mem]').count();
+res.mp3Word = await bigRow.locator('.stx').textContent();
 console.log(JSON.stringify({ browser: name, res, errs }, null, 1));
 await browser.close();
-process.exit(res.size > 2e9 && res.stage && res.live && res.convertEnabled && (res.mediabunny ? /2\.0 GB/.test(res.rowNotice || '') : res.rowNotice === null) && res.mp3Notice === 0 && !errs.length ? 0 : 1);
+process.exit(res.size > 2e9 && res.stage && res.live && res.convertEnabled && /not tested at this size/.test(res.rowWord) === res.mediabunny && !/not tested/.test(res.mp3Word) && !errs.length ? 0 : 1);

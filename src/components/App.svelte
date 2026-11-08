@@ -77,8 +77,7 @@
         if (st === 'offline') live?.say(fmt(t.live[({ av: 'offline', image: 'offlineImage', doc: 'offlineDoc', pdf: 'offlinePdf' } as const)[i.eng ?? 'av']], { name: i.n, size: x.dl(q.sizes[i.eng ?? 'av']?.transfer) }));
         if (st === 'failed') live?.failed(i.n, (name) => { const w = i.error && (t.err.tag as Record<string, string>)[i.error]; return w ? fmt(t.live.failedWhy, { name, why: w }) : fmt(t.live.failed, { name }); }, (f, names) => fmt(t.live.failedN, { f, names }));
       }
-      if (block && !p?.block) live?.say(fmt(t.live.blocked, { name: i.n, size: x.say(i.i) }));
-      if (warn && !block && !p?.warn) live?.say(fmt(t.live.warned, { name: i.n, size: x.say(i.i) }));
+      if (block ? !p?.block : warn && !p?.warn) live?.say(fmt(t.live[block ? 'blocked' : 'warned'], { name: i.n, size: x.say(i.i) }));
       prev.set(i.id, { st, block, warn });
     }
     if (!running) batchOpen = false;
