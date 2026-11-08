@@ -24,7 +24,7 @@ const catWord = cat === 'pdf' ? 'PDF' : catName.toLocaleLowerCase(lang);
 const crumbs: [string, string][] = [[ch.convert, INDEX[lang]], [catName, `${INDEX[lang]}#${cat}`], [lang === 'en' ? tx.h1 : `${fmtName(c.from)} ${fmtName(c.to)}`, pairUrl(c, lang)]];
 const mb = pub.mb, eng = pub.facts.engine;
 const dlRow = eng === 'mediabunny-or-ffmpeg' ? (mb ? sub(ch.sum.fallback, { mb }) : ch.sum.noEngine) : mb ? sub(ch.sum.size, { mb }) : null;
-const relLinks = [...rel.same.map((x) => [x, sub(ch.rel.same, { a: fmtName(c.from) })]), ...rel.target.map((x) => [x, sub(ch.rel.target, { b: fmtName(c.to) })]), ...(rel.reverse ? [[rel.reverse, ch.rel.reverse]] : [])] as const;
+const relLinks = [...rel.same.map((x) => [x, sub(ch.rel.same, { a: fmtName(c.from) })]), ...rel.target.map((x) => [x, sub(ch.rel.target, { b: fmtName(c.to) })]), ...(rel.reverse ? [[rel.reverse, ch.rel.reverse]] : []), ...rel.near.map((x) => [x, ch.rel.near])] as const;
 ---
 <Base lang={lang} title={tx.title} description={tx.description} alt={both((l) => pairUrl(c, l))} to={toLabel(c)} noindex={pub.draft}>
   <script type="application/ld+json" slot="head" set:html={breadcrumb([[ch.home, HOME[lang]], ...crumbs])} />

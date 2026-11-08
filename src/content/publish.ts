@@ -5,7 +5,7 @@
 // CONVY_DRAFTS=1 also accepts `draft: true` files (template/SEO validation build, never production); CONVY_RELEASE=1 fails on any draft file.
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { readFileSync, readdirSync } from 'node:fs';
-import { CONVERSIONS, fmtName, key, type Conversion, type Lang } from './conversions';
+import { CONVERSIONS, fmtName, key, kindOf, type Conversion, type Lang } from './conversions';
 import { pairFacts, type PairFacts } from './pair-facts';
 import { checkPage, checkSite, type PairText } from './pair-checks';
 import { DOC_KEYS, type DocKey } from '../i18n/site';
@@ -42,12 +42,17 @@ const compose = (l: Lang, c: Conversion, hook: string) => {
     : { title: `${a} ${b} Dönüştürücü, Tarayıcıda | Convy`, h1: `${a} ${b} Dönüştürücü`, description: `${a} dosyalarını ${c.suffix.to} çevir: ${hook}. Ücretsiz, hesapsız, reklamsız.` };
 };
 
-export interface Related { same: Conversion[]; target: Conversion[]; reverse: Conversion | null }
+export interface Related { same: Conversion[]; target: Conversion[]; reverse: Conversion | null; near: Conversion[] }
 export function relatedOf(c: Conversion, pubs: { c: Conversion }[]): Related {
   const others = pubs.map((p) => p.c).filter((x) => x !== c);
-  return { same: others.filter((x) => x.from === c.from).slice(0, 2), target: others.filter((x) => x.to === c.to).slice(0, 2), reverse: others.find((x) => x.from === c.to && x.to === c.from) ?? null };
+  const same = others.filter((x) => x.from === c.from).slice(0, 2), target = others.filter((x) => x.to === c.to).slice(0, 2), reverse = others.find((x) => x.from === c.to && x.to === c.from) ?? null;
+  // near: only while same/target/reverse give fewer than 3 (few published pairs in a group). First pairs that share either format, then the same group (audio + video count as one).
+  const used = new Set<Conversion>([...same, ...target, ...(reverse ? [reverse] : [])]), pool = others.filter((x) => !used.has(x));
+  const grp = (id: string) => (['audio', 'video'].includes(kindOf(id)) ? 'av' : kindOf(id)), shares = (x: Conversion) => [x.from, x.to].some((f) => f === c.from || f === c.to);
+  const near = [...pool.filter(shares), ...pool.filter((x) => !shares(x) && grp(x.from) === grp(c.from))].slice(0, Math.max(0, 3 - used.size));
+  return { same, target, reverse, near };
 }
-const relatedCount = (r: Related) => r.same.length + r.target.length + (r.reverse ? 1 : 0);
+const relatedCount = (r: Related) => r.same.length + r.target.length + (r.reverse ? 1 : 0) + r.near.length;
 
 let cache: Promise<{ pubs: Pub[]; log: string[] }> | undefined;
 export const loadPairs = () => (cache ??= build());
