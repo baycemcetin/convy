@@ -23,6 +23,7 @@
 .cx th{ text-align:start; font:500 var(--text-xs)/1.35 var(--font-ui); letter-spacing:var(--tracking-label); text-transform:uppercase; font-feature-settings:"case" 1; color:var(--c-ink-3); padding:0 var(--s4) var(--s2) 0; border-bottom:1px solid var(--c-line-strong); }
 .cx td{ vertical-align:top; padding:var(--s3) var(--s4) var(--s3) 0; border-bottom:1px solid var(--c-line); hyphens:none; font-variant-numeric:normal; } /* td default (type-scale) is tnum + slashed zero: only the version column keeps it */
 .cx td:first-child{ font-weight:500; } .cx td:nth-child(2){ font-feature-settings:var(--data-features); white-space:nowrap; color:var(--c-ink-2); } .cx td:last-child{ white-space:nowrap; }
+.cx .fmt td:nth-child(n+2){ white-space:normal; font-feature-settings:normal; color:inherit; } /* format table (how it works): long lists wrap */
 @media (max-width:767px){ /* stacked rows: name, then label + value lines; no horizontal scroll at 360-390 */
   .cx thead{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
   .cx table, .cx tbody, .cx tr{ display:block; } .cx tr{ padding:var(--s3) 0; border-bottom:1px solid var(--c-line); }

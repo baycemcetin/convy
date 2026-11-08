@@ -11,7 +11,7 @@ const json = (p: string) => JSON.parse(read(p));
 const HEAD: Record<Lang, string[]> = { en: ['Component', 'Version', 'What it does here', 'License'], tr: ['Bileşen', 'Sürüm', 'Burada ne yapar', 'Lisans'] };
 const ROLE: Record<string, [string | Record<Lang, string>, string, string]> = {
   '@imagemagick/magick-wasm': ['ImageMagick (magick-wasm)', 'Images', 'Görseller'],
-  '@ffmpeg/core': [{ en: 'ffmpeg.wasm core', tr: 'ffmpeg.wasm çekirdeği' }, 'Audio, video fallback, video to GIF', 'Ses, video yedeği, videodan GIF'],
+  '@ffmpeg/core': [{ en: 'ffmpeg.wasm core', tr: 'ffmpeg.wasm çekirdeği' }, 'Audio, video fallback, video to GIF, APNG and WebP', 'Ses, video yedeği, videodan GIF, APNG ve WebP'],
   '@ffmpeg/ffmpeg': ['ffmpeg.wasm', 'Runs the ffmpeg core', 'ffmpeg çekirdeğini çalıştırır'],
   mediabunny: ['Mediabunny', 'Video through WebCodecs', 'WebCodecs ile video'],
   'pandoc-wasm': ['Pandoc (pandoc-wasm)', 'Documents', 'Belgeler'],

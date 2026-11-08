@@ -1,9 +1,13 @@
 ---
 // Renders its slot (a page's markdown body) to HTML and puts build-time blocks where the markdown left a marker:
-// `<!-- licenses -->` → the license table generated from the installed packages (src/lib/licenses.ts).
+// `<!-- licenses -->` → the license table generated from the installed packages (src/lib/licenses.ts);
+// `<!-- formats -->` → the format table generated from the format lists (src/lib/format-table.ts).
 import { licenseTable } from '../lib/licenses';
+import { formatTable } from '../lib/format-table';
 import type { Lang } from '../i18n';
 const { lang } = Astro.props as { lang: Lang };
-const html = await Astro.slots.render('default');
+const html = (await Astro.slots.render('default'))
+  .replace('<!-- licenses -->', () => licenseTable(lang))
+  .replace('<!-- formats -->', () => formatTable(lang));
 ---
-<Fragment set:html={html.includes('<!-- licenses -->') ? html.replace('<!-- licenses -->', () => licenseTable(lang)) : html} />
+<Fragment set:html={html} />

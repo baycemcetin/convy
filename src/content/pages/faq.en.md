@@ -8,7 +8,7 @@ Each answer gives its condition. The details behind them are on [How it works](/
 
 ## What can Convy convert?
 
-Images (PNG, JPG, WebP, AVIF, HEIC, GIF, BMP, TIFF, ICO, JPEG XL and flattened PSD), audio (MP3, WAV, M4A, OGG, FLAC and others), video (MP4, MOV, WebM, MKV, AVI, plus video to GIF or MP3), documents through Pandoc (DOCX, ODT, EPUB, Markdown, HTML, with plain text as an output) and PDF pages into images or text. Images can also become PDFs. Conversions with a page of their own are listed on [All conversions](/convert/).
+Images, audio, video, documents and PDF pages. The common cases: images from HEIC, WebP, AVIF, PNG, JPG, SVG or PSD to JPG, PNG, WebP or PDF; audio between MP3, WAV, M4A, AAC and FLAC; video from MOV, MKV, AVI or WebM to MP4, or to a GIF or an MP3; documents between DOCX, Markdown, HTML, EPUB and ODT; PDF pages to PNG, JPG or text. Older and specialist formats are covered too, from TGA and EXR to WMA, MXF and LaTeX. Every format, by type, is in the [format table](/how-it-works/#formats); conversions with a page of their own are on [All conversions](/convert/).
 
 ## Is there a file size limit?
 
