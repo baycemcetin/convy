@@ -3,7 +3,7 @@
 // island templates map 1:1: n name, f FROM label, k kind, to TO label, i/o sizes in MB, dim, dur, st, p, eng.
 import { detect, targets, engineOf, outName, byId, type Format, type EngineKey } from '../engines/formats';
 import { run, probeAV, estimateOut, EngineError, type ErrCode, preview, release, sweepOpfs, dropSession, type Preview } from '../engines/index';
-import { manifest, savedEngines, removeSavedEngines, type EngineId } from '../engines/load-wasm';
+import { manifest, savedEngines, removeSavedEngines, loadEngine, type EngineId } from '../engines/load-wasm';
 import { OPFS_OUT_MIN, MEDIABUNNY_TESTED_MAX } from '../engines/limits';
 
 export type St = 'needs' | 'ready' | 'queued' | 'running' | 'done' | 'cleared' | 'failed' | 'unsupported' | 'cancelled' | 'offline';
@@ -65,6 +65,8 @@ export async function refreshDevice() {
   const e = await navigator.storage?.estimate?.().catch(() => null);
   if (e) q.store = { usage: MB(e.usage || 0), quota: MB(e.quota || 0) };
 }
+/** "Save all engines for offline": persistent storage asked once, engines one by one so the panel rows flip as each lands. */
+export async function saveEngines() { navigator.storage?.persist?.().catch(() => {}); for (const id of IDS) if (!q.saved[id]) { await loadEngine(id).catch(() => {}); await refreshDevice(); } }
 export async function removeEngines() { await removeSavedEngines(); await refreshDevice(); for (const it of q.items) if (it.block) await checkQuota(it); } // the freed room may lift a block
 
 /** `before` sees the new items just ahead of the push (the island sets row stagger there: rows render in the same flush). */

@@ -220,7 +220,7 @@
       "storeT": "Storage",
       "store": "Convy uses {used} · can use {avail} in this browser",
       "offT": "Offline",
-      "offReady": "Ready offline: images, audio, video. Not yet: documents.",
+      "offReady": "Ready offline: {list}.",
       "saveAll": "Save all engines for offline",
       "removeAll": "Remove saved engines",
       "frees": "frees {size}",
@@ -240,7 +240,14 @@
       "installNote": "Shown only when this browser offers it.",
       "uses": "uses {size}",
       "dl": "about {size} to download",
-      "removeNote": "Removed engines download again when needed."
+      "removeNote": "Removed engines download again when needed.",
+      "offNot": "Not yet: {list}.",
+      "kinds": [
+        "images",
+        "audio",
+        "video",
+        "documents"
+      ]
     },
     "fmt": {
       "crumb": [
@@ -615,7 +622,7 @@
       "storeT": "Depolama",
       "store": "Convy {used} kullanıyor · bu tarayıcıda {avail} kullanabilir",
       "offT": "Çevrimdışı",
-      "offReady": "Çevrimdışı hazır: görsel, ses, video. Henüz hazır değil: belge.",
+      "offReady": "Çevrimdışı hazır: {list}.",
       "saveAll": "Tüm motorları çevrimdışı için sakla",
       "removeAll": "Saklanan motorları sil",
       "frees": "{size} yer açar",
@@ -635,7 +642,14 @@
       "installNote": "Yalnızca tarayıcın sunuyorsa görünür.",
       "uses": "{size} yer kaplıyor",
       "dl": "yaklaşık {size} indirilir",
-      "removeNote": "Silinen motorlar gerektiğinde yeniden iner."
+      "removeNote": "Silinen motorlar gerektiğinde yeniden iner.",
+      "offNot": "Henüz hazır değil: {list}.",
+      "kinds": [
+        "görsel",
+        "ses",
+        "video",
+        "belge"
+      ]
     },
     "fmt": {
       "crumb": [

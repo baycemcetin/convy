@@ -11,7 +11,7 @@
   import type { Lang, Copy } from '../i18n';
   import Stage from './Stage.svelte';
   import Log from './Log.svelte';
-  import DevicePanel from './DevicePanel.svelte';
+  import type DevicePanel from './DevicePanel.svelte';
   import Icon from './Icon.svelte';
 
   let { lang, t: copyT, hrefs, alt, wm, children }: { lang: Lang; t: Copy; hrefs: string[]; alt: string; wm?: Snippet; children?: Snippet } = $props();
@@ -20,6 +20,9 @@
   let input: HTMLInputElement;
   let chipEl: HTMLButtonElement;
   let dp: DevicePanel;
+  // the panel is not first-load UI: its chunk loads when the page is idle (or on the first chip press), outside the island budget
+  let DP = $state<typeof DevicePanel>();
+  const dpLoad = () => import('./DevicePanel.svelte').then((m) => (DP = m.default));
   let panelOpen = $state(false);
   let menuOpen = $state(false);
   let dragging = $state(false);
@@ -148,6 +151,7 @@
     w.__convyReady = true;
     if (w.__convyPending?.length) ingest(w.__convyPending.splice(0));
     refreshDevice();
+    ((window as any).requestIdleCallback || setTimeout)(() => dpLoad().catch(() => {})); // offline before the shell is cached: the chip press retries
     touch = matchMedia('(pointer: coarse)').matches;
     document.addEventListener('touchstart', () => {}, { passive: true }); // iOS :active (HAREKET §11.5 b)
     let dragT = 0;
@@ -170,11 +174,11 @@
   <div class="tools">
     {#if !q.online}<span class="tag-off"><i></i><span class="t1">{t.offline}</span></span>{/if}
     <a class="lang" href={alt} hreflang={other} lang={other}>{t.other}</a>
-    <button class="chip-dev" type="button" bind:this={chipEl} aria-haspopup="dialog" aria-expanded={panelOpen} aria-controls="dp" aria-label={t.dev} onclick={(e) => (panelOpen ? dp.close() : dp.show(e.detail === 0))}><Icon n="device" s16 /><span class="t">{t.dev}</span></button>
+    <button class="chip-dev" type="button" bind:this={chipEl} aria-haspopup="dialog" aria-expanded={panelOpen} aria-controls="dp" aria-label={t.dev} onclick={async (e) => { if (panelOpen) return dp.close(); const k = e.detail === 0; await dpLoad(); await tick(); dp.show(k); }}><Icon n="device" s16 /><span class="t">{t.dev}</span></button>
     <button class="menu-btn" type="button" aria-label={t.menu} aria-expanded={menuOpen} aria-controls="nav" onclick={() => (menuOpen = !menuOpen)}><i></i></button>
   </div>
 </div></header>
-<DevicePanel bind:this={dp} bind:open={panelOpen} {x} {alt} chip={() => chipEl} />
+{#if DP}<DP bind:this={dp} bind:open={panelOpen} {x} {alt} chip={() => chipEl} />{/if}
 
 <main id="main" class="wrap tool" tabindex="-1">
   {#if q.items.length}<h1 class="sr">{t.h1}</h1>{/if}
