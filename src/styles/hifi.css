@@ -442,9 +442,9 @@ svg.arw.xl{ width:120px; }
    MOBILE
    ========================================================= */
 @media (max-width:1023px){
-  .stage{ padding:var(--s6); }
-  .sg-main{ grid-column:1 / span 7; }
-  .sg-side{ grid-column:8 / span 5; }
+  /* E9 (review 2026-11-08): below 1024 the readout goes under the gauge; text + preview tile stay side by side (two columns, not three) */
+  .stage{ padding:var(--s6); row-gap:var(--s6); }
+  .sg-main, .sg-side{ grid-column:1 / -1; }
   /* Y1 (UI/UX P2-A): the empty hero takes the full width below 1024 and the readout drops under it in two columns (C2/B extended
      from 767 to 1023); the hero is no longer squeezed to 353 px (H1 EN 3 / TR 4 lines) */
   .stage.empty{ min-height:0; row-gap:var(--s6); }
@@ -453,10 +453,10 @@ svg.arw.xl{ width:120px; }
   .stage.empty .readout > div{ grid-template-columns:72px minmax(0,1fr); gap:var(--s2); }
   .stage.empty .readout > div:last-child{ grid-column:1 / -1; }
 }
-/* 768-1023: the empty readout is one strip of five fields (label over value), so the empty stage is close to the locked file stage */
+/* 768-1023: the readout is one strip of five fields (label over value) under the gauge, empty or not (E9) */
 @media (min-width:768px) and (max-width:1023px){
-  .stage.empty .readout{ grid-template-columns:repeat(5, minmax(0,1fr)); column-gap:var(--col-gap); border-bottom:1px solid var(--c-line); }
-  .stage.empty .readout > div, .stage.empty .readout > div:last-child{ grid-column:auto; grid-template-columns:minmax(0,1fr); gap:var(--s1); border-bottom:0; padding:12px 0; }
+  .stage .readout{ grid-template-columns:minmax(0,1.6fr) repeat(4, minmax(0,1fr)); column-gap:var(--col-gap); border-bottom:1px solid var(--c-line); }
+  .stage .readout > div, .stage .readout > div:last-child{ grid-column:auto; grid-template-columns:minmax(0,1fr); gap:var(--s1); border-bottom:0; padding:12px 0; }
 }
 @media (max-width:767px){
   .tool{ padding-top:var(--s4); }

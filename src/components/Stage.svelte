@@ -111,7 +111,9 @@
     <div><span class="lbl">{t.kick}</span><h1>{#each t.h1.split(/(?<=\.)\s+/) as ln, i}{i ? ' ' : ''}<span class="ln">{ln}</span>{/each}</h1><p class="lead">{t.lead}</p></div>
     <div class="go-wrap"><div class="go"><button class="btn volt" type="button" data-volt="button" data-testid="choose" onclick={acts.choose}>{t.choose}</button><span class="s fine">{t.dropAny}</span></div><ul class="proof">{#each t.proof as p}<li>{p}</li>{/each}</ul></div>
   </div>
-  <div class="sg-side"><Readout {t} /></div>
+  <!-- pair page: engine (saved or not, live) and the pair are known before a file is chosen; size and result wait for it (E6) -->
+  {#snippet pairFmt()}{t.pair!.from} <Ar to={t.sr.to} /> {t.pair!.to}{/snippet}
+  <div class="sg-side"><Readout {t} engine={t.pair && engVal(x, t.pair as unknown as Item)} format={t.pair && pairFmt} /></div>
 {:else}
   <div class="sg-main">
     <div class="sg-head"><span class="lbl">{label}</span>{#if pos}<span class="pos"><span aria-hidden="true">{pos[0]} / {pos[1]}</span><span class="sr">{fmt(t.sr.fileOf, { i: pos[0], n: pos[1] })}</span></span>{/if}<span class="sp"></span></div>

@@ -1,7 +1,8 @@
 // UI copy: metin.json (hi-fi single source, copywriter-owned). EN default, TR under /tr/.
 import metin from './metin.json';
 export type Lang = 'en' | 'tr';
-export type Copy = (typeof metin)['en'];
+/** pair: set by PairPage only, so the empty gauge shows what the page already knows (E6) */
+export type Copy = (typeof metin)['en'] & { pair?: { from: string; to: string; eng: 'image' | 'av' | 'doc' | 'pdf' } };
 export const copy = (l: Lang): Copy => (metin as any)[l];
 export const fmt = (s: string, o?: Record<string, unknown>) => String(s).replace(/\{(\w+)\}/g, (m, k) => (o && k in o ? String(o[k]) : m));
 
