@@ -3,6 +3,10 @@
 # The first `wrangler deploy` creates the Worker "convy" on the account (staging at convy.<subdomain>.workers.dev until the custom domain is added).
 name = "convy"
 compatibility_date = "2026-11-01"
+# Live on the custom domain useconvy.com (added in the dashboard, 2026-11-08): the workers.dev address and preview URLs are off,
+# so the same pages are not served on a second host.
+workers_dev = false
+preview_urls = false
 
 [assets]
 directory = "./dist"
@@ -12,8 +16,3 @@ html_handling = "auto-trailing-slash"
 # No request logs / traces: the privacy page states the host keeps no Workers logs (DECISIONS 2026-11-08).
 [observability]
 enabled = false
-
-# Live on the custom domain useconvy.com (added in the dashboard, 2026-11-08): the workers.dev address and preview URLs are off,
-# so the same pages are not served on a second host.
-workers_dev = false
-preview_urls = false
