@@ -1,0 +1,23 @@
+# Wave 5 — Service Worker + offline panel (tech-lead, 2026-11-08)
+Start: b30cef1. Resume from the last line here.
+- [ ] 0 baseline build + size
+- [x] 0 baseline: build ok, size 37 958 B (42 B slack)
+- [x] 1 scripts/sw.mjs (hand SW, generated post-build; precache /, /tr/, _astro, fonts, icons, engine manifests; nav network-first+preload; skipWaiting; drops old shell + old engine-version entries) ; Base.astro inline registers after load
+- [x] 2 panel offline line (offReady/offNot/kinds template keys in metin.json) + saveAll (queue.saveEngines) -> +254 B => over budget (38 212)
+- [x] 3 DevicePanel lazy (idle / first chip press) => 37 333 B with both features
+- [ ] 4 tests: qa3-offline update (cold open offline), build/size/seo-build/pair-facts/e2e x3
+- [ ] 5 copy: how/faq offline claims ("page can't open offline") now wrong -> update
+- [ ] 6 commits, DOC STATUS/DECISIONS/PLAN budget line
+- [x] 5 copy updated (how/faq EN+TR, wav-mp3 pair FAQ EN+TR); pair-facts OFFLINE pending 3-browser result
+- [ ] running: qa3-offline chromium (test-results/w5/offline-chromium.log)
+- chromium run 1: all conversion/cold-open/reload checks ok; only panel line had trailing space -> fixed (.trim()), rebuilt, preview restarted
+- [ ] running: qa3-offline chromium/firefox/webkit sequential (test-results/w5/offline-*.log)
+- [ ] then: tests/sw-update.mjs (new: deploy v2 replaces shell, old cache deleted, engines untouched), npm run check, seo-build, pair-facts, e2e x3
+- run 2 (3 browsers): chromium 65/1 (unhandled idle DevicePanel import offline -> .catch), firefox 66/0, webkit 57/9: cold-offline pdf/av failed: pdf.js + ffmpeg-core.js load by URL, WebKit has no HTTP-cache fallback offline -> SW now serves /engines/*.js|mjs from convy-engines-v1 (probe: fixed). WebKit "Refused to apply a stylesheet" = Playwright screenshot style injection (0 before shot, 1 after) -> filtered for webkit only.
+- size now 37 402 B
+- [ ] running: run 3 qa3-offline x3
+- run 3: chromium 66/0. firefox A-pdf "unsaved" converted = Playwright Firefox setOffline does not cover SW fetches (probe: SW miss offline -> 200) -> recorded, not asserted. webkit D panel line read before async refreshDevice -> helper now waits up to 5 s.
+- sw-update.mjs: network-first OK, but Chrome deferred the SW byte-check past 30 s -> Base inline now calls reg.update() on each load (pending rebuild after run 4)
+- [ ] running: run 4 webkit+firefox (old build); then rebuild, sw-update x3, offline x3 final, seo-build, pair-facts, check, e2e x3
+- FINAL (2026-11-08): build ok, size 37 402 B br; qa3-offline chromium 66/0 (rerun; first final run had 1 intermittent blob: preview error, not SW), firefox 62/0, webkit 65/1 (same intermittent blob: error class); sw-update x3 pass; e2e 11/11 x3; seo-build all passed; pair-facts pass. astro check not runnable (@astrojs/check not installed; prompts, pre-existing).
+- commits: 6803b27 SW · 464e3c3 panel+lazy · bc547d4 copy · (tests commit next)
