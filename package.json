@@ -7,7 +7,7 @@
   "scripts": {
     "engines": "node scripts/prep-engines.mjs",
     "dev": "node scripts/prep-engines.mjs && astro dev",
-    "build": "node scripts/prep-engines.mjs && astro build && node scripts/headers.mjs",
+    "build": "node scripts/prep-engines.mjs && astro build && node scripts/headers.mjs && node scripts/sw.mjs",
     "preview": "node scripts/serve.mjs --port 4321",
     "check": "astro check",
     "size": "node tests/qa3-size.mjs",

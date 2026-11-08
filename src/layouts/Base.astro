@@ -38,8 +38,10 @@ const abs = (p: string) => new URL(p, Astro.site);
 <meta name="theme-color" content="#F5F6F2" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0B0C0E" media="(prefers-color-scheme: dark)">
 <!-- Before paint: explicit data-theme from the saved preference (hi-fi CSS keys on [data-theme]); and a pre-island
-     drop/pick catcher so a file dropped before hydration is kept, not navigated to (Ek D). Hashed into the CSP at build. -->
-<script is:inline>(function(d){var p;try{p=localStorage.getItem('convy-theme')}catch(e){}if(p!=='dark'&&p!=='light')p=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';d.documentElement.dataset.theme=p;var q=window.__convyPending=[];['dragover','drop'].forEach(function(n){d.addEventListener(n,function(e){if(window.__convyReady||!e.dataTransfer)return;e.preventDefault();if(n==='drop')q.push.apply(q,e.dataTransfer.files)})});d.addEventListener('change',function(e){var i=e.target;if(!window.__convyReady&&i&&i.type==='file'&&i.files)q.push.apply(q,i.files)},true)})(document)</script>
+     drop/pick catcher so a file dropped before hydration is kept, not navigated to (Ek D); and the service worker
+     (scripts/sw.mjs) registered after load (+ update(): every page load byte-checks sw.js, so a deploy replaces the shell
+     at once instead of whenever the browser schedules it), outside the island budget. Hashed into the CSP at build. -->
+<script is:inline>(function(d){var p;try{p=localStorage.getItem('convy-theme')}catch(e){}if(p!=='dark'&&p!=='light')p=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';d.documentElement.dataset.theme=p;var q=window.__convyPending=[];['dragover','drop'].forEach(function(n){d.addEventListener(n,function(e){if(window.__convyReady||!e.dataTransfer)return;e.preventDefault();if(n==='drop')q.push.apply(q,e.dataTransfer.files)})});d.addEventListener('change',function(e){var i=e.target;if(!window.__convyReady&&i&&i.type==='file'&&i.files)q.push.apply(q,i.files)},true);var s=navigator.serviceWorker;if(s)addEventListener('load',function(){s.register('/sw.js').then(function(r){return r.update()}).catch(function(){})})})(document)</script>
 </head>
 <body>
 <Fragment set:html={sprite} />
