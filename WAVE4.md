@@ -3,8 +3,8 @@
 Status: done. Checks: `node tests/seo-build.mjs` (116 ok), `npm run size` 37 930 B br (budget 38 000), e2e chromium/firefox/webkit exit 0.
 
 ## Open items
-- "This device" panel is not on the static content pages (P3-P8); only on the island pages. Needs the static `<details>` version (IA §4.1).
-- P1 title/meta still the old `Convy · {h1}`; SEO §3.4 P1 text is not applied (metin.json is copywriter-owned).
+- ~~"This device" panel on static content pages~~ closed 2026-11-08: tool pages only, by decision (DECISIONS); seo-build checks it.
+- ~~P1 title/meta~~ closed 2026-11-08: SEO §3.4 text in `src/i18n/site.ts` HOME_META; seo-build checks it.
 - Pair breadcrumb is rendered below the tool (island owns the top of `<main>`), BreadcrumbList JSON-LD is complete.
 - TR suffix table (`TR_SUFFIX` in conversions.ts) and chrome strings (`src/i18n/site.ts` CHROME): copywriter confirms.
 - GitHub URL not decided: footer "Source on GitHub" goes to `/about/#source`.

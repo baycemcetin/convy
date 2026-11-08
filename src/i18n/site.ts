@@ -3,6 +3,11 @@
 export type Lang = 'en' | 'tr';
 export const HOME: Record<Lang, string> = { en: '/', tr: '/tr/' };
 export const INDEX: Record<Lang, string> = { en: '/convert/', tr: '/tr/donustur/' };
+/** P1 title + meta description (SEO-SAYFALAR §3.4, SEO-owned; title ≤ 60, meta ≤ 155) */
+export const HOME_META: Record<Lang, { title: string; description: string }> = {
+  en: { title: 'Convy · File converter that runs on your device', description: 'Convert images, audio, video and documents in your browser. No account, no ads, no size cap of ours. Open source (GPL-3.0).' },
+  tr: { title: 'Convy · Cihazında çalışan dosya dönüştürücü', description: 'Görsel, ses, video ve belgeleri tarayıcında dönüştür. Hesap yok, reklam yok, bizden gelen boyut sınırı yok. Açık kaynak (GPL-3.0).' },
+};
 export const DOC = {
   index: INDEX, how: { en: '/how-it-works/', tr: '/tr/nasil-calisir/' }, faq: { en: '/faq/', tr: '/tr/sss/' },
   privacy: { en: '/privacy/', tr: '/tr/gizlilik/' }, about: { en: '/about/', tr: '/tr/hakkinda/' },

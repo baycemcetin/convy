@@ -5,10 +5,10 @@ import HowBand from '../../components/HowBand.astro';
 import Footer from '../../components/Footer.astro';
 import { islandCopy, copy } from '../../i18n';
 import { webApp } from '../../lib/ld';
-import { navHref, HOME, both } from '../../i18n/site';
+import { navHref, HOME, HOME_META, both } from '../../i18n/site';
 import wm from '../../assets/convy-wordmark-kucuk.svg?raw';
 ---
-<Base lang="tr" alt={both((l) => HOME[l])}>
+<Base lang="tr" {...HOME_META.tr} alt={both((l) => HOME[l])}>
   <script type="application/ld+json" slot="head" set:html={webApp("tr", HOME.tr, copy("tr").lead)} />
   <App lang="tr" t={islandCopy("tr")} hrefs={navHref("tr")} alt={HOME.en} client:load><Fragment slot="wm" set:html={wm} /><HowBand lang="tr" /></App>
   <Footer lang="tr" />

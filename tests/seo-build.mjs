@@ -6,6 +6,8 @@ import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright-core';
 import { checkPage, checkSite, words } from '../src/content/pair-checks.ts';
+import { HOME_META } from '../src/i18n/site.ts';
+import { licenseRows } from '../src/lib/licenses.ts';
 let fails = 0; const ok = (c, m) => { if (!c) { fails++; console.log('FAIL', m); } else console.log('ok  ', m); };
 const run = (env, args) => execFileSync(args[0], args.slice(1), { env: { ...process.env, ...env }, stdio: 'pipe', encoding: 'utf8' });
 const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
@@ -44,6 +46,21 @@ ok(/Sitemap: https:\/\/useconvy\.com\/sitemap-index\.xml/.test(readFileSync('pub
 for (const f of ['dist/404.html', 'dist/tr/404.html']) { const h = readFileSync(f, 'utf8'); ok(/name="robots" content="noindex"/.test(h) && !/rel="canonical"|rel="alternate" hreflang/.test(h), `${f}: noindex, no canonical/hreflang`); }
 ok(/not_found_handling = "404-page"/.test(readFileSync('wrangler.toml', 'utf8')), 'wrangler.toml: not_found_handling = "404-page"');
 redirectsOk('dist');
+// P1 title/meta = SEO-SAYFALAR §3.4 (src/i18n/site.ts HOME_META)
+const esc = (x) => x.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+for (const [f, l] of [['dist/index.html', 'en'], ['dist/tr/index.html', 'tr']]) {
+  const h = readFileSync(f, 'utf8'), m = HOME_META[l];
+  ok(tag(h, /<title>([^<]*)<\/title>/g)[0] === m.title && m.title.length <= 60, `${f}: P1 title (${m.title.length} chars)`);
+  const d = tag(h, /<meta name="description" content="([^"]*)"/g)[0];
+  ok(d === m.description || d === esc(m.description), `${f}: P1 meta description (${m.description.length} chars)`);
+}
+// about: license table generated from the installed packages (scripts/license-table.mjs), one row per dependency
+for (const [f, l] of [['dist/about/index.html', 'en'], ['dist/tr/hakkinda/index.html', 'tr']]) {
+  const h = readFileSync(f, 'utf8'), rows = licenseRows(l), trs = tag(h, /<tr>([\s\S]*?)<\/tr>/g);
+  ok(trs.length === rows.length + 1 && rows.every(([n, v, , lic]) => trs.some((r) => r.includes(esc(n)) && r.includes(v.split(' ')[0]) && r.includes(lic))) && !h.includes('<!-- licenses -->'), `${f}: license table ${rows.length} rows from node_modules`);
+}
+// "This device" panel only on the tool pages (island), never on the static content pages (DECISIONS 2026-11-08)
+ok(prod.every((p) => /class="chip-dev"/.test(p.h) === (/^\/(tr\/)?index\.html$/.test(p.rel) || /^\/(tr\/donustur|convert)\/[^/]+\/index\.html$/.test(p.rel))), 'device panel trigger only on tool pages (home + pair pages)');
 
 // ---------- draft validation build
 console.log('building .draft-dist (CONVY_DRAFTS=1) ...');

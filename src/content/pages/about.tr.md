@@ -14,20 +14,9 @@ Convy'yi Zeze Workshop tasarladı ve geliştirdi: ürünü, kimliği, metinleri 
 
 Convy, GNU Genel Kamu Lisansı sürüm 3 ya da sonrası (GPL-3.0-or-later) ile lisanslanır. İçindeki motorlar ve kütüphaneler kendi lisanslarını korur:
 
-| Bileşen | Sürüm | Burada ne yapar | Lisans |
-|---|---|---|---|
-| ImageMagick (magick-wasm) | 0.0.46 | Görseller | Apache-2.0 ve ImageMagick Lisansı |
-| ffmpeg.wasm çekirdeği | 0.12.10 | Ses, video yedeği, videodan GIF | GPL-2.0-or-later |
-| ffmpeg.wasm | 0.12.15 | ffmpeg çekirdeğini çalıştırır | MIT |
-| Mediabunny | 1.65.2 | WebCodecs ile video | MPL-2.0 |
-| Pandoc (pandoc-wasm) | 1.1.0 (Pandoc 3.10) | Belgeler | GPL-2.0-or-later |
-| pdf.js (pdfjs-dist) | 6.5.438 | PDF sayfalarından görsel ve metin | Apache-2.0 |
-| fflate | 0.8.3 | ZIP dosyaları, PDF içindeki sıkıştırma | MIT |
-| Astro | 7.4.2 | Siteyi üretir | MIT |
-| Svelte | 5.57.2 | Dönüştürücü arayüzü | MIT |
-| Inter | | Yazı karakteri | SIL Open Font License 1.1 |
+<!-- licenses -->
 
-ImageMagick derlemesi başka kütüphaneler de içerir; aralarında HEIC için libheif ve libde265 (LGPL-3.0) var.
+ImageMagick derlemesi ImageMagick'in kendisini (ImageMagick Lisansı) ve başka kütüphaneleri içerir; aralarında HEIC için libheif ve libde265 (LGPL-3.0) var.
 
 <h2 id="kaynak">Kaynak kod</h2>
 

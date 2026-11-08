@@ -14,20 +14,9 @@ Zeze Workshop designed and built Convy: the product, the identity, the words and
 
 Convy is licensed under the GNU General Public License, version 3 or later (GPL-3.0-or-later). The engines and libraries inside it keep their own licenses:
 
-| Component | Version | What it does here | License |
-|---|---|---|---|
-| ImageMagick (magick-wasm) | 0.0.46 | Images | Apache-2.0 and the ImageMagick License |
-| ffmpeg.wasm core | 0.12.10 | Audio, video fallback, video to GIF | GPL-2.0-or-later |
-| ffmpeg.wasm | 0.12.15 | Runs the ffmpeg core | MIT |
-| Mediabunny | 1.65.2 | Video through WebCodecs | MPL-2.0 |
-| Pandoc (pandoc-wasm) | 1.1.0 (Pandoc 3.10) | Documents | GPL-2.0-or-later |
-| pdf.js (pdfjs-dist) | 6.5.438 | PDF pages to images and text | Apache-2.0 |
-| fflate | 0.8.3 | ZIP files, compression inside PDFs | MIT |
-| Astro | 7.4.2 | Builds the site | MIT |
-| Svelte | 5.57.2 | The converter interface | MIT |
-| Inter | | Typeface | SIL Open Font License 1.1 |
+<!-- licenses -->
 
-The ImageMagick build includes further libraries, among them libheif and libde265 for HEIC (LGPL-3.0).
+The ImageMagick build includes ImageMagick itself (ImageMagick License) and further libraries, among them libheif and libde265 for HEIC (LGPL-3.0).
 
 <h2 id="source">Source code</h2>
 

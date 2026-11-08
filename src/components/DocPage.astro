@@ -3,6 +3,7 @@
 // A draft page is built but noindex (and out of the sitemap) so navigation works; CONVY_RELEASE=1 refuses drafts.
 import { render } from 'astro:content';
 import Content from '../layouts/Content.astro';
+import Fill from './Fill.astro';
 import { loadDocs } from '../content/publish';
 import { DOC, both, CHROME, type DocKey } from '../i18n/site';
 import type { Lang } from '../i18n';
@@ -14,5 +15,5 @@ const { Content: Body } = await render(e);
 <Content lang={lang} title={e.data.title} description={e.data.description} alt={both((l) => DOC[page][l])} noindex={e.data.draft}>
   <h1>{e.data.h1}</h1>
   {e.data.draft && <p class="draftnote">{CHROME[lang].draftNote}</p>}
-  <div class="cx"><div class="b"><Body /></div></div>
+  <div class="cx"><div class="b"><Fill lang={lang}><Body /></Fill></div></div>
 </Content>
