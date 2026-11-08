@@ -1,0 +1,94 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # prep-engines copies/splits wasm from node_modules (deterministic, a few seconds): no separate cache needed.
+      - run: npm run build
+      - name: Island first-load budget (<= 38 000 B brotli)
+        run: npm run size
+      - run: node tests/seo-build.mjs
+      - run: node tests/pair-facts.mjs
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist
+          retention-days: 1
+
+  e2e:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist
+      # playwright-core ships no browsers: install the one this job needs, cached per playwright-core version.
+      - id: pw
+        run: echo "v=$(node -p "require('playwright-core/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pwcache
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ steps.pw.outputs.v }}-${{ matrix.browser }}
+      - name: Install browser
+        if: steps.pwcache.outputs.cache-hit != 'true'
+        run: npx playwright-core install --with-deps ${{ matrix.browser }}
+      - name: Install system deps only (browser from cache)
+        if: steps.pwcache.outputs.cache-hit == 'true'
+        run: npx playwright-core install-deps ${{ matrix.browser }}
+      - name: Preview server
+        run: |
+          npm run preview > preview.log 2>&1 &
+          for _ in $(seq 1 30); do curl -fs http://localhost:4321/ >/dev/null && exit 0; sleep 1; done
+          cat preview.log; exit 1
+      - run: node tests/e2e.mjs ${{ matrix.browser }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: e2e-${{ matrix.browser }}
+          path: |
+            test-results
+            preview.log
+          if-no-files-found: ignore
+
+  # deploy: intentionally absent. Cloudflare Pages is set up outside CI until Cem's account settings land;
+  # add a `deploy` job here (needs: [build, e2e], main only, environment: production) after approval.
