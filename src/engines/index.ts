@@ -79,6 +79,9 @@ export async function sweepOpfs() {
 export function dropSession() { opfsRoot().then((r) => r.removeEntry(SID, { recursive: true })).catch(() => {}); }
 
 /** Cheap pre-check for audio/video: which engine will run and what we know about the input. */
+/** audio in or audio out always goes through ffmpeg ST (MIMARI §16): WebKit's AudioDecoder claims FLAC and then fails (wave 3 e2e) */
+export const viaMediabunny = (kind: string, to: string, probeOk: boolean) => probeOk && kind !== 'audio' && !['mp3', 'm4a', 'wav', 'flac', 'ogg', 'opus'].includes(to);
+
 export async function probeAV(file: File, to: string) {
   const s = new AbortController().signal;
   try { return await call(mediaW(), { op: 'probe', file, to }, {}, s); }
@@ -111,9 +114,7 @@ export async function run(file: File, from: Format, to: string, outName: string,
     return { blob: new Blob([zip as BlobPart], { type: 'application/zip' }), w: r.w, h: r.h, engine: 'pdfjs', name: `${stem}.zip` };
   }
   const pr = await probeAV(file, to);
-  // audio in or audio out always goes through ffmpeg ST (MIMARI §16): WebKit's AudioDecoder claims FLAC and then fails (wave 3 e2e)
-  const audio = from.kind === 'audio' || ['mp3', 'm4a', 'wav', 'flac', 'ogg', 'opus'].includes(to);
-  if (pr.ok && !audio) {
+  if (viaMediabunny(from.kind, to, pr.ok)) {
     const jid = seq + 1; // the id call() takes synchronously below
     const stop = () => mediaW().postMessage({ id: ++seq, op: 'cancel', job: jid });
     if (file.size > OPFS_OUT_MIN) await lockSession(); // same test as the worker's: this output goes to OPFS

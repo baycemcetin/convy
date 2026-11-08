@@ -40,7 +40,7 @@
     if (count) return fmt(t.stage.batch, { n });
     switch (view) {
       case 'needs': return t.st.needs;
-      case 'ready': return t.st.ready;
+      case 'ready': return sub?.warn ? t.st.warned : t.st.ready;
       case 'engine': return t.stage.preparing;
       case 'block': return t.stage.notStarted;
       case 'running': return t.stage.converting;

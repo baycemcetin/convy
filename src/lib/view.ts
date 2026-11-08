@@ -25,6 +25,7 @@ export function stateWord(x: F, it: Item) {
   const t = x.t;
   if (it.block) return t.st.blocked;
   if (it.st === 'queued') return it.eng === 'image' ? t.st.queued : t.st.waiting;
+  if (it.warn && (it.st === 'ready' || it.st === 'cancelled')) return t.st.warned;
   if (it.st === 'cancelled') return t.st.ready;
   return (t.st as Record<string, string>)[it.st] ?? '';
 }

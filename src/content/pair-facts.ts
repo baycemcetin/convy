@@ -64,7 +64,7 @@ const toPdf = (from: string, o: Partial<PairFacts> & { lossy: Fact }): PairFacts
 // ---- audio/video shared
 const FF_LIMIT = f('ffmpeg path: refused before start when the estimated output is above 1 GB (500 MB on iPhone/iPad); estimate = duration × target bit rate.', 'code', 'src/engines/limits.ts:3; src/engines/index.ts:125-137');
 const FF_TIMEOUT = f('ffmpeg path: stopped after 120 s + 2 s per input MB (wall clock).', 'code', 'src/engines/limits.ts:10; src/engines/ffmpeg.ts:29');
-const MB_LIMIT = f('Mediabunny path: outputs above 50 MB stream to device storage (OPFS), not RAM; files above 2 GB get a warning, still allowed.', 'code', 'src/engines/limits.ts:4,9; src/engines/media.worker.ts:49');
+const MB_LIMIT = f('Mediabunny path: outputs above 50 MB stream to device storage (OPFS), not RAM; files above 2 GB get a "not tested at this size" warning and can still be converted. The ffmpeg path has no warning: it has its own 1 GB output stop.', 'measured', 'tests/opfs.mjs (66 MB H.264 → OPFS); tests/size-warn.mjs (2.2 GB MOV: warning in Chromium + WebKit, none on Firefox\'s ffmpeg path); src/engines/limits.ts:4,9; src/lib/queue.svelte.ts setTarget');
 const MP3 = f('MP3 via LAME VBR -q:a 2 (≈190 kbps average); lossy.', 'code', 'src/engines/ffmpeg.ts:11; src/engines/index.ts:135');
 const AUDIO_PATH = f('Always ffmpeg, in every browser (audio output never uses WebCodecs).', 'code', 'src/engines/index.ts:114-115');
 const AVP = 'tests/av-pairs.mjs; DOC 06-qa/av-pairs-tur2/av-{chromium,firefox,webkit}.json';

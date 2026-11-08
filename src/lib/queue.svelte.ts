@@ -2,9 +2,9 @@
 // "Convert": queued → running → done | failed | cancelled. Item fields follow the hi-fi data model (veri.js) so the
 // island templates map 1:1: n name, f FROM label, k kind, to TO label, i/o sizes in MB, dim, dur, st, p, eng.
 import { detect, targets, engineOf, outName, byId, type Format, type EngineKey } from '../engines/formats';
-import { run, probeAV, estimateOut, EngineError, type ErrCode, preview, release, sweepOpfs, dropSession, type Preview } from '../engines/index';
+import { run, probeAV, viaMediabunny, estimateOut, EngineError, type ErrCode, preview, release, sweepOpfs, dropSession, type Preview } from '../engines/index';
 import { manifest, savedEngines, removeSavedEngines, type EngineId } from '../engines/load-wasm';
-import { OPFS_OUT_MIN } from '../engines/limits';
+import { OPFS_OUT_MIN, MEDIABUNNY_TESTED_MAX } from '../engines/limits';
 
 export type St = 'needs' | 'ready' | 'queued' | 'running' | 'done' | 'cleared' | 'failed' | 'unsupported' | 'cancelled' | 'offline';
 export interface Item {
@@ -12,7 +12,7 @@ export interface Item {
   n: string; f: string; k: string; to: string | null; i: number; o: number | null; approx: boolean;
   dim: string | null; w: number | null; h: number | null; dur: number | null;
   st: St; p: number | null; eng: EngineKey | null; out: Blob | null; pv: Preview; outN: string | null; // pv: result preview (Ek B); outN: output file name (a PDF's pages arrive as name.zip)
-  block: { need: number; free: number } | null; error: ErrCode | null; empty: boolean; saved: boolean; pvGone: boolean; // pvGone: a preview existed and went with the OPFS copy (empty frame, same size)
+  block: { need: number; free: number } | null; warn: boolean; error: ErrCode | null; empty: boolean; saved: boolean; pvGone: boolean; // pvGone: a preview existed and went with the OPFS copy (empty frame, same size)
   targets: string[];
 }
 const MB = (b: number) => b / 1e6;
@@ -78,7 +78,7 @@ export async function add(files: FileList | File[], before?: (items: Item[]) => 
       to: null, i: MB(file.size), o: null, approx: false, dim: null, w: null, h: null, dur: null,
       st: fmt && targets(fmt).length && file.size ? 'needs' : 'unsupported', empty: file.size === 0, // a 0-byte file is never convertible: 'unsupported' + empty flag (own copy)
       p: null, eng: fmt ? engineOf(fmt) : null, out: null, pv: null, outN: null,
-      block: null, error: null, saved: false, pvGone: false, targets: fmt ? targets(fmt).map((t) => byId(t)!.label) : [],
+      block: null, warn: false, error: null, saved: false, pvGone: false, targets: fmt ? targets(fmt).map((t) => byId(t)!.label) : [],
     };
   });
   before?.(fresh);
@@ -91,13 +91,14 @@ export async function add(files: FileList | File[], before?: (items: Item[]) => 
 /** Choose / change the target. Re-runs the pre-checks (estimate, quota) every time (Ek D). */
 export async function setTarget(id: number, label: string) {
   const it = byIdItem(id); if (!it || !it.fmt || !['needs', 'ready', 'failed', 'cancelled'].includes(it.st)) return;
-  it.to = label; it.st = 'ready'; it.error = null; it.o = null; it.approx = false;
+  it.to = label; it.st = 'ready'; it.error = null; it.o = null; it.approx = false; it.warn = false;
   const to = label.toLowerCase();
   if (it.k === 'audio' || it.k === 'video') {
     import('../engines/ffmpeg').catch(() => {}); // warm the fallback wrapper: WebKit remembers a failed dynamic import until reload
     const pr = await probeAV(it.file, to);
     it.dur = pr.duration; if (pr.w) { it.w = pr.w; it.h = pr.h; }
     if (pr.duration) { it.o = MB(estimateOut(it.file.size, to, pr.duration)); it.approx = true; }
+    it.warn = it.file.size > MEDIABUNNY_TESTED_MAX && viaMediabunny(it.k, to, pr.ok); // ffmpeg path has its own hard stop (tooBig)
   }
   await checkQuota(it);
 }

@@ -56,16 +56,16 @@
   const sub = $derived(count ? null : byIdItem(subId));
 
   // ---- transitions of item state: live region, completing hold, t-show, count mode ----
-  const prev = new Map<number, { st: string; block: boolean }>();
+  const prev = new Map<number, { st: string; block: boolean; warn: boolean }>();
   let prevEngine: string | null = null;
   let engineSaid = false;
   // batch boundary (live.batch): the jobs one Convert press created + jobs that join while that batch still runs
   const batchIds = new Set<number>();
   let batchOpen = false;
   $effect(() => {
-    const items = q.items.map((i) => ({ i, st: i.st, block: !!i.block }));
+    const items = q.items.map((i) => ({ i, st: i.st, block: !!i.block, warn: i.warn }));
     const running = q.items.filter(isJob).length;
-    for (const { i, st, block } of items) {
+    for (const { i, st, block, warn } of items) {
       const p = prev.get(i.id);
       if (!p) {
         live?.say(i.empty ? fmt(t.live.empty, { name: i.n }) : st === 'unsupported' ? fmt(t.live.unsupported, { name: i.n, ext: i.f }) : fmt(st === 'needs' ? t.live.needs : t.live.added, { name: i.n, size: x.say(i.i) }));
@@ -78,7 +78,8 @@
         if (st === 'failed') live?.failed(i.n, (name) => { const w = i.error && (t.err.tag as Record<string, string>)[i.error]; return w ? fmt(t.live.failedWhy, { name, why: w }) : fmt(t.live.failed, { name }); }, (f, names) => fmt(t.live.failedN, { f, names }));
       }
       if (block && !p?.block) live?.say(fmt(t.live.blocked, { name: i.n, size: x.say(i.i) }));
-      prev.set(i.id, { st, block });
+      if (warn && !block && !p?.warn) live?.say(fmt(t.live.warned, { name: i.n, size: x.say(i.i) }));
+      prev.set(i.id, { st, block, warn });
     }
     if (!running) batchOpen = false;
     const e = q.engine?.key ?? null;
