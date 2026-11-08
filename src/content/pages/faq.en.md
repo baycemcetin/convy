@@ -46,6 +46,6 @@ Convy recognizes a file by its contents, not by the letters after the dot. A HEI
 
 Convy is free, has no ads and asks for no account. It is open source under GPL-3.0; see [About](/about/#licenses) for every engine and its license.
 
-## How is Convy different from VERT?
+## How is Convy different from other browser converters?
 
-VERT is another open-source converter that runs engines like ffmpeg and ImageMagick in the browser through WebAssembly, and so does Convy. The differences: Convy is written from scratch under GPL-3.0, with no code taken from VERT. Convy converts video only in the browser; a video job either runs on this device or isn't offered. And Convy is designed to show you what loads, how the job is going and what you got.
+Other open-source converters also run engines like ffmpeg and ImageMagick in the browser through WebAssembly, and so does Convy. The differences: Convy is written from scratch under GPL-3.0, with no code taken from another project. Convy converts video only in the browser; a video job either runs on this device or isn't offered. And Convy is designed to show you what loads, how the job is going and what you got.

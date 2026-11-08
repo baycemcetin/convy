@@ -11,14 +11,17 @@ const HEAD: Record<Lang, string[]> = { en: ['Type', 'From', 'To'], tr: ['Tür', 
 const NAME: Record<string, string | Record<Lang, string>> = {
   jxl: 'JPEG XL', jp2: 'JPEG 2000', md: 'Markdown', webp: 'WebP', webm: 'WebM', opus: 'Opus', ts: 'MPEG-TS', ipynb: 'Jupyter (IPYNB)', txt: { en: 'Plain text', tr: 'Düz metin' },
 };
-const name = (id: string, l: Lang) => { const n = NAME[id]; return n ? (typeof n === 'string' ? n : n[l]) : ALL.find((f) => f.id === id)!.label; };
+export const name = (id: string, l: Lang) => { const n = NAME[id]; return n ? (typeof n === 'string' ? n : n[l]) : ALL.find((f) => f.id === id)!.label; };
 const esc = (s: string) => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
 const KINDS: Kind[] = ['image', 'audio', 'video', 'document', 'pdf'];
 
+/** per category: input and output format ids, from the same lists the converter reads */
+export const catIds = (k: Kind) => ({ from: ALL.filter((f) => f.kind === k && !f.outOnly).map((f) => f.id), to: [...new Set([...OUT[k], ...(MORE_OUT[k] ?? [])])] });
+
 export const formatRows = (l: Lang) => KINDS.map((k) => [
   CHROME[l].cat[k],
-  ALL.filter((f) => f.kind === k && !f.outOnly).map((f) => name(f.id, l)).join(', '),
-  [...new Set([...OUT[k], ...(MORE_OUT[k] ?? [])])].map((id) => name(id, l)).join(', '),
+  catIds(k).from.map((id) => name(id, l)).join(', '),
+  catIds(k).to.map((id) => name(id, l)).join(', '),
 ]);
 export const formatTable = (l: Lang) =>
   `<table class="fmt"><thead><tr>${HEAD[l].map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${formatRows(l).map((r) => `<tr>${r.map((c, i) => `<td data-l="${esc(HEAD[l][i])}">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;

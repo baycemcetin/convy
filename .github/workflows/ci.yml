@@ -104,5 +104,5 @@ jobs:
             preview.log
           if-no-files-found: ignore
 
-  # deploy: intentionally absent. Cloudflare Pages is set up outside CI until Cem's account settings land;
+  # deploy: intentionally absent. Cloudflare Workers (DECISIONS 2026-11-08) is set up outside CI until Cem's account settings land;
   # add a `deploy` job here (needs: [build, e2e], main only, environment: production) after approval.

@@ -46,6 +46,6 @@ Convy dosyayı noktadan sonraki harflere göre değil, içeriğine göre tanır.
 
 Convy ücretsizdir, reklam göstermez ve hesap istemez. GPL-3.0 ile açık kaynaktır; her motor ve lisansı için [Hakkında](/tr/hakkinda/#lisanslar) sayfasına bak.
 
-## Convy'nin VERT'ten farkı ne?
+## Convy'nin diğer tarayıcı dönüştürücülerinden farkı ne?
 
-VERT de ffmpeg ve ImageMagick gibi motorları WebAssembly ile tarayıcıda çalıştıran açık kaynak bir dönüştürücü; Convy de öyle. Farklar şunlar: Convy sıfırdan, GPL-3.0 ile yazıldı ve VERT'ten kod almaz. Convy videoyu yalnızca tarayıcıda dönüştürür; bir video işi ya bu cihazda yapılır ya da hiç sunulmaz. Ve Convy, neyin indiğini, işin nasıl gittiğini ve elinde ne olduğunu göstermek üzere tasarlandı.
+WebAssembly ile ffmpeg ve ImageMagick gibi motorları tarayıcıda çalıştıran başka açık kaynak dönüştürücüler de var; Convy de öyle. Farklar şunlar: Convy sıfırdan, GPL-3.0 ile yazıldı ve başka bir projeden kod almaz. Convy videoyu yalnızca tarayıcıda dönüştürür; bir video işi ya bu cihazda yapılır ya da hiç sunulmaz. Ve Convy, neyin indiğini, işin nasıl gittiğini ve elinde ne olduğunu göstermek üzere tasarlandı.

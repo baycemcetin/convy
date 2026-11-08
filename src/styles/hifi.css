@@ -300,6 +300,9 @@ svg.arw.xl{ width:120px; }
 .fv-l{ grid-column:1 / span 6; display:flex; flex-direction:column; justify-content:space-between; gap:var(--s7); position:relative; }
 .fv-wm{ display:flex; align-self:flex-start; } .fv-wm svg{ height:56px; width:auto; display:block; }
 .fv-say{ font:var(--w-medium) var(--h2)/var(--lh-h2) var(--font-ui); letter-spacing:var(--tracking-heading); max-width:13ch; text-wrap:balance; }
+.fv-b{ display:grid; gap:var(--s5); } /* proof sits above the credit line, pushed down from the statement by .fv-l's space-between */
+.fv-by{ display:inline-flex; align-items:center; gap:.4em; }
+.fv-zw{ display:inline-flex; } .fv-zw svg{ height:1.9em; width:auto; display:block; } /* the mark carries fine detail: reads at ~1.9em, centred on the x-height */
 .fv-meta{ display:flex; flex-wrap:wrap; align-items:center; gap:0 var(--s5); }
 .fv-r{ grid-column:7 / -1; display:grid; gap:var(--s5); align-content:start; position:relative; z-index:1; }
 .fv-cols{ display:flex; flex-wrap:wrap; gap:var(--s5) var(--s9); }
