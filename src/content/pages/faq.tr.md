@@ -24,7 +24,7 @@ O dosya türünün motoru bir kez iner: görsel için yaklaşık 5 MB, ses ve vi
 
 ## Çevrimdışı çalışır mı?
 
-Gereken motor saklıysa ve Convy sayfası zaten açıksa evet. Sayfanın kendisi bağlantı olmadan açılamaz. Hazırlanmak için dönüştürücüdeki Bu cihaz panelinden tüm motorları sakla; panel önce indirme boyutunu gösterir.
+Gereken motor saklıysa evet. Dönüştürücü sayfası ilk ziyaretten sonra bu tarayıcıya saklanır, bu yüzden bağlantı olmadan da açılır; diğer sayfalar bağlantı ister. Hazırlanmak için dönüştürücüdeki Bu cihaz panelinden tüm motorları sakla; panel önce indirme boyutunu gösterir.
 
 ## iPhone'da ve Safari'de çalışır mı?
 

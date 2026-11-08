@@ -24,7 +24,7 @@ The engine for that kind of file downloads once: about 5 MB for images, 10 MB fo
 
 ## Does it work offline?
 
-Yes, once the engine you need is saved and the Convy page is already open. The page itself can't be opened without a connection. To prepare, save all engines from the This device panel on the converter; it shows the download size first.
+Yes, once the engine you need is saved. The converter page is stored in this browser after your first visit, so it opens without a connection too; other pages need one. To prepare, save all engines from the This device panel on the converter; it shows the download size first.
 
 ## Does it work on iPhone and in Safari?
 

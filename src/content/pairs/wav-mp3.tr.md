@@ -18,7 +18,7 @@ faq:
   - q: "Süre değişiyor mu?"
     a: "Denememizde değişmedi: örnek WAV ile MP3'ünün süresi üç tarayıcıda da aynıydı. Test dosyalarımız kısaydı; uzun kayıtlarda MP3 kodlayıcısının eklediği dolgu süreyi saniyenin küçük bir kesri kadar uzatabilir, bunu ölçmedik."
   - q: "İnternet olmadan çevirebilir miyim?"
-    a: "Ses ve video motoru bir kez indirilip kaydedildikten sonra, sayfa zaten açıksa dönüşümler bağlantı olmadan da çalışır. Sayfanın kendisi şimdilik çevrimdışı açılamıyor; bu yüzden onu internete bağlıyken aç."
+    a: "Ses ve video motoru bir kez indirilip kaydedildikten sonra dönüşümler bağlantı olmadan da çalışır. Bu sayfa çevrimdışı için saklanmaz ama Convy ana sayfası saklanır: bağlantı yokken ana sayfayı açıp orada dönüştür."
 factRefs: [lossy, quality, metadata, path, download, offline, limits.0, limits.1, limits.2, extra.0]
 ---
 WAV her örneği saklar; MP3 ise kulağın en az fark edeceği kısmı atar. Kayıp tam bu adımda ve yalnızca bir kez yaşanır. Convy LAME ile değişken bit hızında, 2 kalite ayarında kodlar; ortalama 190 kbps civarına düşer. Sakin bölümler daha az, kalabalık bölümler daha çok bit alır. Ayar sabittir, arayüzden değiştirilemez.

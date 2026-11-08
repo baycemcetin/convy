@@ -40,7 +40,7 @@ When a job fails anyway, the message says why and what to try, and your original
 
 <h2 id="offline">Offline</h2>
 
-Once an engine is saved, conversions that use it keep working without a connection, as long as the Convy page is already open. The page itself isn't stored for offline use, so it can't be opened without a connection.
+Once an engine is saved, conversions that use it keep working without a connection. The converter page itself is stored in this browser after your first visit, so it opens offline too; other pages, like this one, need a connection. The This device panel says what is ready offline.
 
 To prepare before going offline, open the This device panel on the converter and save all engines; it shows the download size first. Browsers can remove saved engines when storage runs low, and Safari may remove them after seven days without a visit. A removed engine downloads again the next time a file needs it.
 
