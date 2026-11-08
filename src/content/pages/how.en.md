@@ -40,9 +40,9 @@ When a job fails anyway, the message says why and what to try, and your original
 
 <h2 id="offline">Offline</h2>
 
-Once an engine is saved, conversions that use it keep working without a connection. The converter page itself is stored in this browser after your first visit, so it opens offline too; other pages, like this one, need a connection. The This device panel says what is ready offline.
+Once an engine is saved, conversions that use it keep working without a connection. After your first visit, this browser also stores the converter page, so it opens offline too. Other pages, like this one, are not stored and need a connection. To check, open the This device panel on the converter: its Offline line says which kinds of file are ready.
 
-To prepare before going offline, open the This device panel on the converter and save all engines; it shows the download size first. Browsers can remove saved engines when storage runs low, and Safari may remove them after seven days without a visit. A removed engine downloads again the next time a file needs it.
+To prepare before going offline, open the This device panel on the converter and save all engines; it shows the download size first. Browsers can remove saved engines and the stored page when storage runs low, and Safari may remove them after seven days without a visit. A removed engine downloads again the next time a file needs it, and the page is stored again on your next visit.
 
 <h2 id="check">Check it yourself</h2>
 

@@ -40,9 +40,9 @@ Bir iş yine de başarısız olursa mesaj nedenini ve ne deneyebileceğini söyl
 
 <h2 id="offline">Çevrimdışı</h2>
 
-Bir motor saklandıktan sonra, onu kullanan dönüşümler bağlantı olmadan da çalışır. Dönüştürücü sayfası ilk ziyaretten sonra bu tarayıcıya saklanır, bu yüzden çevrimdışı da açılır; bu sayfa gibi diğer sayfalar bağlantı ister. Neyin çevrimdışı hazır olduğunu Bu cihaz paneli söyler.
+Bir motor saklandıktan sonra, onu kullanan dönüşümler bağlantı olmadan da çalışır. İlk ziyaretten sonra dönüştürücü sayfası bu tarayıcıda saklanır; böylece çevrimdışı da açılır. Bu sayfa gibi diğer sayfalar saklanmaz; onları açmak için bağlantı gerekir. Kontrol etmek için dönüştürücüdeki Bu cihaz panelini aç: Çevrimdışı satırı hangi dosya türlerinin hazır olduğunu söyler.
 
-Çevrimdışı kalmadan önce hazırlanmak için dönüştürücüdeki Bu cihaz panelini aç ve tüm motorları sakla; panel önce indirme boyutunu gösterir. Depolama azalınca tarayıcılar saklanan motorları silebilir; Safari, 7 gün ziyaret etmezsen de silebilir. Silinen motor, bir dosya ona ihtiyaç duyduğunda yeniden iner.
+Çevrimdışı kalmadan önce hazırlanmak için dönüştürücüdeki Bu cihaz panelini aç ve tüm motorları sakla; panel önce indirme boyutunu gösterir. Depolama azalınca tarayıcılar saklanan motorları ve sayfayı silebilir; Safari, 7 gün ziyaret etmezsen de silebilir. Silinen motor, bir dosya ona ihtiyaç duyduğunda yeniden iner; sayfa da bir sonraki ziyaretinde yeniden saklanır.
 
 <h2 id="check">Kendin kontrol et</h2>
 
