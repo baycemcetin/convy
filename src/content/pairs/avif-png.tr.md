@@ -1,7 +1,7 @@
 ---
 draft: false
-intro: "AVIF'i açmayan bir tasarım aracında, düzenleyicide ya da sunumda kullanman mı gerekiyor? AVIF görsellerini seç, Convy bu cihazda PNG kopyalarını yazsın. Şeffaflık korunur, ek kayıp olmaz, GPS konumu dahil EXIF silinir. Dosyaların büyümesini bekle."
-metaHook: "şeffaflık korunur, ek kayıp yok; AVIF açmayan araçlar için"
+intro: "AVIF'i açmayan bir tasarım aracında, düzenleyicide ya da sunumda kullanman mı gerekiyor? AVIF görsellerini seç, Convy PNG kopyalarını senin cihazında yazsın. Şeffaflık korunur, ek kayıp olmaz, GPS konumu dahil EXIF silinir. Dosyalar belirgin biçimde büyür."
+metaHook: "AVIF açmayan araçlar için: şeffaflık korunur, yeni kayıp eklenmez"
 steps:
   - "AVIF görsellerini seç ya da sayfaya bırak."
   - "Hedefte PNG zaten seçili gelir."
@@ -11,7 +11,7 @@ limits:
   - "Fotoğraflarda PNG çoğu zaman kaynaktan çok daha büyük olur; JPG ile yaptığımız denemede 1,2 MB, 11,8 MB'a çıktı."
 faq:
   - q: "Saydam arka plan saydam kalır mı?"
-    a: "Kalır. PNG'nin alfa kanalı var; tam ya da yarı saydam pikseller şeffaflıklarını korur, bunu öz denetim testimizin PNG çıktısında kontrol ettik. Dekupe bir AVIF, PNG'de de dekupe kalır ve istediğin renkte bir zemine konabilir."
+    a: "Kalır. PNG'nin alfa kanalı var; tam ya da yarı saydam pikseller şeffaflıklarını korur; kendi test dosyamızın PNG çıktısında da durum buydu. Dekupe bir AVIF, PNG'de de dekupe kalır ve istediğin renkte bir zemine konabilir."
   - q: "Kalite düşer mi?"
     a: "Bu adımda düşmez. PNG kayıpsızdır ve kalite ayarı yoktur; Convy AVIF'ten çözdüğü pikselleri olduğu gibi yazar. AVIF ilk kaydedildiğinde ne kaybettiyse o kayıp kalır, PNG üstüne yenisini eklemez."
   - q: "PNG ne kadar büyük olur?"

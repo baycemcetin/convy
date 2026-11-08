@@ -1,11 +1,11 @@
 ---
 draft: false
-intro: "Bir siteden kaydettiğin resim çoğu zaman WebP çıkar; eski düzenleyiciler, baskı hizmetleri ve birçok web formu bu dosyayı kabul etmez. WebP dosyalarını seç, Convy bu cihazda JPG'ye çevirsin. Saydam alanlar beyaz olur, hareketli bir WebP'den ilk kare alınır."
+intro: "Bir siteden kaydettiğin resim çoğu zaman WebP çıkar; eski düzenleyiciler, baskı hizmetleri ve birçok web formu bu dosyayı kabul etmez. WebP dosyalarını seç, Convy onları bu cihazda JPG'ye çevirsin. Saydam alanlar beyaz olur, hareketli bir WebP'den ilk kare alınır."
 metaHook: "WebP açmayan program ve formlar için; hareketli dosyada ilk kare kalır"
 steps:
   - "WebP görsellerini seç ya da sayfaya bırak."
   - "Hedefte JPG zaten seçili gelir."
-  - "Dönüştür'e bas, sonra JPG dosyalarını kaydet."
+  - "Dönüştür'e bas, ardından JPG dosyalarını kaydet."
 limits:
   - "250 megapikselin üstündeki görseller reddedilir; iPhone ve iPad'de sınır 100 megapiksel."
   - "Hareketli bir WebP'den tek bir durağan JPG çıkar; diğer kareler dönüştürülmez."
@@ -13,9 +13,9 @@ faq:
   - q: "Hareketli bir WebP kaydettim. JPG'de ne görünür?"
     a: "Yalnız ilk kare. Convy dosyadaki ilk görüntüyü okur ve onu çevirir; animasyonun geri kalanı kullanılmaz. JPG hareketi hiçbir şekilde saklayamaz, hareket gerekiyorsa WebP'yi olduğu gibi tut."
   - q: "Dekupe edilmiş arka plan neden beyaz oluyor?"
-    a: "Çünkü JPG'de şeffaflığı saklayacak bir yer yok. Convy dosyayı yazmadan önce saydam ya da yarı saydam her pikseli beyazın üstüne yerleştirir; bunu saydam bir test görseliyle doğruladık. Dekupenin saydam kalmasını istiyorsan hedef olarak PNG'yi seç."
+    a: "Çünkü JPG'de şeffaflığı saklayacak bir yer yok. Convy dosyayı yazmadan önce saydam ya da yarı saydam her pikseli beyazın üstüne yerleştirir; saydam bir test görselinin çıktısı da bunu gösterdi. Dekupenin saydam kalmasını istiyorsan hedef olarak PNG'yi seç."
   - q: "JPG'de kalite düşer mi?"
-    a: "Biraz. JPG kayıplıdır ve Convy onu 85 kalitede yazar, değiştirecek bir ayar yok. WebP de kayıplıysa JPG bunun üstüne ikinci bir sıkıştırma turu ekler. Her pikselin önemli olduğu düzenlemeler için kayıpsız olan PNG'ye çevir."
+    a: "Biraz. JPG kayıplıdır ve Convy onu 85 kalitede yazar, değiştirecek bir ayar yok. WebP de kayıplıysa JPG bunun üstüne ikinci bir sıkıştırma ekler. Her pikselin önemli olduğu düzenlemeler için kayıpsız olan PNG'ye çevir."
 factRefs: [lossy, quality, transparency, animation, metadata, path, extra.0, extra.1, limits.0]
 ---
 WebP'nin yapabildiği üç şeyi JPG yapamaz: şeffaflık, hareket ve kayıpsız sıkıştırma. Convy üçünü de sabit bir kurala göre çözer, değiştirmek için seçenek yok.

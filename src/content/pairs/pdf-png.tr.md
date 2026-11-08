@@ -1,11 +1,11 @@
 ---
 draft: false
-intro: "PNG, çizilen her sayfayı kayıplı sıkıştırma olmadan saklar; yazı, şema ve slayt sayfaları için uygun bir hedef. PDF dosyanı seç, Convy bu cihazda her sayfayı PNG olarak çizsin. Birden çok sayfa, her sayfaya bir görselle tek bir ZIP'te gelir."
+intro: "PNG, çizilen her sayfayı kayıplı sıkıştırma olmadan saklar; yazı, şema ve slayt sayfaları için uygun bir hedef. PDF dosyanı seç; belge cihazından çıkmadan Convy her sayfayı PNG olarak çizsin. Birden çok sayfa, her sayfaya bir görselle tek bir ZIP'te gelir."
 metaHook: "yazı ve şemalar için kayıpsız sayfa görselleri, çok sayfada ZIP"
 steps:
   - "PDF dosyalarını seç ya da sayfaya bırak."
   - "Hedefte PNG zaten seçili gelir."
-  - "Dönüştür'e bas, sonra PNG'yi ya da çok sayfalı belgenin ZIP'ini kaydet."
+  - "Dönüştür'e bas, ardından PNG'yi ya da çok sayfalı belgenin ZIP'ini kaydet."
 limits:
   - "Parola korumalı PDF'ler parola uyarısıyla durur; parolayı girecek bir yer yok."
   - "Her dosya için süre sınırı 120 saniye, artı PDF'nin her megabaytı için 2 saniye."

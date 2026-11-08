@@ -1,11 +1,11 @@
 ---
 draft: false
-intro: "Kısa bir klibin bazen videonun oynamadığı bir yerde dönmesi gerekir: bir sohbette, bir hata kaydında, bir sunumda ya da bir e-postada. MP4 dosyalarını seç, Convy bu cihazda her birini saniyede 12 kare, 480 piksel genişlikte ve sessiz, hareketli bir GIF'e çevirsin."
+intro: "Kısa bir klibin bazen videonun oynamadığı bir yerde dönmesi gerekir: bir sohbette, bir hata kaydında, bir sunumda ya da bir e-postada. MP4 dosyalarını seç, Convy her birini cihazından çıkarmadan saniyede 12 kare, 480 piksel genişlikte ve sessiz, hareketli bir GIF'e çevirsin."
 metaHook: "saniyede 12 kare ve 480 piksel genişlikte, sesi atılmış hareketli bir GIF"
 steps:
   - "Kısa bir MP4 klip seç ya da sayfaya bırak."
   - "Hedefte GIF zaten seçili gelir."
-  - "Dönüştür'e bas, sonra GIF'i kaydet."
+  - "Dönüştür'e bas, ardından GIF'i kaydet."
 limits:
   - "Convy başlamadan önce GIF'i 3000 kbps üzerinden tahmin eder; tahmini 1 GB'ı (iPhone ve iPad'de 500 MB'ı) geçen klip reddedilir. Bu, aşağı yukarı 44 dakikalık videoya denk gelir."
   - "Bir dönüşüm 120 saniye ve girdinin her MB'ı için 2 saniye dolunca durdurulur."
@@ -27,4 +27,4 @@ GIF her karede en fazla 256 renk saklar. Convy önce klibin kendisinden bir pale
 
 Ses silinir, çünkü GIF ses taşıyamaz. Klibin sesine ihtiyacın varsa onu video olarak bırak.
 
-Bu dönüşüm her tarayıcıda FFmpeg motorundan geçer. Örnek MP4'ümüz 875 487 baytlık bir GIF oldu; Chromium, Firefox ve WebKit'te bayt bayt aynı dosya çıktı, süre saniyenin yüzde biri kadar değişti. Motor ilk seferde iner, yaklaşık 10 MB tutar ve bu cihazda saklanır.
+Bu dönüşüm her tarayıcıda FFmpeg motorundan geçer. Örnek MP4'ümüz 875 487 baytlık bir GIF oldu; Chromium, Firefox ve WebKit'te bayt bayt aynı dosya çıktı, süre saniyenin yüzde biri kadar değişti. Motor ilk seferde iner, yaklaşık 10 MB tutar ve tarayıcıda saklanır.

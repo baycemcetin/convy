@@ -1,11 +1,11 @@
 ---
 draft: false
-intro: "Bir form ya da kurum PDF istediğinde PNG bir ekran görüntüsü ya da tarama işe yaramaz. PNG dosyalarını seç, Convy bu cihazda her birini kendi PDF sayfasına koysun. Pikseller kayıpsız girer, saydam alanlar saydam kalır."
+intro: "Bir form ya da kurum PDF istediğinde PNG bir ekran görüntüsü ya da tarama işe yaramaz. PNG dosyalarını seç, Convy her birini telefonunda ya da bilgisayarında kendi PDF sayfasına koysun. Pikseller kayıpsız girer, saydam alanlar saydam kalır."
 metaHook: "kayıpsız pikseller, korunan şeffaflık, her görsele bir sayfa"
 steps:
   - "PNG görsellerini seç ya da sayfaya bırak."
   - "Hedefte PDF zaten seçili gelir."
-  - "Dönüştür'e bas, sonra her görsel için çıkan PDF'yi kaydet."
+  - "Dönüştür'e bas, ardından her görsel için çıkan PDF'yi kaydet."
 limits:
   - "Bir PNG'den tek sayfalık bir PDF çıkar; birden çok görsel tek belgede birleştirilmez."
   - "16 bitlik PNG'ler PDF'de kanal başına 8 bite indirilir."

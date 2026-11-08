@@ -1,15 +1,15 @@
 ---
 draft: false
-intro: "Bitmiş bir kayıt, ses kartından alınmış bir vokal ya da dışa aktarılmış bir miks çoğunlukla WAV'dır: eksiksizdir ama göndermesi zahmetlidir. WAV dosyalarını seç, Convy bu cihazda her birini ortalaması 190 kbps civarında olan değişken bit hızlı bir MP3'e çevirsin."
-metaHook: "ortalama 190 kbps hızında bir MP3, başlık ve sanatçı ID3 etiketine geçer"
+intro: "Bitmiş bir kayıt, ses arayüzüyle kaydedilmiş bir vokal ya da dışa aktarılmış bir miks çoğunlukla WAV'dır: eksiksizdir ama göndermek zahmetlidir. WAV dosyalarını seç, Convy her birini bilgisayarında, ortalaması 190 kbps civarında olan değişken bit hızlı bir MP3'e çevirsin."
+metaHook: "ortalama 190 kbps'lik bir MP3, başlık ve sanatçı ID3 etiketine geçer"
 steps:
   - "WAV kayıtlarını seç ya da sayfaya bırak."
   - "Hedefte MP3 zaten seçili gelir."
   - "Dönüştür'e bas, ardından MP3 dosyalarını kaydet."
 limits:
-  - "Çıktının boyutu başlamadan önce tahmin edilir; 1 GB'ı (iPhone ve iPad'de 500 MB'ı) geçerse dosya reddedilir. 190 kbps hızda bu, yaklaşık 11,7 saatlik sese karşılık gelir."
+  - "Çıktının boyutu başlamadan önce tahmin edilir; 1 GB'ı (iPhone ve iPad'de 500 MB'ı) geçerse dosya reddedilir. 190 kbps'de bu, yaklaşık 11,7 saatlik sese karşılık gelir."
   - "Her dönüşüm 120 saniye ve WAV'ın her MB'ı için 2 saniye dolunca durdurulur."
-  - "İlk dönüşümde ses ve video motoru bir kez iner (yaklaşık 10 MB) ve bu cihazda saklanır."
+  - "İlk dönüşümde ses ve video motoru bir kez iner (yaklaşık 10 MB) ve tarayıcıda saklanır."
 faq:
   - q: "320 kbps seçebilir miyim?"
     a: "Hayır. Bit hızı bir ayar değil: LAME'in değişken modu 2 kalitesinde hızı an an kendisi belirler, ortalaması 190 kbps civarındadır. Arayüzde bunun için bir düğme yok, sabit bit hızı seçeneği de sunulmuyor."

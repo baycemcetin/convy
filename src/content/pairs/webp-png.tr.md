@@ -1,6 +1,6 @@
 ---
 draft: false
-intro: "Webden kaydedilen görselleri işe yarar kılan iki şeyi PNG korur: saydam zemini ve pikselleri. WebP dosyalarını seç, Convy bu cihazda PNG'ye çevirsin; WebP açmayan düzenleyiciler ve sunum araçları için hazır olur. Hareketli bir WebP'nin ilk karesi durağan PNG olarak çıkar."
+intro: "Webden kaydedilen görselleri işe yarar kılan iki şeyi PNG korur: saydam zemini ve pikselleri. WebP dosyalarını seç, Convy onları senin cihazında PNG'ye çevirsin; WebP açmayan düzenleyiciler ve sunum araçları için hazır olur. Hareketli bir WebP'nin ilk karesi durağan PNG olarak çıkar."
 metaHook: "şeffaflık korunur, ek kayıp olmaz; WebP açmayan araçlar için hazır"
 steps:
   - "WebP görsellerini seç ya da sayfaya bırak."
@@ -8,7 +8,7 @@ steps:
   - "Dönüştür'e bas, ardından PNG dosyalarını kaydet."
 limits:
   - "250 megapikselin üstündeki görseller, iPhone ve iPad'de 100 megapikselin üstündekiler reddedilir."
-  - "İlk dönüşümde görsel motoru bir kez iner, yaklaşık 5 MB; sonraki seferler için bu cihazda saklanır."
+  - "İlk dönüşümde görsel motoru bir kez iner, yaklaşık 5 MB; sonraki seferler için tarayıcıda saklanır."
 faq:
   - q: "Saydam zemin korunur mu?"
     a: "Korunur. PNG şeffaflığı saklayabilir ve Convy onu olduğu gibi aktarır; tamamen ya da kısmen saydam pikseller aynı kalır. Webden alınan logo, ikon ve dekupe görsellerde PNG'yi JPG'ye tercih etmenin asıl nedeni de bu."
@@ -18,7 +18,7 @@ faq:
     a: "İlk karesinden tek bir durağan PNG yapılır. Diğer kareler hiç okunmaz, çünkü buradaki çıktı tek bir görseldir. Animasyon hâlâ lazımsa, örneğin bir sohbet ya da web sayfası için, özgün WebP'yi sakla."
 factRefs: [lossy, quality, transparency, animation, metadata, path, extra.0, extra.1, download]
 ---
-WebP'nin saydam bir zemini varsa doğru hedef PNG'dir. Şeffaflık korunur: bir siteden kaydedilmiş logo, ikon ya da dekupe ürün görseli saydam kalır ve sunumda, belgede ya da tasarım dosyasında istediğin rengin üstüne konabilir. Bunu saydam bir test görseliyle sınadık.
+WebP'nin saydam bir zemini varsa doğru hedef PNG'dir. Şeffaflık korunur: bir siteden kaydedilmiş logo, ikon ya da dekupe ürün görseli saydam kalır ve sunumda, belgede ya da tasarım dosyasında istediğin rengin üstüne konabilir. Saydam bir test görselinde de zemin saydam kaldı.
 
 PNG kayıpsızdır; dönüşümün kendisi kaliteden bir şey götürmez, seçilecek bir ayar da yok. Ama kayıplı bir WebP'nin sıkıştırmasını geri almaz: o pikseller olduğu gibi kopyalanır, özgündeki yumuşaklık da kalır. Dosya genellikle büyür, bazen epey; PNG yer kazanmak için ayrıntı atmaz.
 

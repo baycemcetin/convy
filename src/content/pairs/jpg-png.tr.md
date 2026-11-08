@@ -1,6 +1,6 @@
 ---
 draft: false
-intro: "Bazı düzenleyiciler, formlar ve tasarım araçları PNG ister; düzenleyeceğin bir fotoğrafı da daha fazla kayıp olmadan saklamak iyidir. JPG dosyalarını seç, Convy bu cihazda PNG kopyalarını yazsın. Dosyaların çok büyümesini bekle; kamera bilgileri ve GPS konumu silinir."
+intro: "Bazı düzenleyiciler, formlar ve tasarım araçları PNG ister; düzenleyeceğin bir fotoğrafı da daha fazla kayıp olmadan saklamak iyidir. JPG dosyalarını seç, Convy PNG kopyalarını telefonunda ya da bilgisayarında yazsın. Dosyalar çok büyür; kamera bilgileri ve GPS konumu silinir."
 metaHook: "düzenlerken ek kayıp yok, karşılığında dosya epey büyür"
 steps:
   - "JPG dosyalarını seç ya da sayfaya bırak."
@@ -15,7 +15,7 @@ faq:
   - q: "PNG neden bu kadar büyük?"
     a: "PNG her pikseli kayıplı sıkıştırma olmadan saklar, fotoğraflar da bu yolla pek küçülmez. Denememizde 12 megapiksellik, 1,2 MB'lık bir JPG, PNG olarak 11,8 MB tuttu. Oran fotoğrafa göre değişir; önce tek bir dosyayla dene."
   - q: "GPS konumu ve kamera bilgileri kalıyor mu?"
-    a: "Hayır. GPS konumuyla birlikte EXIF silinir; XMP, IPTC ve yorumlar da gider. Her birini bir test JPG'siyle tek tek kontrol ettik. İstisna renk profili: PNG'de kalır, böylece renkler kaymaz."
+    a: "Hayır. GPS konumuyla birlikte EXIF silinir; XMP, IPTC ve yorumlar da gider. Bir test JPG'sinde her biri tek tek kontrol edildi. İstisna renk profili: PNG'de kalır, böylece renkler kaymaz."
   - q: "Büyük bir fotoğraf ne kadar sürer?"
     a: "Tarayıcı testlerimizde 15 megapiksellik bir JPG, tarayıcıya göre 4,6 ile 5,6 saniye arasında PNG'ye dönüştü. Senin cihazın daha hızlı ya da yavaş olabilir. İlk dönüşüm ayrıca görsel motorunun, yaklaşık 5 MB, bir kez inmesini bekler."
 factRefs: [lossy, quality, metadata, extra.0, extra.1, extra.2, limits.0, download]

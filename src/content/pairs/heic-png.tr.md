@@ -1,11 +1,11 @@
 ---
 draft: false
-intro: "Fotoğrafı düzenleyecek, kırpacak ya da üstüne yazı ekleyeceksen PNG her pikseli olduğu gibi tutar. iPhone'dan gelen HEIC dosyalarını seç; Convy bu cihazda kayıpsız PNG kopyalar üretir. Konum ve kamera bilgileri kopyaya geçmez, renk profili kalır."
+intro: "Fotoğrafı düzenleyecek, kırpacak ya da üstüne yazı ekleyeceksen PNG her pikseli olduğu gibi tutar. iPhone'dan gelen HEIC dosyalarını seç; Convy, fotoğraflar cihazından çıkmadan kayıpsız PNG kopyalar üretir. Konum ve kamera bilgileri kopyaya geçmez, renk profili kalır."
 metaHook: "düzenlemeye hazır kayıpsız kopya, konum ve kamera bilgisi olmadan"
 steps:
   - "HEIC dosyalarını seç ya da sayfaya bırak."
   - "Hedefte PNG zaten seçili gelir."
-  - "Dönüştür'e bas, sonra PNG dosyalarını kaydet."
+  - "Dönüştür'e bas, ardından PNG dosyalarını kaydet."
 limits:
   - "250 megapikselin üstündeki görseller, iPhone ve iPad'de 100 megapikselin üstündekiler, cihazın belleği tükenmesin diye reddedilir."
   - "Tam boy fotoğrafların PNG kopyası HEIC'ten çok daha fazla yer kaplar; bütün bir albümden önce tek dosyayla dene."

@@ -1,11 +1,11 @@
 ---
 draft: false
-intro: "Bir PDF sayfasını paylaşmak, sunuma koymak ya da mesajla göndermek için resim olarak mı istiyorsun? PDF dosyanı seç, Convy bu cihazda her sayfayı JPG olarak çizsin. Birden çok sayfalı bir belge, numaralı görsellerden oluşan tek bir ZIP olarak gelir."
-metaHook: "her sayfa bir JPG; çok sayfalı belgeler tek ZIP olarak gelir"
+intro: "Bir PDF sayfasını paylaşmak, sunuma koymak ya da mesajla göndermek için resim olarak mı istiyorsun? PDF dosyanı seç, Convy her sayfayı tarayıcında JPG olarak çizsin. Birden çok sayfalı bir belge, numaralı görsellerden oluşan tek bir ZIP olarak gelir."
+metaHook: "her sayfa bir JPG, çok sayfalı belgeler tek ZIP olarak gelir"
 steps:
   - "PDF dosyalarını seç ya da sayfaya bırak."
   - "Hedefte JPG zaten seçili gelir."
-  - "Dönüştür'e bas, sonra JPG'yi kaydet; çok sayfalı belgede ZIP'i."
+  - "Dönüştür'e bas, ardından JPG'yi kaydet; çok sayfalı belgede ZIP'i."
 limits:
   - "Parola korumalı PDF'ler parola uyarısıyla durur; parolayı girip açma seçeneği yok."
   - "Her dosya için süre sınırı 120 saniye, artı PDF'nin her megabaytı için 2 saniye."

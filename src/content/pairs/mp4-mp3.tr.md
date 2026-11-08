@@ -1,22 +1,22 @@
 ---
 draft: false
-intro: "Bazen videonun tek işi sesi taşımaktır: kaydedilmiş bir konuşma, bir ders, birinin klip olarak gönderdiği bir şarkı. MP4 dosyalarını seç, Convy bu cihazda sesini MP3 olarak ayırsın. Görüntü dışarıda kalır, yalnızca ses izi kodlanır."
+intro: "Bazen videonun tek işi sesi taşımaktır: kaydedilmiş bir konuşma, bir ders, birinin klip olarak gönderdiği bir şarkı. MP4 dosyalarını seç, Convy sesini tarayıcında MP3 olarak ayırsın. Görüntü dışarıda kalır, yalnızca ses izi kodlanır."
 metaHook: "yalnızca ses izi, ortalaması 190 kbps civarında olan standart bir MP3"
 steps:
   - "MP4 videolarını seç ya da sayfaya bırak."
   - "Hedefte MP3 zaten seçili gelir."
   - "Dönüştür'e bas, ardından MP3 dosyalarını kaydet."
 limits:
-  - "Convy başlamadan önce çıktının boyutunu süreden ve bit hızından tahmin eder; tahmin 1 GB'ı (iPhone ve iPad'de 500 MB'ı) geçerse dosya reddedilir. 190 kbps hızda bu, yaklaşık 11,7 saatlik sese denk gelir."
+  - "Convy başlamadan önce çıktının boyutunu süreden ve bit hızından tahmin eder; tahmin 1 GB'ı (iPhone ve iPad'de 500 MB'ı) geçerse dosya reddedilir. 190 kbps'de bu, yaklaşık 11,7 saatlik sese denk gelir."
   - "Bir dönüşüm 120 saniye ve girdinin her MB'ı için 2 saniye dolunca durdurulur."
-  - "İlk dönüşümde ses ve video motoru bir kez iner (yaklaşık 10 MB) ve sonraki seferler için bu cihazda saklanır."
+  - "İlk dönüşümde ses ve video motoru bir kez iner (yaklaşık 10 MB) ve sonraki seferler için saklanır."
 faq:
   - q: "Video MP3'ün içinde bir yerde kalıyor mu?"
     a: "Kalmıyor. Ses kodlanmadan önce video izi ayrılır, MP3'te yalnızca ses bulunur. MP4'e eklenmiş bir kapak resmi varsa o da gelmez. Görüntüye yeniden ihtiyacın olacaksa MP4'ü de sakla."
   - q: "Daha yüksek bir bit hızı seçebilir miyim?"
     a: "Hayır. Kodlayıcı tek ve sabit bir değişken bit hızı ayarıyla çalışır, ortalaması 190 kbps civarındadır; arayüzde bunun için bir düğme yok. Sessiz bölümler daha az, yoğun bölümler daha çok bit alır, bu yüzden gerçek hız dosyadan dosyaya değişir."
   - q: "Şarkı adı ve sanatçı müzik çalarımda görünür mü?"
-    a: "Başlık, sanatçı ve albüm MP3'e ID3 etiketi olarak kopyalanır; müzik çalarlar bu etiketleri okur. Bunu etiketli WAV ve M4A dosyalarıyla Chromium, Firefox ve WebKit'te denedik. Albüm kapağı istisna: aktarılmaz, istersen çalarında yeniden ekleyebilirsin."
+    a: "Başlık, sanatçı ve albüm MP3'e ID3 etiketi olarak kopyalanır; müzik çalarlar bu etiketleri okur. Etiketli WAV ve M4A dosyalarıyla yapılan testte Chromium, Firefox ve WebKit'in üçünde de etiketler geldi. Albüm kapağı istisna: aktarılmaz, istersen çalarında yeniden ekleyebilirsin."
   - q: "Safari'de çalışıyor mu?"
     a: "Örnek dosyamız Safari'nin motoru WebKit'te de, Chromium ve Firefox'ta da dönüştü; üçü de aynı MP3'ü verdi. Ses çıktısı her tarayıcıda aynı FFmpeg motoruyla üretilir. Denemeleri Playwright'ın tarayıcı sürümlerinde yaptık; Google Chrome'da ve iPhone'da denemedik."
 factRefs: [lossy, quality, metadata, path, download, limits.0, limits.1, limits.2, extra.0, extra.1]
