@@ -3,7 +3,7 @@
   // Stage subject rule (veri.js): oldest running job; else the file that needs attention; else the last result. A row's name button
   // pins a file (T1). The stage keeps a subject ≥ 1200 ms; ≥ 2 completions inside that window switch it to count mode (HAREKET §3.1).
   import { onMount, tick, type Snippet } from 'svelte';
-  import { q, add, setTarget, applyToKind, convert, stop, stopAll, retry, remove, stage, save, share, saveZip, reconvert, refreshDevice, removeEngines, byIdItem, type Item } from '../lib/queue.svelte';
+  import { q, add, setTarget, applyToKind, convert, stop, stopAll, retry, remove, stage, save, share, saveZip, reconvert, refreshDevice, removeEngines, byIdItem, jobs, type Item } from '../lib/queue.svelte';
   import { formatter, fmt } from '../lib/fmt';
   import { announcer } from '../lib/live';
   import { T, d } from '../lib/motion';
@@ -25,6 +25,7 @@
   let DP = $state<typeof DevicePanel>();
   const dpLoad = () => import('./DevicePanel.svelte').then((m) => (DP = m.default));
   let panelOpen = $state(false);
+  let busy = $state(false);
   let menuOpen = $state(false);
   let dragging = $state(false);
   let touch = $state(false);
@@ -142,9 +143,14 @@
   const stageActs = { choose, convert: doConvert, stop, stopAll: doStopAll, save, share, reconvert, retry: doRetry, remove: doRemove, pick, removeEngines };
   const logActs = { add: choose, stopAll: doStopAll, saveZip, save, reconvert, retry: doRetry, remove: doRemove, stage: doStage, pick };
   const delays = new Map<number, number>();
-  const delay = (id: number) => (delays.get(id) ?? 0) * T.stagger;
+  const delay = (id: number) => delays.get(id); // undefined: the row is not from the latest drop (no entry motion)
   function ingest(files: FileList | File[]) {
-    add(files, (fresh) => fresh.forEach((it, k) => delays.set(it.id, Math.min(k, 7)))); // stagger only inside one drop
+    delays.clear();
+    add(files, (fresh) => fresh.forEach((it, k) => delays.set(it.id, Math.min(k, 7)))).then(tick).then(() => { // stagger only inside one drop
+      // the hero's Choose files is gone or leaving: focus the format (checked chip, else the first) or the slot, never <body> (a11y Y2)
+      const a = document.activeElement, s = document.getElementById('stage');
+      if (s && (!a || a === document.body || a.matches('[data-testid=choose]'))) (s.querySelector<HTMLElement>('.tpick input:checked') || s.querySelector<HTMLElement>('.tpick input, #sg-act') || s).focus();
+    });
   }
 
   onMount(() => {
@@ -152,7 +158,7 @@
     w.__convyReady = true;
     if (w.__convyPending?.length) ingest(w.__convyPending.splice(0));
     refreshDevice();
-    ((window as any).requestIdleCallback || setTimeout)(() => dpLoad().catch(() => {})); // offline before the shell is cached: the chip press retries
+    ((window as any).requestIdleCallback || setTimeout)(() => { dpLoad().catch(() => {}); jobs().catch(() => {}); }); // offline before the shell is cached: the chip press retries
     touch = matchMedia('(pointer: coarse)').matches;
     document.addEventListener('touchstart', () => {}, { passive: true }); // iOS :active (HAREKET §11.5 b)
     let dragT = 0;
@@ -176,7 +182,13 @@
     {#if !q.online}<span class="tag-off"><i></i><span class="t1">{t.offline}</span></span>{/if}
     <a class="lang" href={alt} hreflang={other} lang={other}>{t.other}</a>
     <ThemeBtn label={t.themeBtn} />
-    <button class="chip-dev" type="button" bind:this={chipEl} aria-haspopup="dialog" aria-expanded={panelOpen} aria-controls="dp" aria-label={t.dev} onclick={async (e) => { if (panelOpen) return dp.close(); const k = e.detail === 0; await dpLoad(); await tick(); dp.show(k); }}><Icon n="device" s16 /><span class="t">{t.dev}</span></button>
+    <button class="chip-dev" type="button" bind:this={chipEl} aria-haspopup="dialog" aria-expanded={panelOpen} aria-controls="dp" aria-label={t.dev} aria-busy={busy || undefined} onclick={async (e) => {
+      if (panelOpen) return dp.close();
+      const k = e.detail === 0; busy = !DP;
+      try { await dpLoad(); } catch { live?.say(t.live.panelFail); return; } finally { busy = false; } // chunk unreachable: say so, focus stays on the chip
+      const a = document.activeElement; if (a && a !== chipEl && a !== document.body) return; // focus moved on while it loaded: do not steal it (a11y O1)
+      await tick(); dp.show(k);
+    }}><Icon n="device" s16 /><span class="t">{t.dev}</span></button>
     <button class="menu-btn" type="button" aria-label={t.menu} aria-expanded={menuOpen} aria-controls="nav" onclick={() => (menuOpen = !menuOpen)}><i></i></button>
   </div>
 </div></header>

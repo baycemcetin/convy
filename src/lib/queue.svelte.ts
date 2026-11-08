@@ -2,7 +2,9 @@
 // "Convert": queued → running → done | failed | cancelled. Item fields follow the hi-fi data model (veri.js) so the
 // island templates map 1:1: n name, f FROM label, k kind, to TO label, i/o sizes in MB, dim, dur, st, p, eng.
 import { detect, targets, engineOf, outName, byId, type Format, type EngineKey } from '../engines/formats';
-import { run, probeAV, estimateOut, EngineError, type ErrCode, preview, release, sweepOpfs, dropSession, type Preview } from '../engines/index';
+import { estimateOut, EngineError, type ErrCode, release, sweepOpfs, dropSession, type Preview } from '../engines/index';
+/** the job runner chunk (workers, run, preview): outside the island budget; App warms it at idle (WebKit keeps a failed dynamic import until reload) */
+export const jobs = () => import('../engines/jobs');
 import { manifest, savedEngines, removeSavedEngines, loadEngine, type EngineId } from '../engines/load-wasm';
 import { OPFS_OUT_MIN, MEDIABUNNY_TESTED_MAX } from '../engines/limits';
 
@@ -97,7 +99,7 @@ export async function setTarget(id: number, label: string) {
   const to = label.toLowerCase();
   if (it.k === 'audio' || it.k === 'video') {
     import('../engines/ffmpeg').catch(() => {}); // warm the fallback wrapper: WebKit remembers a failed dynamic import until reload
-    const pr = await probeAV(it.file, to);
+    const pr = await jobs().then((J) => J.probeAV(it.file, to), () => ({ ok: false, duration: null, w: null, h: null })); // chunk unreachable (offline, no SW yet): like a failed probe
     it.dur = pr.duration; if (pr.w) { it.w = pr.w; it.h = pr.h; }
     if (pr.duration) { it.o = MB(estimateOut(it.file.size, to, pr.duration)); it.approx = true; }
     it.warn = pr.ok && it.file.size > MEDIABUNNY_TESTED_MAX; // ffmpeg path has its own hard stop (tooBig)
@@ -143,7 +145,8 @@ async function exec(it: Item) {
   try {
     if ((globalThis as any).__convyFail) throw new EngineError((globalThis as any).__convyFail); // test hook (tests/reasons.mjs): fail with this reason code
     const to = it.to!.toLowerCase();
-    const r = await run(it.file, it.fmt!, to, outName(it.n, to), {
+    const J = await jobs();
+    const r = await J.run(it.file, it.fmt!, to, outName(it.n, to), {
       engine: (p) => { q.engine = p >= 1 ? null : { key: it.eng!, p }; },
       progress: (p) => { it.p = p; },
     }, ac.signal);
@@ -152,7 +155,7 @@ async function exec(it: Item) {
     if (r.w) { it.w = r.w; it.h = r.h!; it.dim = `${r.w} × ${r.h}`; }
     if (r.duration) it.dur = r.duration;
     it.outN = r.name ?? outName(it.n, to);
-    it.pv = await preview(r, to, ac.signal).catch(() => null);
+    it.pv = await J.preview(r, to, ac.signal).catch(() => null);
     it.st = 'done'; it.p = 1;
     if (!q.saved[ekey]) refreshDevice();
   } catch (e: any) {

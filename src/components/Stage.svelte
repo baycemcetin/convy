@@ -23,6 +23,8 @@
   const n = $derived(items.length);
   const view = $derived(sub ? viewOf(sub, completing, shown) : null);
   const k = $derived(count ? 'count' : sub ? `${sub.id}:${view}` : 'empty');
+  // the picker stays the same node from needs to ready, so the chosen radio keeps focus (a11y Y1)
+  const fk = $derived(sub && !count && (view === 'needs' || (view === 'ready' && !isJob(sub))) ? 'p' + sub.id : k);
   const pos = $derived(n > 1 && sub && !count ? [items.indexOf(sub) + 1, n] : null);
   const ready = $derived(readyCount());
   const jobs = $derived(items.filter(isJob).length);
@@ -158,7 +160,7 @@
     {/key}
 
     <div class="sg-foot">
-      {#key k}
+      {#key fk}
         {#if count}
           <span class="ruler" style="--n:{n}" aria-hidden="true" in:tin out:tout onoutrostart={pin}>{#each items as f (f.id)}<i class={f.st === 'done' ? 'd' : f.st === 'running' ? 'r' : ''}></i>{/each}</span>
         {:else if sub && (view === 'needs' || (view === 'ready' && !isJob(sub)))}
