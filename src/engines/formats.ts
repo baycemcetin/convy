@@ -8,13 +8,13 @@ export interface Format { id: string; label: string; kind: Kind; ext: string[]; 
 const F = (id: string, kind: Kind, mime: string, ext = [id], label = id.toUpperCase()): Format => ({ id, label, kind, ext, mime });
 
 export const FORMATS: Format[] = [
-  F('jpg', 'image', 'image/jpeg', ['jpg', 'jpeg', 'jfif']), F('png', 'image', 'image/png'), F('webp', 'image', 'image/webp'),
+  F('jpg', 'image', 'image/jpeg', ['jpg', 'jpeg', 'jfif', 'jpe']), F('png', 'image', 'image/png'), F('webp', 'image', 'image/webp'),
   F('avif', 'image', 'image/avif'), F('heic', 'image', 'image/heic', ['heic', 'heif']), F('gif', 'image', 'image/gif'),
-  F('bmp', 'image', 'image/bmp'), F('tiff', 'image', 'image/tiff', ['tif', 'tiff']), F('ico', 'image', 'image/x-icon'),
+  F('bmp', 'image', 'image/bmp'), F('tiff', 'image', 'image/tiff', ['tiff', 'tif']), F('ico', 'image', 'image/x-icon'),
   F('jxl', 'image', 'image/jxl'), F('psd', 'image', 'image/vnd.adobe.photoshop'),
-  F('mp3', 'audio', 'audio/mpeg'), F('wav', 'audio', 'audio/wav'), F('m4a', 'audio', 'audio/mp4', ['m4a', 'aac']),
+  F('mp3', 'audio', 'audio/mpeg'), F('wav', 'audio', 'audio/wav'), F('m4a', 'audio', 'audio/mp4'),
   F('ogg', 'audio', 'audio/ogg'), F('opus', 'audio', 'audio/opus'), F('flac', 'audio', 'audio/flac'),
-  F('mp4', 'video', 'video/mp4', ['mp4', 'm4v']), F('mov', 'video', 'video/quicktime'), F('webm', 'video', 'video/webm'),
+  F('mp4', 'video', 'video/mp4', ['mp4', 'm4v', 'f4v']), F('mov', 'video', 'video/quicktime'), F('webm', 'video', 'video/webm'),
   F('mkv', 'video', 'video/x-matroska'), F('avi', 'video', 'video/x-msvideo'),
   // documents (pandoc) · MIMARI §16: in DOCX ODT MD HTML EPUB RTF LaTeX; out DOCX ODT MD HTML EPUB TXT
   F('docx', 'document', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
@@ -27,7 +27,7 @@ export const FORMATS: Format[] = [
 export const byId = (id: string) => FORMATS.find((f) => f.id === id);
 
 // Outputs per input kind (MIMARI §16). Order of the first three = hi-fi target chips (veri.js TARGETS, design assumption D8).
-const OUT: Record<Kind, string[]> = {
+export const OUT: Record<Kind, string[]> = {
   image: ['jpg', 'png', 'webp', 'pdf', 'avif', 'gif', 'bmp', 'tiff', 'ico', 'jxl'],
   audio: ['mp3', 'm4a', 'flac', 'wav', 'ogg', 'opus'],
   video: ['mp4', 'webm', 'gif', 'mp3', 'm4a'],
@@ -39,14 +39,19 @@ export const engineOf = (f: Format): EngineKey => (f.kind === 'image' ? 'image' 
 
 // Content first (magic bytes, ./sniff, loaded on the first file), so a renamed file is still read as what it is; extension then MIME for text formats that have no
 // signature (md, html, tex) and as the tie-break inside one container family. `accept` is omitted on purpose (Ek D).
+// The long tail of formats (FORMAT-GENISLETME Dilim 1) rides in the same lazy chunk and joins FORMATS/OUT on the first detect: the island keeps its byte budget.
 const loadSniff = () => import('./sniff').catch(() => null); // offline before the chunk was fetched → extension only
 if (typeof window !== 'undefined') setTimeout(loadSniff, 2000); // warm it so a later offline add still reads content
+let more = false;
 export async function detect(file: File): Promise<Format | null> {
+  const sn = await loadSniff();
+  if (sn && !more) more = !!sn.register(FORMATS, OUT);
   const ext = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : '';
   const ins = FORMATS.filter((f) => !f.outOnly);
   const byExt = ins.find((f) => f.ext.includes(ext));
-  const seen = (await loadSniff())?.sniff(new Uint8Array(await file.slice(0, 128).arrayBuffer())) ?? [];
+  const seen = sn?.sniff(new Uint8Array(await file.slice(0, 4096).arrayBuffer())) ?? [];
   if (seen.length) return byId(byExt && seen.includes(byExt.id) ? byExt.id : seen[0])!;
+  if (sn?.NEED_SIG.has(ext)) return null; // .ts is TypeScript as often as MPEG-TS, .xml is any XML: only the bytes can say
   return byExt || ins.find((f) => f.mime === file.type) || null;
 }
-export const outName = (name: string, to: string) => name.replace(/\.[^.]+$/, '') + '.' + to;
+export const outName = (name: string, to: string) => name.replace(/\.[^.]+$/, '') + '.' + (byId(to)?.ext[0] ?? to);

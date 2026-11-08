@@ -8,8 +8,13 @@ import { jpegPdf, pixelsPdf } from './pdf-write';
 const FMT: Record<string, MagickFormat> = {
   jpg: MagickFormat.Jpeg, png: MagickFormat.Png, webp: MagickFormat.WebP, avif: MagickFormat.Avif, heic: MagickFormat.Heic,
   gif: MagickFormat.Gif, bmp: MagickFormat.Bmp, tiff: MagickFormat.Tiff, ico: MagickFormat.Ico, jxl: MagickFormat.Jxl, psd: MagickFormat.Psd,
+  // Dilim 1 (each read + write round-tripped in magick-wasm 0.0.46; Jp2 also reads a bare J2K codestream, Pnm/Pbm read any P1–P6)
+  qoi: MagickFormat.Qoi, jp2: MagickFormat.Jp2, tga: MagickFormat.Tga, exr: MagickFormat.Exr, hdr: MagickFormat.Hdr, dds: MagickFormat.Dds,
+  pcx: MagickFormat.Pcx, pbm: MagickFormat.Pbm, pgm: MagickFormat.Pgm, ppm: MagickFormat.Ppm, pnm: MagickFormat.Pnm, pam: MagickFormat.Pam,
+  cur: MagickFormat.Cur, xpm: MagickFormat.Xpm, xbm: MagickFormat.Xbm,
 };
-const NO_ALPHA = new Set(['jpg', 'bmp']);
+// formats without an alpha channel: flatten on white, otherwise transparent pixels keep whatever colour they hold (often black)
+const NO_ALPHA = new Set(['jpg', 'bmp', 'pbm', 'pgm', 'ppm', 'pcx', 'hdr']);
 // Privacy default (DECISIONS 2026-11-07): drop EXIF (GPS), XMP, IPTC/8BIM and comments after autoOrient; keep the ICC profile.
 // Not strip(): it also tells the PNG coder to skip iCCP, which would lose the profile we keep.
 const clean = (img: any) => {

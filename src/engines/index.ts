@@ -1,6 +1,6 @@
 // Engine registry (MIMARI §3): picks the engine per job and runs it. Image → magick worker; audio/video → Mediabunny
 // worker when WebCodecs can decode+encode the tracks, otherwise ffmpeg ST (HEVC MOV, GIF, MP3, old containers, no WebCodecs).
-import { FFMPEG_MEMFS_MAX_OUT, PREVIEW_DOWNSCALE_MP, JOB_TIMEOUT_MS, OPFS_OUT_MIN } from './limits';
+import { FFMPEG_MEMFS_MAX_OUT, PREVIEW_DOWNSCALE_MP, JOB_TIMEOUT_MS, OPFS_OUT_MIN, IMAGE_MAX_MP } from './limits';
 import { byId, type Format } from './formats';
 
 export interface RunResult { blob: Blob; w?: number | null; h?: number | null; duration?: number | null; engine: 'magick' | 'mediabunny' | 'ffmpeg' | 'pandoc' | 'pdfjs'; name?: string; }
@@ -87,6 +87,11 @@ export async function probeAV(file: File, to: string) {
 
 export async function run(file: File, from: Format, to: string, outName: string, hooks: RunHooks, signal: AbortSignal): Promise<RunResult> {
   if (from.kind === 'image') {
+    if (from.mime === 'image/svg+xml') { // SVG, SVGZ: the browser draws it (svg.ts); PNG out needs no engine
+      const r = await (await import('./svg')).svgToPng(file, from.id, IMAGE_MAX_MP);
+      if (to === 'png') return r;
+      file = r.file; from = byId('png')!;
+    }
     const w = magickW();
     signal.addEventListener('abort', () => { w.terminate(); magick = null; }, { once: true }); // only reliable stop
     const r = await call(w, { file, from: from.id, to }, hooks, signal);
@@ -130,9 +135,9 @@ export async function run(file: File, from: Format, to: string, outName: string,
 }
 
 /** Output size estimate where it can be computed (duration × target bit rate); null otherwise. */
-const KBPS: Record<string, number> = { mp3: 190, m4a: 192, ogg: 160, opus: 128, flac: 900, wav: 1411, mp4: 2600, webm: 1700, gif: 3000 };
+const KBPS: Record<string, number> = { mp3: 190, m4a: 192, ogg: 160, opus: 128, flac: 900, wav: 1411, mp4: 2600, webm: 1700, gif: 3000, aiff: 1411, apng: 8000, webp: 1500 };
 export function estimateOut(inBytes: number, to: string, duration: number | null) {
-  return duration ? (duration * KBPS[to] * 1000) / 8 : inBytes;
+  return duration ? (duration * (KBPS[to] ?? 192) * 1000) / 8 : inBytes; // 192: AAC, AC-3, WMA, M4B (ffmpeg.ts bit rates)
 }
 
 // FORMATS holds each MIME; only the output-specific ones differ (charset, Opus in Ogg)
@@ -142,12 +147,12 @@ export const mime = (to: string) => MIME[to] || byId(to)?.mime || 'application/o
 /** Result-card preview (MIMARI Ek B): img for browser-native images (magick downscale above PREVIEW_DOWNSCALE_MP), magick PNG for
  *  TIFF/JXL, audio/video only when canPlayType says yes, first 64 KB of MD/TXT as text. Everything else: no preview. */
 export type Preview = { kind: 'img' | 'audio' | 'video'; url: string } | { kind: 'text'; text: string } | null;
-const NATIVE_IMG = new Set(['png', 'jpg', 'webp', 'gif', 'bmp', 'ico', 'avif']);
+const NATIVE_IMG = new Set(['png', 'jpg', 'webp', 'gif', 'bmp', 'ico', 'avif', 'apng']);
 export async function preview(r: RunResult, to: string, signal: AbortSignal): Promise<Preview> {
   if (r.name) return null; // ZIP of pages
   const big = (r.w ?? 0) * (r.h ?? 0) > PREVIEW_DOWNSCALE_MP * 1e6;
   if (NATIVE_IMG.has(to) && !big) return { kind: 'img', url: URL.createObjectURL(r.blob) };
-  if (NATIVE_IMG.has(to) || to === 'tiff' || to === 'jxl') {
+  if (NATIVE_IMG.has(to) || byId(to)?.kind === 'image') { // TIFF, JXL, QOI, TGA, EXR…: magick draws a PNG
     // the job's signal: Stop/remove during this downscale terminates magick (run's abort hook); without it this call never settles and the image runner stalls
     const p = await call(magickW(), { file: r.blob, from: to, to: 'png', maxSide: 1600 }, {}, signal).catch(() => null);
     return p ? { kind: 'img', url: URL.createObjectURL(new Blob([p.out], { type: 'image/png' })) } : null;

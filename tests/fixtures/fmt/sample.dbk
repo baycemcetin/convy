@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE article>
+<article
+  xmlns="http://docbook.org/ns/docbook" version="5.0"
+  xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <info>
+    <title>Convy test</title>
+  </info>
+  <section xml:id="convy-test">
+    <title>Convy test</title>
+    <para>
+      A short document with <emphasis role="strong">bold</emphasis>
+      text, a list and a table. Türkçe: ğüşıöçİ.
+    </para>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          one
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          two
+        </para>
+      </listitem>
+    </itemizedlist>
+    <informaltable>
+      <tgroup cols="2">
+        <colspec align="left" />
+        <colspec align="left" />
+        <thead>
+          <row>
+            <entry>
+              a
+            </entry>
+            <entry>
+              b
+            </entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry>
+              1
+            </entry>
+            <entry>
+              2
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+  </section>
+</article>

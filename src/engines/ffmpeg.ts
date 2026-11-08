@@ -11,6 +11,12 @@ const ARGS: Record<string, string[]> = {
   mp3: ['-vn', '-c:a', 'libmp3lame', '-q:a', '2'], m4a: ['-vn', '-c:a', 'aac', '-b:a', '192k'],
   wav: ['-vn', '-c:a', 'pcm_s16le'], flac: ['-vn', '-c:a', 'flac'], ogg: ['-vn', '-c:a', 'libvorbis', '-q:a', '5'],
   opus: ['-vn', '-c:a', 'libopus', '-b:a', '128k'],
+  // Dilim 1: the extension picks the muxer (.aac adts, .aiff, .m4b ipod, .wma asf, .apng, .webp)
+  aac: ['-vn', '-c:a', 'aac', '-b:a', '192k'], aiff: ['-vn', '-c:a', 'pcm_s16be'], m4b: ['-vn', '-c:a', 'aac', '-b:a', '192k'],
+  ac3: ['-vn', '-c:a', 'ac3', '-b:a', '192k', '-ar', '48000'], // the AC-3 encoder takes 32/44.1/48 kHz only
+  wma: ['-vn', '-c:a', 'wmav2', '-b:a', '192k'],
+  apng: ['-vf', 'fps=12,scale=480:-1:flags=lanczos', '-an', '-plays', '0'],
+  webp: ['-vf', 'fps=12,scale=480:-1:flags=lanczos', '-an', '-c:v', 'libwebp_anim', '-q:v', '70', '-loop', '0'],
 };
 
 export async function ffmpegConvert(file: File, to: string, outName: string, on: { engine?: (p: number) => void; progress?: (p: number) => void }, signal: AbortSignal): Promise<Uint8Array> {

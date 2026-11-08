@@ -162,11 +162,11 @@
         {#if count}
           <span class="ruler" style="--n:{n}" aria-hidden="true" in:tin out:tout onoutrostart={pin}>{#each items as f (f.id)}<i class={f.st === 'done' ? 'd' : f.st === 'running' ? 'r' : ''}></i>{/each}</span>
         {:else if sub && (view === 'needs' || (view === 'ready' && !isJob(sub)))}
-          <div in:tin out:tout onoutrostart={pin}><Picker it={sub} legend={kindIsBatch ? t.batch.target : t.pick.legend} more={t.pick.more} onpick={(l) => acts.pick(sub!, l)} /></div>
+          <div in:tin out:tout onoutrostart={pin}><Picker it={sub} legend={kindIsBatch ? t.batch.target : t.pick.legend} more={t.pick.more} kinds={t.panel.kinds} onpick={(l) => acts.pick(sub!, l)} /></div>
         {:else if view === 'engine'}
           <span class="ebar" data-volt="engine" aria-hidden="true" style="--p:{engP}" in:tin out:tout onoutrostart={pin}><i></i></span>
         {:else if view === 'block' && sub}
-          <div class="blk" in:tin out:tout onoutrostart={pin}><Picker it={sub} legend={t.pick.legend} more={t.pick.more} onpick={(l) => acts.pick(sub!, l)} /></div>
+          <div class="blk" in:tin out:tout onoutrostart={pin}><Picker it={sub} legend={t.pick.legend} more={t.pick.more} kinds={t.panel.kinds} onpick={(l) => acts.pick(sub!, l)} /></div>
           <div class="notice bare" id="q-notice" in:tin out:tout onoutrostart={pin}><Icon n="storage" /><span class="h">{t.quota.h}</span><p class="data" style="color:var(--c-ink)"><span class="sg">{fmt(t.quota.canUse, { size: x.size(sub.block!.free) })}</span></p><p>{t.quota.p}</p>{#if Object.values(q.saved).some(Boolean)}<div class="acts"><button class="btn sm quiet" type="button" onclick={acts.removeEngines}>{t.quota.acts[1]}</button></div>{/if}</div>
         {:else if view === 'cleared'}
           <span class="stx cl" in:tin out:tout onoutrostart={pin}><Icon n="storage" s16 cls="neu" />{t.st.cleared}</span>
