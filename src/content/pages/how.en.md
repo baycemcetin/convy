@@ -26,7 +26,7 @@ The engine runs in a background worker of this tab. The page shows real progress
 
 <h2 id="limits">Limits</h2>
 
-Convy sets no size cap of its own. The real limit is the memory and storage your browser gives this tab, and Convy checks what it can before a job starts:
+Convy's limits follow the memory and storage your browser gives this tab. They are there so a job doesn't fail halfway, and Convy checks them before it starts:
 
 - **Images** above 250 megapixels are refused, 100 megapixels on iPhone and iPad, so the tab doesn't run out of memory halfway.
 - **ffmpeg jobs** are refused before they start when the estimated result is larger than 1 GB, 500 MB on iPhone and iPad. A job that runs past 2 minutes plus 2 seconds for each MB of input is stopped.

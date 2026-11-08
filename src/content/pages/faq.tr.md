@@ -12,7 +12,7 @@ Görsel (PNG, JPG, WebP, AVIF, HEIC, GIF, BMP, TIFF, ICO, JPEG XL ve düzleştir
 
 ## Dosya boyutu sınırı var mı?
 
-Convy kendi tarafından bir boyut sınırı koymaz. Sınır, tarayıcının bu sekmeye verdiği alandır: görsellerde 250 megapiksele kadar (iPhone ve iPad'de 100), ffmpeg sonuçlarında tahmini 1 GB'a kadar (iPhone ve iPad'de 500 MB). Bir dosya fazla gelecek gibiyse Convy bunu iş başlamadan söyler.
+Var, birkaç tane; sekmenin belleği işin ortasında bitmesin diye konuldu: görsellerde 250 megapiksele kadar (iPhone ve iPad'de 100), ffmpeg sonuçlarında tahmini 1 GB'a kadar (iPhone ve iPad'de 500 MB). Bir dosya fazla gelecek gibiyse Convy bunu iş başlamadan söyler.
 
 ## Dosyalarım nerede dönüştürülüyor?
 

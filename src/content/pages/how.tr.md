@@ -26,7 +26,7 @@ Motor bu sekmenin arka planında çalışır. Sayfa gerçek ilerlemeyi, ardında
 
 <h2 id="limits">Sınırlar</h2>
 
-Convy kendi tarafından bir boyut sınırı koymaz. Asıl sınır, tarayıcının bu sekmeye verdiği bellek ve depolama alanıdır; Convy bakabildiği her şeye iş başlamadan bakar:
+Convy'nin sınırları, tarayıcının bu sekmeye verdiği bellek ve depolama alanına göre konuldu. Amaç, bir işin yarıda kalmaması; Convy bunlara iş başlamadan bakar:
 
 - **Görseller:** 250 megapikselin üstü reddedilir, iPhone ve iPad'de 100 megapikselin üstü. Böylece sekmenin belleği işin ortasında tükenmez.
 - **ffmpeg işleri:** tahmini sonuç 1 GB'tan büyükse, iPhone ve iPad'de 500 MB'tan, iş başlamadan reddedilir. 2 dakikayı ve girdinin her MB'ı için 2 saniyeyi aşan iş durdurulur.

@@ -12,7 +12,7 @@ Images (PNG, JPG, WebP, AVIF, HEIC, GIF, BMP, TIFF, ICO, JPEG XL and flattened P
 
 ## Is there a file size limit?
 
-Convy sets no size cap of its own. The limit is what your browser gives this tab: images up to 250 megapixels (100 on iPhone and iPad), and ffmpeg results up to an estimated 1 GB (500 MB on iPhone and iPad). When a file is likely to be too much, Convy tells you before it starts.
+Yes, a few, set so the tab doesn't run out of memory halfway: images up to 250 megapixels (100 on iPhone and iPad), and ffmpeg results up to an estimated 1 GB (500 MB on iPhone and iPad). When a file is likely to be too much, Convy tells you before it starts.
 
 ## Where are my files converted?
 
